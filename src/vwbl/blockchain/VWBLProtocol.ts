@@ -18,7 +18,7 @@ export class VWBLNFT {
     // TODO: callBackを受け取って、トランザクションの終了をユーザに通知できるようにする
     const receipt = await this.contract.methods.mint(decryptUrl).send({from: myAddress});
     console.log("transaction end");
-    const tokenId = receipt.events.Transfer.returnValues.tokenId;
+    const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
   };
 

@@ -1,10 +1,11 @@
 import AWS from "aws-sdk";
 import { createRandomKey } from "../util/cryptoHelper";
-import { FileContent, UploadFilesRetVal } from "../common/types/File";
+import { FileContent, FileType, UploadFilesRetVal } from "../common/types/File";
 import { AWSConfig } from "./types";
+import { PlainMetadata } from "../vwbl/metadata/type";
 
-export const uploadAll = async (plainData: FileContent, thumbnailImage: FileContent, encryptedContent: string, awsConfig: AWSConfig ) : Promise<UploadFilesRetVal> =>  {
-  if(!awsConfig.bucketName.image){
+export const uploadAll = async (plainData: FileContent, thumbnailImage: FileContent, encryptedContent: string, awsConfig: AWSConfig): Promise<UploadFilesRetVal> => {
+  if (!awsConfig.bucketName.image) {
     throw new Error("bucket is not specified.")
   }
   const key = createRandomKey();
@@ -25,8 +26,29 @@ export const uploadAll = async (plainData: FileContent, thumbnailImage: FileCont
       Body: encryptedContent,
       ContentType: "image",
     }
-  })
+  });
   const thumbnailData = await uploadThumbnail.promise();
   const thumbnailImageUrl = `${awsConfig.cloudFrontUrl}/${thumbnailData.Key}`;
   return {encryptedDataUrl, thumbnailImageUrl}
-}
+};
+
+export const uploadMetadata = async (tokenId: number, name: string, description: string, previewImageUrl: string, encryptedDataUrl: string, fileType: FileType, awsConfig: AWSConfig): Promise<void> => {
+  if (!awsConfig.bucketName.metadata) {
+    throw new Error("bucket is not specified.")
+  }
+  const metadata: PlainMetadata = {
+    name,
+    description,
+    image: previewImageUrl,
+    encrypted_data: encryptedDataUrl,
+    file_type: fileType,
+  };
+  const upload = new AWS.S3.ManagedUpload({
+    params: {
+      Bucket: awsConfig.bucketName.metadata,
+      Key: `metadata/${tokenId}`,
+      Body: metadata,
+    }
+  });
+  await upload.promise();
+};
