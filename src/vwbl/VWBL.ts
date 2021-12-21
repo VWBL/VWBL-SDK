@@ -1,17 +1,17 @@
 import Web3 from "web3";
 import AWS from "aws-sdk";
-import { VWBLNFT } from "../blockchain/VWBLProtocol";
-import ManageKeyType from "../types/ManageKeyType";
-import UploadImageType from "../types/UploadImageType";
-import UploadMetadataType from "../types/UploadMetadataType";
-import VWBLApi from "../api/VWBLApi";
-import { createRandomKey, decrypt, encrypt } from "../../util/cryptoHelper";
-import { AWSConfig } from "../../aws/types";
-import { FileContent, FileType, UploadFile, UploadMetadata } from "../../common/types/File";
-import { uploadAll, uploadMetadata } from "../../aws/upload";
-import { signToGetKey, signToSetKey } from "../blockchain/Sign";
+import { VWBLNFT } from "./blockchain/VWBLProtocol";
+import ManageKeyType from "./types/ManageKeyType";
+import UploadImageType from "./types/UploadImageType";
+import UploadMetadataType from "./types/UploadMetadataType";
+import VWBLApi from "./api/VWBLApi";
+import { createRandomKey, decrypt, encrypt } from "../util/cryptoHelper";
+import { AWSConfig } from "../aws/types";
+import { FileContent, FileType, UploadFile, UploadMetadata } from "../common/types/File";
+import { uploadAll, uploadMetadata } from "../aws/upload";
+import { signToGetKey, signToSetKey } from "./blockchain/Sign";
 import axios from "axios";
-import { ExtractMetadata } from "../metadata/type";
+import { ExtractMetadata } from "./metadata/type";
 
 export type ConstructorProps = {
   web3: Web3;
@@ -55,9 +55,11 @@ export class VWBL {
   }
 
   sign = async () => {
-    this.getKeySign = await signToGetKey(this.opts.web3)
-    this.setKeySign = await signToSetKey(this.opts.web3)
+    this.getKeySign = await signToGetKey(this.opts.web3);
+    this.setKeySign = await signToSetKey(this.opts.web3);
   };
+
+  hasSign = () => this.getKeySign && this.setKeySign;
 
   createToken = async (name: string, description: string, plainData: FileContent, fileType: FileType, thumbnailImage: FileContent, uploadFileCallback?: UploadFile, uploadMetadataCallBack?: UploadMetadata) => {
     if (!this.setKeySign) {

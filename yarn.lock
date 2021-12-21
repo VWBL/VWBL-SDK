@@ -2584,6 +2584,15 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
+vwbl-sdk@../VWBL-SDK/:
+  version "1.0.0"
+  dependencies:
+    aws-sdk "^2.1046.0"
+    axios "^0.24.0"
+    crypto-js "^4.1.1"
+    uuid "^8.3.2"
+    web3 "^1.6.1"
+
 web3-bzz@1.6.1:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/web3-bzz/-/web3-bzz-1.6.1.tgz#8430eb3cbb69baaee4981d190b840748c37a9ec2"
