@@ -31,7 +31,7 @@ export type CreateTokenProps = {
 
 export class VWBL {
   private nft: VWBLNFT;
-  private opts: VWBLOption;
+  public opts: VWBLOption;
   private api: VWBLApi;
   private getKeySign?: string;
   private setKeySign?: string;
