@@ -100,12 +100,12 @@ export class VWBL {
     await this.api.setKey(tokenId, key, this.setKeySign);
   };
 
-  getOwnTokens = async () => {
+  getOwnTokens = async () : Promise<ExtractMetadata[]> => {
     if (!this.getKeySign) {
       throw ("please sign first")
     }
     const ownTokenIds = await this.nft.getOwnTokenIds();
-    const ownTokens = (await Promise.all(ownTokenIds.map(this.extractMetadata.bind(this)))).filter(extractMetadata => extractMetadata != undefined);
+    const ownTokens = (await Promise.all(ownTokenIds.map(this.extractMetadata.bind(this)))).filter(extractMetadata => extractMetadata !== undefined) as ExtractMetadata[];
     return ownTokens;
   };
 

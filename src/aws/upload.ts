@@ -19,12 +19,14 @@ export const uploadAll = async (plainData: FileContent, thumbnailImage: FileCont
   });
   const encryptedData = await uploadEncrypted.promise();
   const encryptedDataUrl = `${awsConfig.cloudFrontUrl}/${encryptedData.Key}`;
+  const type = thumbnailImage.content.split(';')[0].split('/')[1];
   const uploadThumbnail = new AWS.S3.ManagedUpload({
     params: {
       Bucket: awsConfig.bucketName.image,
-      Key: `data/${key}-${plainData.name}`,
-      Body: encryptedContent,
-      ContentType: "image",
+      Key: `data/${key}-${thumbnailImage.name}`,
+      Body: thumbnailImage.content,
+      ContentEncoding: 'base64',
+      ContentType: `image/${type}`,
     }
   });
   const thumbnailData = await uploadThumbnail.promise();
