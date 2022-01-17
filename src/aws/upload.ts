@@ -3,6 +3,7 @@ import { createRandomKey } from "../util/cryptoHelper";
 import { FileContent, FileType, UploadFilesRetVal } from "../common/types/File";
 import { AWSConfig } from "./types";
 import { PlainMetadata } from "../vwbl/metadata/type";
+import { toBafferFromBase64 } from "../util/imageEditor";
 
 export const uploadAll = async (plainData: FileContent, thumbnailImage: FileContent, encryptedContent: string, awsConfig: AWSConfig): Promise<UploadFilesRetVal> => {
   if (!awsConfig.bucketName.image) {
@@ -24,8 +25,7 @@ export const uploadAll = async (plainData: FileContent, thumbnailImage: FileCont
     params: {
       Bucket: awsConfig.bucketName.image,
       Key: `data/${key}-${thumbnailImage.name}`,
-      Body: thumbnailImage.content,
-      ContentEncoding: 'base64',
+      Body: await toBafferFromBase64(thumbnailImage.content),
       ContentType: `image/${type}`,
     }
   });
