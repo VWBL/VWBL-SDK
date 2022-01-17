@@ -2,7 +2,7 @@ import Web3 from "web3";
 import { AbiItem } from "web3-utils";
 import { Contract } from "web3-eth-contract";
 
-import * as nftAbi from "../../contract/vwbl.abi.json";
+import nftAbi from "../../contract/vwbl.abi.json";
 
 export class VWBLNFT {
   private contract: Contract;

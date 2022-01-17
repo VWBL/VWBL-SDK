@@ -47,7 +47,8 @@ export const uploadMetadata = async (tokenId: number, name: string, description:
     params: {
       Bucket: awsConfig.bucketName.metadata,
       Key: `metadata/${tokenId}`,
-      Body: metadata,
+      Body: JSON.stringify(metadata),
+      ContentType: "application/json"
     }
   });
   await upload.promise();

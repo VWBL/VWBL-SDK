@@ -15,7 +15,7 @@ import { ExtractMetadata } from "./metadata/type";
 
 export type ConstructorProps = {
   web3: Web3;
-  address: string;
+  contractAddress: string;
   manageKeyType: ManageKeyType;
   uploadImageType: UploadImageType;
   uploadMetadataType: UploadMetadataType;
@@ -37,8 +37,8 @@ export class VWBL {
   private setKeySign?: string;
 
   constructor(props: ConstructorProps) {
-    const {web3, address, manageKeyType, uploadImageType, uploadMetadataType, awsConfig, vwblNetworkUrl} = props;
-    this.nft = new VWBLNFT(web3, address);
+    const {web3, contractAddress, manageKeyType, uploadImageType, uploadMetadataType, awsConfig, vwblNetworkUrl} = props;
+    this.nft = new VWBLNFT(web3, contractAddress);
     this.opts = props;
     this.api = new VWBLApi(vwblNetworkUrl);
     if (uploadImageType === UploadImageType.S3 || uploadMetadataType === UploadMetadataType.S3) {
@@ -56,7 +56,16 @@ export class VWBL {
 
   sign = async () => {
     this.getKeySign = await signToGetKey(this.opts.web3);
+    console.log("get signed")
+    const sleep = (ms: number): Promise<NodeJS.Timeout> => {
+      return new Promise(resolve => {
+        return setTimeout(resolve, ms)
+      })
+    };
+    // Hack: metamaskが連続してsignを呼ぶとバグるので１秒のthread sleepを入れている
+    await sleep(1000);
     this.setKeySign = await signToSetKey(this.opts.web3);
+    console.log("set signed")
   };
 
   hasSign = () => this.getKeySign && this.setKeySign;
@@ -71,14 +80,17 @@ export class VWBL {
     // 2. create key in frontend
     const key = createRandomKey();
     // 3. encrypt data
+    console.log("encrypt data")
     const encryptedContent = encrypt(plainData.content, key);
     // 4. upload data
+    console.log("upload data")
     const uploadAllFunction = uploadImageType === UploadImageType.S3 ? uploadAll : uploadFileCallback;
     if (!uploadAllFunction) {
       throw new Error("please specify upload file type or give callback")
     }
     const {encryptedDataUrl, thumbnailImageUrl} = await uploadAllFunction(plainData, thumbnailImage, encryptedContent, awsConfig);
     // 5. upload metadata
+    console.log("upload meta data")
     const uploadMetadataFunction = uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback")
@@ -93,7 +105,7 @@ export class VWBL {
       throw ("please sign first")
     }
     const ownTokenIds = await this.nft.getOwnTokenIds();
-    const ownTokens = (await Promise.all(ownTokenIds.map(this.extractMetadata.bind(this)))).filter(extractMetadata => extractMetadata != undefined)
+    const ownTokens = (await Promise.all(ownTokenIds.map(this.extractMetadata.bind(this)))).filter(extractMetadata => extractMetadata != undefined);
     return ownTokens;
   };
 
@@ -107,10 +119,13 @@ export class VWBL {
     if (!metadata) {
       return undefined;
     }
-    const encryptedData = (await axios.get(metadata.encrypted_image_url)).data;
+    const encryptedDataUrl = metadata.encrypted_image_url ?? metadata.encrypted_data;
+    // metadata.encrypted_image_url is deprecated
+    const encryptedData = (await axios.get(encryptedDataUrl)).data;
     const decryptKey = await this.api.getKey(tokenId, this.getKeySign);
     const ownData = decrypt(encryptedData, decryptKey);
-    const fileName = metadata.encrypted_data.split("/").slice(-1)[0].replace(".encrypted", "");
+    // .encrypted is deprecated
+    const fileName = encryptedDataUrl.split("/").slice(-1)[0].replace(/(.encrypted)|(.vwbl)/, "");
     return {
       id: tokenId,
       name: metadata.name,
