@@ -105,7 +105,7 @@ export class VWBL {
       throw ("please sign first")
     }
     const ownTokenIds = await this.nft.getOwnTokenIds();
-    const ownTokens = (await Promise.all(ownTokenIds.map(this.extractMetadata.bind(this)))).filter(extractMetadata => extractMetadata !== undefined) as ExtractMetadata[];
+    const ownTokens = (await Promise.all(ownTokenIds.map(this.extractMetadata.bind(this)))).filter((extractMetadata): extractMetadata is ExtractMetadata => extractMetadata !== undefined);
     return ownTokens;
   };
 
