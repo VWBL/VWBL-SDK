@@ -2,7 +2,7 @@ import Web3 from "web3";
 import AWS from "aws-sdk";
 import { VWBLNFT } from "./blockchain/VWBLProtocol";
 import ManageKeyType from "./types/ManageKeyType";
-import UploadImageType from "./types/UploadImageType";
+import UploadContentType from "./types/UploadContentType";
 import UploadMetadataType from "./types/UploadMetadataType";
 import VWBLApi from "./api/VWBLApi";
 import { createRandomKey, decrypt, encrypt } from "../util/cryptoHelper";
@@ -17,7 +17,7 @@ export type ConstructorProps = {
   web3: Web3;
   contractAddress: string;
   manageKeyType: ManageKeyType;
-  uploadImageType: UploadImageType;
+  uploadContentType: UploadContentType;
   uploadMetadataType: UploadMetadataType;
   awsConfig: AWSConfig;
   vwblNetworkUrl: string
@@ -37,11 +37,11 @@ export class VWBL {
   private setKeySign?: string;
 
   constructor(props: ConstructorProps) {
-    const {web3, contractAddress, manageKeyType, uploadImageType, uploadMetadataType, awsConfig, vwblNetworkUrl} = props;
+    const {web3, contractAddress, manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl} = props;
     this.nft = new VWBLNFT(web3, contractAddress);
     this.opts = props;
     this.api = new VWBLApi(vwblNetworkUrl);
-    if (uploadImageType === UploadImageType.S3 || uploadMetadataType === UploadMetadataType.S3) {
+    if (uploadContentType === UploadContentType.S3 || uploadMetadataType === UploadMetadataType.S3) {
       if (!awsConfig) {
         throw new Error("please specify S3 bucket.");
       }
@@ -74,7 +74,7 @@ export class VWBL {
     if (!this.setKeySign) {
       throw ("please sign first")
     }
-    const {manageKeyType, uploadImageType, uploadMetadataType, awsConfig, vwblNetworkUrl} = this.opts;
+    const {manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl} = this.opts;
     // 1. mint token
     const tokenId = await this.nft.mintToken(vwblNetworkUrl);
     // 2. create key in frontend
@@ -84,7 +84,7 @@ export class VWBL {
     const encryptedContent = encrypt(plainData.content, key);
     // 4. upload data
     console.log("upload data")
-    const uploadAllFunction = uploadImageType === UploadImageType.S3 ? uploadAll : uploadFileCallback;
+    const uploadAllFunction = uploadContentType === UploadContentType.S3 ? uploadAll : uploadFileCallback;
     if (!uploadAllFunction) {
       throw new Error("please specify upload file type or give callback")
     }
