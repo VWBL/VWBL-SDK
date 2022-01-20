@@ -19,7 +19,7 @@ export type ConstructorProps = {
   manageKeyType: ManageKeyType;
   uploadContentType: UploadContentType;
   uploadMetadataType: UploadMetadataType;
-  awsConfig: AWSConfig;
+  awsConfig?: AWSConfig;
   vwblNetworkUrl: string
 }
 

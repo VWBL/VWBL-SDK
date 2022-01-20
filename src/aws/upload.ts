@@ -5,8 +5,8 @@ import { AWSConfig } from "./types";
 import { PlainMetadata } from "../vwbl/metadata/type";
 import { toBafferFromBase64 } from "../util/imageEditor";
 
-export const uploadAll = async (plainData: FileContent, thumbnailImage: FileContent, encryptedContent: string, awsConfig: AWSConfig): Promise<UploadFilesRetVal> => {
-  if (!awsConfig.bucketName.content) {
+export const uploadAll = async (plainData: FileContent, thumbnailImage: FileContent, encryptedContent: string, awsConfig?: AWSConfig): Promise<UploadFilesRetVal> => {
+  if (! awsConfig || !awsConfig.bucketName.content) {
     throw new Error("bucket is not specified.")
   }
   const key = createRandomKey();
@@ -34,8 +34,8 @@ export const uploadAll = async (plainData: FileContent, thumbnailImage: FileCont
   return {encryptedDataUrl, thumbnailImageUrl}
 };
 
-export const uploadMetadata = async (tokenId: number, name: string, description: string, previewImageUrl: string, encryptedDataUrl: string, fileType: FileType, awsConfig: AWSConfig): Promise<void> => {
-  if (!awsConfig.bucketName.metadata) {
+export const uploadMetadata = async (tokenId: number, name: string, description: string, previewImageUrl: string, encryptedDataUrl: string, fileType: FileType, awsConfig?: AWSConfig): Promise<void> => {
+  if (!awsConfig || !awsConfig.bucketName.metadata) {
     throw new Error("bucket is not specified.")
   }
   const metadata: PlainMetadata = {
