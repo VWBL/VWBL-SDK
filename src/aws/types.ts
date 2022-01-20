@@ -2,7 +2,7 @@ export type AWSConfig= {
   region: string;
   idPoolId: string;
   bucketName: {
-    image?: string;
+    content?: string;
     metadata?: string;
   },
   cloudFrontUrl: string

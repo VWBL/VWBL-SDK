@@ -6,13 +6,13 @@ import { PlainMetadata } from "../vwbl/metadata/type";
 import { toBafferFromBase64 } from "../util/imageEditor";
 
 export const uploadAll = async (plainData: FileContent, thumbnailImage: FileContent, encryptedContent: string, awsConfig: AWSConfig): Promise<UploadFilesRetVal> => {
-  if (!awsConfig.bucketName.image) {
+  if (!awsConfig.bucketName.content) {
     throw new Error("bucket is not specified.")
   }
   const key = createRandomKey();
   const uploadEncrypted = new AWS.S3.ManagedUpload({
     params: {
-      Bucket: awsConfig.bucketName.image,
+      Bucket: awsConfig.bucketName.content,
       Key: `data/${key}-${plainData.name}.vwbl`,
       Body: encryptedContent,
       ContentType: "text/plain",
@@ -23,7 +23,7 @@ export const uploadAll = async (plainData: FileContent, thumbnailImage: FileCont
   const type = thumbnailImage.content.split(';')[0].split('/')[1];
   const uploadThumbnail = new AWS.S3.ManagedUpload({
     params: {
-      Bucket: awsConfig.bucketName.image,
+      Bucket: awsConfig.bucketName.content,
       Key: `data/${key}-${thumbnailImage.name}`,
       Body: await toBafferFromBase64(thumbnailImage.content),
       ContentType: `image/${type}`,
