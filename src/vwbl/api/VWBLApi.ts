@@ -9,7 +9,7 @@ export default class VWBLApi {
     await this.instance.post("/keys", { token_id: tokenId, key, signature });
   };
   getKey = async (tokenId: number, signature: string): Promise<string> => {
-    const response = await this.instance.get(`/keys/${tokenId}&signature=${signature}`);
+    const response = await this.instance.get(`/keys/${tokenId}?signature=${signature}`);
     return response.data.tokenKey;
   };
 }
