@@ -1,4 +1,4 @@
-export const enum UploadMetadataType {
+export enum UploadMetadataType {
   S3,
   // TODO: S3 is only in use now.
   IPFS,

@@ -1,4 +1,4 @@
-import { FileType } from "../../common/types/File";
+import { FileType } from "../types/File";
 
 // use snake case because OpenSea's metadata standard is snake case.
 export type PlainMetadata = {

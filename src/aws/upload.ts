@@ -1,6 +1,6 @@
 import AWS from "aws-sdk";
 import { createRandomKey } from "../util/cryptoHelper";
-import { FileContent, FileType, UploadFilesRetVal } from "../common/types/File";
+import { FileContent, FileType, UploadFilesRetVal } from "../vwbl/types/File";
 import { AWSConfig } from "./types";
 import { PlainMetadata } from "../vwbl/metadata/type";
 import { toBafferFromBase64 } from "../util/imageEditor";

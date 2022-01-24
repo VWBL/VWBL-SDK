@@ -1,4 +1,4 @@
-export const enum UploadContentType {
+export enum UploadContentType {
   S3,
   IPFS,
   CUSTOM,

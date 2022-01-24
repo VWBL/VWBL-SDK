@@ -3,7 +3,7 @@ import AWS from "aws-sdk";
 import { VWBLNFT } from "./blockchain/VWBLProtocol";
 import { createRandomKey, decrypt, encrypt } from "../util/cryptoHelper";
 import { AWSConfig } from "../aws/types";
-import { FileContent, FileType, UploadFile, UploadMetadata } from "../common/types/File";
+import { FileContent, FileType, UploadFile, UploadMetadata } from "./types/File";
 import { uploadAll, uploadMetadata } from "../aws/upload";
 import { signToGetKey, signToSetKey } from "./blockchain/Sign";
 import axios from "axios";
