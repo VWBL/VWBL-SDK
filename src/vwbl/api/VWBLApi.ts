@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export default class VWBLApi {
+export class VWBLApi {
   private instance;
   constructor(endpointUrl: string) {
     this.instance = axios.create({ baseURL: endpointUrl });

@@ -1,10 +1,6 @@
 import Web3 from "web3";
 import AWS from "aws-sdk";
 import { VWBLNFT } from "./blockchain/VWBLProtocol";
-import ManageKeyType from "./types/ManageKeyType";
-import UploadContentType from "./types/UploadContentType";
-import UploadMetadataType from "./types/UploadMetadataType";
-import VWBLApi from "./api/VWBLApi";
 import { createRandomKey, decrypt, encrypt } from "../util/cryptoHelper";
 import { AWSConfig } from "../aws/types";
 import { FileContent, FileType, UploadFile, UploadMetadata } from "../common/types/File";
@@ -12,6 +8,8 @@ import { uploadAll, uploadMetadata } from "../aws/upload";
 import { signToGetKey, signToSetKey } from "./blockchain/Sign";
 import axios from "axios";
 import { ExtractMetadata } from "./metadata/type";
+import { ManageKeyType, UploadContentType, UploadMetadataType } from "./types";
+import { VWBLApi } from "./api";
 
 export type ConstructorProps = {
   web3: Web3;
