@@ -5,7 +5,7 @@ import { createRandomKey, decrypt, encrypt } from "../util/cryptoHelper";
 import { AWSConfig } from "../aws/types";
 import { FileContent, FileType, UploadFile, UploadMetadata } from "./types/File";
 import { uploadAll, uploadMetadata } from "../aws/upload";
-import { signToGetKey, signToSetKey } from "./blockchain/Sign";
+import { signToProtocol } from "./blockchain/Sign";
 import axios from "axios";
 import { ExtractMetadata } from "./metadata/type";
 import { ManageKeyType, UploadContentType, UploadMetadataType } from "./types";
@@ -31,8 +31,7 @@ export class VWBL {
   private nft: VWBLNFT;
   public opts: VWBLOption;
   private api: VWBLApi;
-  private getKeySign?: string;
-  private setKeySign?: string;
+  public signature?: string;
 
   constructor(props: ConstructorProps) {
     const {web3, contractAddress, manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl} = props;
@@ -53,23 +52,12 @@ export class VWBL {
   }
 
   sign = async () => {
-    this.getKeySign = await signToGetKey(this.opts.web3);
-    console.log("get signed")
-    const sleep = (ms: number): Promise<NodeJS.Timeout> => {
-      return new Promise(resolve => {
-        return setTimeout(resolve, ms)
-      })
-    };
-    // Hack: metamaskが連続してsignを呼ぶとバグるので１秒のthread sleepを入れている
-    await sleep(1000);
-    this.setKeySign = await signToSetKey(this.opts.web3);
-    console.log("set signed")
+    this.signature = await signToProtocol(this.opts.web3);
+    console.log("signed")
   };
 
-  hasSign = () => this.getKeySign && this.setKeySign;
-
   createToken = async (name: string, description: string, plainData: FileContent, fileType: FileType, thumbnailImage: FileContent, uploadFileCallback?: UploadFile, uploadMetadataCallBack?: UploadMetadata) => {
-    if (!this.setKeySign) {
+    if (!this.signature) {
       throw ("please sign first")
     }
     const {manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl} = this.opts;
@@ -78,28 +66,28 @@ export class VWBL {
     // 2. create key in frontend
     const key = createRandomKey();
     // 3. encrypt data
-    console.log("encrypt data")
+    console.log("encrypt data");
     const encryptedContent = encrypt(plainData.content, key);
     // 4. upload data
-    console.log("upload data")
+    console.log("upload data");
     const uploadAllFunction = uploadContentType === UploadContentType.S3 ? uploadAll : uploadFileCallback;
     if (!uploadAllFunction) {
       throw new Error("please specify upload file type or give callback")
     }
     const {encryptedDataUrl, thumbnailImageUrl} = await uploadAllFunction(plainData, thumbnailImage, encryptedContent, awsConfig);
     // 5. upload metadata
-    console.log("upload meta data")
+    console.log("upload meta data");
     const uploadMetadataFunction = uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback")
     }
-    await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, fileType, awsConfig)
+    await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, fileType, awsConfig);
     // 6. set key to vwbl-network
-    await this.api.setKey(tokenId, key, this.setKeySign);
+    await this.api.setKey(tokenId, key, this.signature);
   };
 
   getOwnTokens = async () : Promise<ExtractMetadata[]> => {
-    if (!this.getKeySign) {
+    if (!this.signature) {
       throw ("please sign first")
     }
     const ownTokenIds = await this.nft.getOwnTokenIds();
@@ -108,7 +96,7 @@ export class VWBL {
   };
 
   extractMetadata = async (tokenId: number) : Promise<ExtractMetadata | undefined> => {
-    if (!this.getKeySign) {
+    if (!this.signature) {
       throw ("please sign first")
     }
     const metadataUrl = await this.nft.getMetadataUrl(tokenId);
@@ -120,7 +108,7 @@ export class VWBL {
     const encryptedDataUrl = metadata.encrypted_image_url ?? metadata.encrypted_data;
     // metadata.encrypted_image_url is deprecated
     const encryptedData = (await axios.get(encryptedDataUrl)).data;
-    const decryptKey = await this.api.getKey(tokenId, this.getKeySign);
+    const decryptKey = await this.api.getKey(tokenId, this.signature);
     const ownData = decrypt(encryptedData, decryptKey);
     // .encrypted is deprecated
     const fileName = encryptedDataUrl.split("/").slice(-1)[0].replace(/(.encrypted)|(.vwbl)/, "");
