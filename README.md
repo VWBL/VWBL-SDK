@@ -86,6 +86,11 @@ Arguments
 | uploadMetadataCallback| true if uploadMetadataType is CUSTOM | UploadMetadata | you can custom upload function |
 
 ### view contents
+list
 ```typescript
 const tokens = await vwbl.getOwnTokens();
+```
+Detail
+```typescript
+const token = await vwbl.getTokenById(id)
 ```

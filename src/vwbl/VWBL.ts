@@ -14,7 +14,7 @@ import {
 } from "./types";
 import { uploadAll, uploadMetadata } from "../aws/upload";
 import axios from "axios";
-import { ExtractMetadata } from "./metadata";
+import { ExtractMetadata, Metadata } from "./metadata";
 import { VWBLApi } from "./api";
 
 export type ConstructorProps = {
@@ -96,22 +96,42 @@ export class VWBL {
     return await this.nft.getOwnTokenIds();
   };
 
-  getTokenById = async (id : number) : Promise<ExtractMetadata> => {
-    const metadata = await this.extractMetadata(id);
+  getTokenById = async (id : number) : Promise<ExtractMetadata | Metadata> => {
+    const isOwner = await  this.nft.isOwnerOf(id);
+    const metadata = isOwner ? (await this.extractMetadata(id)) : (await this.getMetadata(id));
     if(metadata == undefined) {
       throw new Error("metadata not found")
     }
     return metadata;
   };
 
-  getOwnTokens = async () : Promise<ExtractMetadata[]> => {
+  getOwnTokens = async () : Promise<Metadata[]> => {
     if (!this.signature) {
       throw ("please sign first")
     }
     const ownTokenIds = await this.nft.getOwnTokenIds();
-    const ownTokens = (await Promise.all(ownTokenIds.map(this.extractMetadata.bind(this)))).filter((extractMetadata): extractMetadata is ExtractMetadata => extractMetadata !== undefined);
+    const ownTokens = (await Promise.all(ownTokenIds.map(this.getMetadata.bind(this)))).filter((extractMetadata): extractMetadata is Metadata => extractMetadata !== undefined);
     return ownTokens;
   };
+
+  getMetadata = async (tokenId: number) : Promise<Metadata | undefined> => {
+    if (!this.signature) {
+      throw ("please sign first")
+    }
+    const metadataUrl = await this.nft.getMetadataUrl(tokenId);
+    const metadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
+    // delete token if metadata is not found
+    if (!metadata) {
+      return undefined;
+    }
+    return {
+      id: tokenId,
+      name: metadata.name,
+      description: metadata.description,
+      image: metadata.image,
+      fileType: metadata.file_type,
+    };
+  }
 
   extractMetadata = async (tokenId: number) : Promise<ExtractMetadata | undefined> => {
     if (!this.signature) {
