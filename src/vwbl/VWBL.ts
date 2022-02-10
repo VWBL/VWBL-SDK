@@ -1,14 +1,20 @@
 import Web3 from "web3";
 import AWS from "aws-sdk";
-import { VWBLNFT } from "./blockchain/VWBLProtocol";
+import { signToProtocol, VWBLNFT } from "./blockchain";
 import { createRandomKey, decrypt, encrypt } from "../util/cryptoHelper";
 import { AWSConfig } from "../aws/types";
-import { FileContent, FileType, UploadFile, UploadMetadata } from "./types/File";
+import {
+  FileContent,
+  FileType,
+  ManageKeyType,
+  UploadContentType,
+  UploadFile,
+  UploadMetadata,
+  UploadMetadataType
+} from "./types";
 import { uploadAll, uploadMetadata } from "../aws/upload";
-import { signToProtocol } from "./blockchain/Sign";
 import axios from "axios";
-import { ExtractMetadata } from "./metadata/type";
-import { ManageKeyType, UploadContentType, UploadMetadataType } from "./types";
+import { ExtractMetadata } from "./metadata";
 import { VWBLApi } from "./api";
 
 export type ConstructorProps = {
@@ -84,6 +90,18 @@ export class VWBL {
     await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, fileType, awsConfig);
     // 6. set key to vwbl-network
     await this.api.setKey(tokenId, key, this.signature);
+  };
+
+  getOwnTokenIds = async () : Promise<number[]> => {
+    return await this.nft.getOwnTokenIds();
+  };
+
+  getTokenById = async (id : number) : Promise<ExtractMetadata> => {
+    const metadata = await this.extractMetadata(id);
+    if(metadata == undefined) {
+      throw new Error("metadata not found")
+    }
+    return metadata;
   };
 
   getOwnTokens = async () : Promise<ExtractMetadata[]> => {
