@@ -112,13 +112,14 @@ export class VWBL {
     return await this.nft.getOwnTokenIds();
   };
 
-  getTokenById = async (id: number): Promise<ExtractMetadata | Metadata> => {
+  getTokenById = async (id: number): Promise<(ExtractMetadata | Metadata) & { owner: string }> => {
     const isOwner = await this.nft.isOwnerOf(id);
+    const owner = await this.nft.getOwner(id);
     const metadata = isOwner ? await this.extractMetadata(id) : await this.getMetadata(id);
     if (!metadata) {
       throw new Error("metadata not found");
     }
-    return metadata;
+    return { ...metadata, owner };
   };
 
   getOwnTokens = async (): Promise<Metadata[]> => {
