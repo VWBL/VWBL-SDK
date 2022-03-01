@@ -35,6 +35,12 @@ export class VWBLNFT {
   getMetadataUrl = async (tokenId: number) => {
     return await this.contract.methods.tokenURI(tokenId).call();
   };
+
+  isOwnerOf = async (tokenId: number) => {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    const owner = await this.contract.methods.ownerOf(tokenId).call();
+    return myAddress === owner;
+  }
 }
 
 const range = (length: number) => {
