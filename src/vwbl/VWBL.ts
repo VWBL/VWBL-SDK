@@ -1,8 +1,13 @@
-import Web3 from "web3";
 import AWS from "aws-sdk";
-import { signToProtocol, VWBLNFT } from "./blockchain";
-import { createRandomKey, decrypt, encrypt } from "../util/cryptoHelper";
+import axios from "axios";
+import Web3 from "web3";
+
 import { AWSConfig } from "../aws/types";
+import { uploadAll, uploadMetadata } from "../aws/upload";
+import { createRandomKey, decrypt, encrypt } from "../util/cryptoHelper";
+import { VWBLApi } from "./api";
+import { signToProtocol, VWBLNFT } from "./blockchain";
+import { ExtractMetadata, Metadata } from "./metadata";
 import {
   FileContent,
   FileType,
@@ -10,12 +15,8 @@ import {
   UploadContentType,
   UploadFile,
   UploadMetadata,
-  UploadMetadataType
+  UploadMetadataType,
 } from "./types";
-import { uploadAll, uploadMetadata } from "../aws/upload";
-import axios from "axios";
-import { ExtractMetadata, Metadata } from "./metadata";
-import { VWBLApi } from "./api";
 
 export type ConstructorProps = {
   web3: Web3;
@@ -24,14 +25,14 @@ export type ConstructorProps = {
   uploadContentType: UploadContentType;
   uploadMetadataType: UploadMetadataType;
   awsConfig?: AWSConfig;
-  vwblNetworkUrl: string
-}
+  vwblNetworkUrl: string;
+};
 
 export type VWBLOption = ConstructorProps;
 
 export type CreateTokenProps = {
   plainData: string;
-}
+};
 
 export class VWBL {
   private nft: VWBLNFT;
@@ -40,7 +41,8 @@ export class VWBL {
   public signature?: string;
 
   constructor(props: ConstructorProps) {
-    const {web3, contractAddress, manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl} = props;
+    const { web3, contractAddress, manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } =
+      props;
     this.nft = new VWBLNFT(web3, contractAddress);
     this.opts = props;
     this.api = new VWBLApi(vwblNetworkUrl);
@@ -59,14 +61,22 @@ export class VWBL {
 
   sign = async () => {
     this.signature = await signToProtocol(this.opts.web3);
-    console.log("signed")
+    console.log("signed");
   };
 
-  createToken = async (name: string, description: string, plainData: FileContent, fileType: FileType, thumbnailImage: FileContent, uploadFileCallback?: UploadFile, uploadMetadataCallBack?: UploadMetadata) => {
+  createToken = async (
+    name: string,
+    description: string,
+    plainData: FileContent,
+    fileType: FileType,
+    thumbnailImage: FileContent,
+    uploadFileCallback?: UploadFile,
+    uploadMetadataCallBack?: UploadMetadata
+  ) => {
     if (!this.signature) {
-      throw ("please sign first")
+      throw "please sign first";
     }
-    const {manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl} = this.opts;
+    const { manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const tokenId = await this.nft.mintToken(vwblNetworkUrl);
     // 2. create key in frontend
@@ -78,45 +88,53 @@ export class VWBL {
     console.log("upload data");
     const uploadAllFunction = uploadContentType === UploadContentType.S3 ? uploadAll : uploadFileCallback;
     if (!uploadAllFunction) {
-      throw new Error("please specify upload file type or give callback")
+      throw new Error("please specify upload file type or give callback");
     }
-    const {encryptedDataUrl, thumbnailImageUrl} = await uploadAllFunction(plainData, thumbnailImage, encryptedContent, awsConfig);
+    const { encryptedDataUrl, thumbnailImageUrl } = await uploadAllFunction(
+      plainData,
+      thumbnailImage,
+      encryptedContent,
+      awsConfig
+    );
     // 5. upload metadata
     console.log("upload meta data");
-    const uploadMetadataFunction = uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
+    const uploadMetadataFunction =
+      uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
     if (!uploadMetadataFunction) {
-      throw new Error("please specify upload metadata type or give callback")
+      throw new Error("please specify upload metadata type or give callback");
     }
     await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, fileType, awsConfig);
     // 6. set key to vwbl-network
     await this.api.setKey(tokenId, key, this.signature);
   };
 
-  getOwnTokenIds = async () : Promise<number[]> => {
+  getOwnTokenIds = async (): Promise<number[]> => {
     return await this.nft.getOwnTokenIds();
   };
 
-  getTokenById = async (id : number) : Promise<ExtractMetadata | Metadata> => {
+  getTokenById = async (id: number): Promise<ExtractMetadata | Metadata> => {
     const isOwner = await this.nft.isOwnerOf(id);
-    const metadata = isOwner ? (await this.extractMetadata(id)) : (await this.getMetadata(id));
-    if(metadata == undefined) {
-      throw new Error("metadata not found")
+    const metadata = isOwner ? await this.extractMetadata(id) : await this.getMetadata(id);
+    if (!metadata) {
+      throw new Error("metadata not found");
     }
     return metadata;
   };
 
-  getOwnTokens = async () : Promise<Metadata[]> => {
+  getOwnTokens = async (): Promise<Metadata[]> => {
     if (!this.signature) {
-      throw ("please sign first")
+      throw "please sign first";
     }
     const ownTokenIds = await this.nft.getOwnTokenIds();
-    const ownTokens = (await Promise.all(ownTokenIds.map(this.getMetadata.bind(this)))).filter((extractMetadata): extractMetadata is Metadata => extractMetadata !== undefined);
+    const ownTokens = (await Promise.all(ownTokenIds.map(this.getMetadata.bind(this)))).filter(
+      (extractMetadata): extractMetadata is Metadata => extractMetadata !== undefined
+    );
     return ownTokens;
   };
 
-  getMetadata = async (tokenId: number) : Promise<Metadata | undefined> => {
+  getMetadata = async (tokenId: number): Promise<Metadata | undefined> => {
     if (!this.signature) {
-      throw ("please sign first")
+      throw "please sign first";
     }
     const metadataUrl = await this.nft.getMetadataUrl(tokenId);
     const metadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
@@ -133,9 +151,9 @@ export class VWBL {
     };
   };
 
-  extractMetadata = async (tokenId: number) : Promise<ExtractMetadata | undefined> => {
+  extractMetadata = async (tokenId: number): Promise<ExtractMetadata | undefined> => {
     if (!this.signature) {
-      throw ("please sign first")
+      throw "please sign first";
     }
     const metadataUrl = await this.nft.getMetadataUrl(tokenId);
     const metadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
@@ -149,7 +167,10 @@ export class VWBL {
     const decryptKey = await this.api.getKey(tokenId, this.signature);
     const ownData = decrypt(encryptedData, decryptKey);
     // .encrypted is deprecated
-    const fileName = encryptedDataUrl.split("/").slice(-1)[0].replace(/(.encrypted)|(.vwbl)/, "");
+    const fileName = encryptedDataUrl
+      .split("/")
+      .slice(-1)[0]
+      .replace(/(.encrypted)|(.vwbl)/, "");
     return {
       id: tokenId,
       name: metadata.name,
@@ -159,5 +180,5 @@ export class VWBL {
       fileName,
       ownData,
     };
-  }
+  };
 }

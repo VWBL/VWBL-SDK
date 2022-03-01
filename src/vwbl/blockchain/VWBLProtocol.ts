@@ -1,6 +1,6 @@
 import Web3 from "web3";
-import { AbiItem } from "web3-utils";
 import { Contract } from "web3-eth-contract";
+import { AbiItem } from "web3-utils";
 
 import nftAbi from "../../contract/vwbl.abi.json";
 
@@ -16,7 +16,7 @@ export class VWBLNFT {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     console.log("transaction start");
     // TODO: callBackを受け取って、トランザクションの終了をユーザに通知できるようにする
-    const receipt = await this.contract.methods.mint(decryptUrl).send({from: myAddress});
+    const receipt = await this.contract.methods.mint(decryptUrl).send({ from: myAddress });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
@@ -40,10 +40,9 @@ export class VWBLNFT {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const owner = await this.contract.methods.ownerOf(tokenId).call();
     return myAddress === owner;
-  }
+  };
 }
 
 const range = (length: number) => {
   return Array.from(Array(length).keys());
 };
-
