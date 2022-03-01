@@ -97,7 +97,7 @@ export class VWBL {
   };
 
   getTokenById = async (id : number) : Promise<ExtractMetadata | Metadata> => {
-    const isOwner = await  this.nft.isOwnerOf(id);
+    const isOwner = await this.nft.isOwnerOf(id);
     const metadata = isOwner ? (await this.extractMetadata(id)) : (await this.getMetadata(id));
     if(metadata == undefined) {
       throw new Error("metadata not found")
@@ -131,7 +131,7 @@ export class VWBL {
       image: metadata.image,
       fileType: metadata.file_type,
     };
-  }
+  };
 
   extractMetadata = async (tokenId: number) : Promise<ExtractMetadata | undefined> => {
     if (!this.signature) {
