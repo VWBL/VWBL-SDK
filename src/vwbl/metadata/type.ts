@@ -9,12 +9,15 @@ export type PlainMetadata = {
   file_type: FileType;
 }
 
-export type ExtractMetadata = {
+export type Metadata = {
   id: number;
   name: string,
   description: string
   image: string;
   fileType: FileType;
+}
+
+export type ExtractMetadata = Metadata & {
   fileName: string;
   ownData: string;
 }
