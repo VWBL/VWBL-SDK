@@ -105,7 +105,9 @@ export class VWBL {
     }
     await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, fileType, awsConfig);
     // 6. set key to vwbl-network
+    console.log("set key");
     await this.api.setKey(tokenId, key, this.signature);
+    return tokenId;
   };
 
   getOwnTokenIds = async (): Promise<number[]> => {

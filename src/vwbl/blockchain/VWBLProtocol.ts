@@ -12,7 +12,7 @@ export class VWBLNFT {
     this.web3 = web3;
     this.contract = new web3.eth.Contract(nftAbi as AbiItem[], address);
   }
-  mintToken = async (decryptUrl: string) => {
+  async mintToken(decryptUrl: string) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     console.log("transaction start");
     // TODO: callBackを受け取って、トランザクションの終了をユーザに通知できるようにする
@@ -20,9 +20,9 @@ export class VWBLNFT {
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
-  };
+  }
 
-  getOwnTokenIds = async () => {
+  async getOwnTokenIds() {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const balance = await this.contract.methods.balanceOf(myAddress).call();
     return await Promise.all(
@@ -31,20 +31,20 @@ export class VWBLNFT {
         return Number.parseInt(ownTokenId);
       })
     );
-  };
-  getMetadataUrl = async (tokenId: number) => {
+  }
+  async getMetadataUrl(tokenId: number) {
     return await this.contract.methods.tokenURI(tokenId).call();
-  };
+  }
 
-  getOwner = async (tokenId: number) => {
+  async getOwner(tokenId: number) {
     return await this.contract.methods.ownerOf(tokenId).call();
-  };
+  }
 
-  isOwnerOf = async (tokenId: number) => {
+  async isOwnerOf(tokenId: number) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const owner = await this.getOwner(tokenId);
     return myAddress === owner;
-  };
+  }
 }
 
 const range = (length: number) => {
