@@ -124,6 +124,17 @@ export class VWBL {
     return { ...metadata, owner };
   };
 
+  getCreatedTokens = async (address: string): Promise<Metadata[]> => {
+    if (!this.signature) {
+      throw "please sign first";
+    }
+    const createdTokenIds = await this.nft.getTokensByMinter(address);
+    const createdTokens = (await Promise.all(createdTokenIds.map(this.getMetadata.bind(this)))).filter(
+      (extractMetadata): extractMetadata is Metadata => extractMetadata !== undefined
+    );
+    return createdTokens;
+  };
+
   getOwnTokens = async (): Promise<Metadata[]> => {
     if (!this.signature) {
       throw "please sign first";

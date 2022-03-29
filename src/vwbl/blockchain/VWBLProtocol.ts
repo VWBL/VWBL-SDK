@@ -22,6 +22,17 @@ export class VWBLNFT {
     return tokenId;
   }
 
+  async getTokensByMinter(address: string) {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    const balance = await this.contract.methods.balanceOf(myAddress).call();
+    return await Promise.all(
+      range(Number.parseInt(balance)).map(async (i) => {
+        const tokenId = await this.contract.methods.getTokenByMinter(address).call();
+        return Number.parseInt(tokenId);
+      })
+    );
+  }
+
   async getOwnTokenIds() {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const balance = await this.contract.methods.balanceOf(myAddress).call();
