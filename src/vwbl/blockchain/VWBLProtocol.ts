@@ -12,13 +12,13 @@ export class VWBLNFT {
     this.web3 = web3;
     this.contract = new web3.eth.Contract(vwbl.abi as AbiItem[], address);
   }
-  async mintToken(decryptUrl: string, royaltiesPercentage: number, documentId: string) {
+  async mintToken(decryptUrl: string, royaltiesPercentage: number) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     console.log("transaction start");
     // TODO: callBackを受け取って、トランザクションの終了をユーザに通知できるようにする
     const receipt = await this.contract.methods
-      .mint(decryptUrl, royaltiesPercentage, this.web3.utils.asciiToHex(documentId))
+      .mint(decryptUrl, royaltiesPercentage, this.web3.utils.randomHex(32))
       .send({ from: myAddress, value: fee });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;

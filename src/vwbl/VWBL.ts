@@ -1,6 +1,5 @@
 import AWS from "aws-sdk";
 import axios from "axios";
-import { v4 as uuidv4 } from "uuid";
 import Web3 from "web3";
 
 import { AWSConfig } from "../aws/types";
@@ -80,7 +79,7 @@ export class VWBL {
     }
     const { manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, uuidv4());
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage);
     // 2. create key in frontend
     const key = createRandomKey();
     // 3. encrypt data
