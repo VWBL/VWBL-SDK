@@ -14,7 +14,7 @@ import { expect } from "chai";
 describe("VWBL",  () => {
   const web3 = new Web3();
   const vwblProtocolStub = {
-    mintToken: sinon.stub(VWBLNFT.prototype, "mintToken")
+    mintToken: sinon.stub(VWBLNFT.prototype, "mintToken"),
   };
 
   const vwblApiStub = {
@@ -48,6 +48,7 @@ describe("VWBL",  () => {
         name: "thumbnail image",
         content: "data:image/png;base64,yyy"
       },
+      10,
        testFunctions.uploadFile, testFunctions.uploadMetadata);
     expect(vwblProtocolStub.mintToken.callCount).equal(1);
     expect(vwblApiStub.setKey.callCount).equal(1);
