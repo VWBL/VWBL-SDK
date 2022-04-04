@@ -111,6 +111,10 @@ export class VWBL {
     return tokenId;
   };
 
+  sendToken = async (to: string, tokenId: number) => {
+    return await this.nft.send(to, tokenId);
+  };
+
   getOwnTokenIds = async (): Promise<number[]> => {
     return await this.nft.getOwnTokenIds();
   };
