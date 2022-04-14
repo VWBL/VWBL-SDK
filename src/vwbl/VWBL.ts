@@ -79,7 +79,8 @@ export class VWBL {
     }
     const { manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage);
+    const documentId = this.opts.web3.utils.randomHex(32);
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
     // 2. create key in frontend
     const key = createRandomKey();
     // 3. encrypt data
@@ -107,7 +108,7 @@ export class VWBL {
     await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, fileType, awsConfig);
     // 6. set key to vwbl-network
     console.log("set key");
-    await this.api.setKey(tokenId, key, this.signature);
+    await this.api.setKey(documentId, key, this.signature);
     return tokenId;
   };
 
@@ -172,7 +173,8 @@ export class VWBL {
     const encryptedDataUrl = metadata.encrypted_image_url ?? metadata.encrypted_data;
     // metadata.encrypted_image_url is deprecated
     const encryptedData = (await axios.get(encryptedDataUrl)).data;
-    const decryptKey = await this.api.getKey(tokenId, this.signature);
+    const { documentId } = await this.nft.getTokenInfo(tokenId);
+    const decryptKey = await this.api.getKey(documentId, this.signature);
     const ownData = decrypt(encryptedData, decryptKey);
     // .encrypted is deprecated
     const fileName = encryptedDataUrl
