@@ -10,6 +10,6 @@ export class VWBLApi {
   }
   async getKey(documentId: string, signature: string): Promise<string> {
     const response = await this.instance.get(`/keys/${documentId}?signature=${signature}`);
-    return response.data.tokenKey;
+    return response.data.documentKey.key;
   }
 }
