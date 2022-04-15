@@ -36,7 +36,7 @@ export const uploadAll = async (
     },
   });
   const thumbnailData = await uploadThumbnail.promise();
-  const thumbnailImageUrl = `${awsConfig.cloudFrontUrl}/${thumbnailData.Key}`;
+  const thumbnailImageUrl = `${awsConfig.cloudFrontUrl.replace(/\/$/,"")}/${thumbnailData.Key}`;
   return { encryptedDataUrl, thumbnailImageUrl };
 };
 
