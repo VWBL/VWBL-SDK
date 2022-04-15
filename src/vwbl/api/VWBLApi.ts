@@ -5,11 +5,11 @@ export class VWBLApi {
   constructor(endpointUrl: string) {
     this.instance = axios.create({ baseURL: endpointUrl });
   }
-  async setKey(tokenId: number, key: string, signature: string) {
-    await this.instance.post("/keys", { token_id: tokenId, key, signature });
+  async setKey(documentId: string, key: string, signature: string) {
+    await this.instance.post("/keys", { document_id: documentId, key, signature });
   }
-  async getKey(tokenId: number, signature: string): Promise<string> {
-    const response = await this.instance.get(`/keys/${tokenId}?signature=${signature}`);
+  async getKey(documentId: string, signature: string): Promise<string> {
+    const response = await this.instance.get(`/keys/${documentId}?signature=${signature}`);
     return response.data.tokenKey;
   }
 }
