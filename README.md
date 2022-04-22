@@ -79,9 +79,9 @@ Arguments
 | --- | --- | --- | --- |
 | name | true | string | [ERC721](https://eips.ethereum.org/EIPS/eip-721) metadata name |
 | description | true | string | [ERC721](https://eips.ethereum.org/EIPS/eip-721) metadata description |
-| fileContent | true | [FileContent](https://www.npmjs.com/package/use-file-picker#filecontent) | upload file |
+| fileContent | true | File | upload file |
 | fileType | true | FileType | IMAGE or OTHER (MOVIE, MUSIC etc. are support later)|
-| thumbnailContent | true | [FileContent](https://www.npmjs.com/package/use-file-picker#filecontent) | [ERC721](https://eips.ethereum.org/EIPS/eip-721) metadata image |
+| thumbnailContent | true | File) | [ERC721](https://eips.ethereum.org/EIPS/eip-721) metadata image |
 | uploadFileCallback | true if uploadContentType is CUSTOM | UploadFile | you can custom upload function |
 | uploadMetadataCallback| true if uploadMetadataType is CUSTOM | UploadMetadata | you can custom upload function |
 
