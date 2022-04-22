@@ -1,20 +1,10 @@
-type FileContent = {
-  lastModified?: number;
-  name: string;
-  content: string;
-};
 type UploadFilesRetVal = {
   encryptedDataUrl: string;
   thumbnailImageUrl: string;
 };
-enum FileType {
-  IMAGE = "image",
-  OTHER = "other",
-}
-
 type UploadFile = (
-  plainData: FileContent,
-  thumbnailImage: FileContent,
+  plainData: File,
+  thumbnailImage: File,
   encryptedContent: string
 ) => Promise<UploadFilesRetVal>;
 type UploadMetadata = (
@@ -23,7 +13,7 @@ type UploadMetadata = (
   description: string,
   previewImageUrl: string,
   encryptedDataUrl: string,
-  fileType: FileType
+  mimeType: string
 ) => Promise<void>;
 
-export { FileContent, UploadFilesRetVal, UploadFile, UploadMetadata, FileType };
+export { UploadFilesRetVal, UploadFile, UploadMetadata };
