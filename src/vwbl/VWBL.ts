@@ -8,15 +8,8 @@ import { createRandomKey, decrypt, encrypt } from "../util/cryptoHelper";
 import { VWBLApi } from "./api";
 import { signToProtocol, VWBLNFT } from "./blockchain";
 import { ExtractMetadata, Metadata } from "./metadata";
-import {
-  FileContent,
-  FileType,
-  ManageKeyType,
-  UploadContentType,
-  UploadFile,
-  UploadMetadata,
-  UploadMetadataType,
-} from "./types";
+import { ManageKeyType, UploadContentType, UploadFile, UploadMetadata, UploadMetadataType } from "./types";
+import { getMimeType, toBase64FromBlob } from "../util/imageEditor";
 
 export type ConstructorProps = {
   web3: Web3;
@@ -29,10 +22,6 @@ export type ConstructorProps = {
 };
 
 export type VWBLOption = ConstructorProps;
-
-export type CreateTokenProps = {
-  plainData: string;
-};
 
 export class VWBL {
   private nft: VWBLNFT;
@@ -67,9 +56,8 @@ export class VWBL {
   createToken = async (
     name: string,
     description: string,
-    plainData: FileContent,
-    fileType: FileType,
-    thumbnailImage: FileContent,
+    plainData: File,
+    thumbnailImage: File,
     royaltiesPercentage: number,
     uploadFileCallback?: UploadFile,
     uploadMetadataCallBack?: UploadMetadata
@@ -85,7 +73,8 @@ export class VWBL {
     const key = createRandomKey();
     // 3. encrypt data
     console.log("encrypt data");
-    const encryptedContent = encrypt(plainData.content, key);
+    const content = await toBase64FromBlob(plainData);
+    const encryptedContent = encrypt(content, key);
     // 4. upload data
     console.log("upload data");
     const uploadAllFunction = uploadContentType === UploadContentType.S3 ? uploadAll : uploadFileCallback;
@@ -105,7 +94,8 @@ export class VWBL {
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback");
     }
-    await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, fileType, awsConfig);
+    const mimeTYpe = await getMimeType(plainData);
+    await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, mimeTYpe, awsConfig);
     // 6. set key to vwbl-network
     console.log("set key");
     await this.api.setKey(documentId, key, this.signature);
@@ -156,7 +146,7 @@ export class VWBL {
       name: metadata.name,
       description: metadata.description,
       image: metadata.image,
-      fileType: metadata.file_type,
+      mimeType: metadata.file_type,
     };
   };
 
@@ -186,7 +176,7 @@ export class VWBL {
       name: metadata.name,
       description: metadata.description,
       image: metadata.image,
-      fileType: metadata.file_type,
+      mimeType: metadata.file_type,
       fileName,
       ownData,
     };
