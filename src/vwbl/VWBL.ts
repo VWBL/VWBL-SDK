@@ -20,6 +20,7 @@ import {
 
 export type ConstructorProps = {
   web3: Web3;
+  chainId: number;
   contractAddress: string;
   manageKeyType: ManageKeyType;
   uploadContentType: UploadContentType;
@@ -41,7 +42,7 @@ export class VWBL {
   public signature?: string;
 
   constructor(props: ConstructorProps) {
-    const { web3, contractAddress, manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } =
+    const { web3, chainId, contractAddress, manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } =
       props;
     this.nft = new VWBLNFT(web3, contractAddress);
     this.opts = props;
@@ -108,7 +109,7 @@ export class VWBL {
     await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, fileType, awsConfig);
     // 6. set key to vwbl-network
     console.log("set key");
-    await this.api.setKey(documentId, key, this.signature);
+    await this.api.setKey(documentId, this.opts.chainId, key, this.signature);
     return tokenId;
   };
 
@@ -170,7 +171,7 @@ export class VWBL {
     // metadata.encrypted_image_url is deprecated
     const encryptedData = (await axios.get(encryptedDataUrl)).data;
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const decryptKey = await this.api.getKey(documentId, this.signature);
+    const decryptKey = await this.api.getKey(documentId, this.opts.chainId, this.signature);
     const ownData = decrypt(encryptedData, decryptKey);
     // .encrypted is deprecated
     const fileName = encryptedDataUrl
