@@ -38,7 +38,6 @@
     "crypto-js": "^4.1.1",
     "dotenv": "^16.0.0",
     "jimp": "^0.16.1",
-    "vwbl-sdk": "../VWBL-SDK",
     "web3": "^1.7.1"
   }
 }
