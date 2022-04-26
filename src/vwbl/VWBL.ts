@@ -98,7 +98,8 @@ export class VWBL {
     await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, mimeTYpe, awsConfig);
     // 6. set key to vwbl-network
     console.log("set key");
-    await this.api.setKey(documentId, key, this.signature);
+    const chainId = await this.opts.web3.eth.getChainId();
+    await this.api.setKey(documentId, chainId, key, this.signature);
     return tokenId;
   };
 
@@ -160,7 +161,8 @@ export class VWBL {
     // metadata.encrypted_image_url is deprecated
     const encryptedData = (await axios.get(encryptedDataUrl)).data;
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const decryptKey = await this.api.getKey(documentId, this.signature);
+    const chainId = await this.opts.web3.eth.getChainId();
+    const decryptKey = await this.api.getKey(documentId, chainId, this.signature);
     const ownData = decrypt(encryptedData, decryptKey);
     // .encrypted is deprecated
     const fileName = encryptedDataUrl
