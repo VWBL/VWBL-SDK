@@ -10,9 +10,13 @@ import {
 import Web3 from "web3";
 import sinon from "sinon"
 import { expect } from "chai";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 describe("VWBL",  () => {
-  const web3 = new Web3();
+  const providerUrl = process.env.PROVIDER_URL;
+  const web3 = new Web3(providerUrl as string);
   const vwblProtocolStub = {
     mintToken: sinon.stub(VWBLNFT.prototype, "mintToken"),
   };
@@ -23,7 +27,6 @@ describe("VWBL",  () => {
 
   const vwbl = new VWBL({
     awsConfig: undefined,
-    chainId: 3,
     contractAddress: "0x2c7e967093d7fe0eeb5440bf49e5D148417B0412",
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
     uploadContentType: UploadContentType.CUSTOM,
