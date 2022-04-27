@@ -65,6 +65,9 @@ export class VWBL {
     if (!this.signature) {
       throw "please sign first";
     }
+    // console.log('umakuikanai');
+    // const buffer = await toArrayBuffer(thumbnailImage);
+    // console.log(buffer);
     const { manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
