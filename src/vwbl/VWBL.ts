@@ -143,7 +143,7 @@ export class VWBL {
       name: metadata.name,
       description: metadata.description,
       image: metadata.image,
-      mimeType: metadata.file_type,
+      mimeType: metadata.mime_type,
     };
   };
 
@@ -174,7 +174,7 @@ export class VWBL {
       name: metadata.name,
       description: metadata.description,
       image: metadata.image,
-      mimeType: metadata.file_type,
+      mimeType: metadata.mime_type,
       fileName,
       ownData,
     };
