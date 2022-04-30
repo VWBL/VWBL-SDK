@@ -4,7 +4,7 @@ import { createRandomKey } from "../util/cryptoHelper";
 import { PlainMetadata } from "../vwbl/metadata";
 import { UploadFilesRetVal } from "../vwbl/types";
 import { AWSConfig } from "./types";
-import { getMimeType } from "../util/imageEditor";
+import { getMimeType, toArrayBuffer } from "../util/imageEditor";
 
 export const uploadAll = async (
   plainData: File,
@@ -27,11 +27,12 @@ export const uploadAll = async (
   const encryptedData = await uploadEncrypted.promise();
   const encryptedDataUrl = `${awsConfig.cloudFrontUrl}/${encryptedData.Key}`;
   const type = await getMimeType(thumbnailImage);
+  const isRunningOnBrowser = typeof window !== "undefined";
   const uploadThumbnail = new AWS.S3.ManagedUpload({
     params: {
       Bucket: awsConfig.bucketName.content,
       Key: `data/${key}-${thumbnailImage.name}`,
-      Body: thumbnailImage,
+      Body: isRunningOnBrowser ? thumbnailImage : await toArrayBuffer(thumbnailImage),
       ContentType: type,
     },
   });
