@@ -1,5 +1,5 @@
 import Jimp from "jimp";
-const { FileReader } = require('file-api');
+// const { FileReader } = require("file-api");
 
 export const resizeFromBase64 = async (base64: string, width: number, height: number): Promise<string> => {
   const image = await Jimp.read(base64);
@@ -28,18 +28,18 @@ export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
     reader.readAsDataURL(blob);
     reader.onload = () => {
       const result = reader.result;
-      if(!result || typeof result != "string"){
+      if (!result || typeof result !== "string") {
         reject("cannot convert to base64 string");
       } else {
         resolve(result);
       }
     };
-    reader.onerror = (error: Error) => reject(error);
+    reader.onerror = (error) => reject(error);
   });
 };
 
-export const getMimeType = async (file: File): Promise<string> => {
-  return file.type
+export const getMimeType = (file: File): string => {
+  return file.type;
 };
 
 export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
@@ -54,6 +54,6 @@ export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
         resolve(result);
       }
     };
-    reader.onerror = (error: Error) => reject(error);
+    reader.onerror = (error) => reject(error);
   });
 };
