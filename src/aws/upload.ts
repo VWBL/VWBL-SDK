@@ -22,6 +22,7 @@ export const uploadAll = async (
       Key: `data/${key}-${plainData.name}.vwbl`,
       Body: encryptedContent,
       ContentType: "text/plain",
+      ACL: "public-read",
     },
   });
   const encryptedData = await uploadEncrypted.promise();
@@ -34,6 +35,7 @@ export const uploadAll = async (
       Key: `data/${key}-${thumbnailImage.name}`,
       Body: isRunningOnBrowser ? thumbnailImage : await toArrayBuffer(thumbnailImage),
       ContentType: type,
+      ACL: "public-read",
     },
   });
   const thumbnailData = await uploadThumbnail.promise();
