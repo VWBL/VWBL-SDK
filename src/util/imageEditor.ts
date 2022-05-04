@@ -1,5 +1,4 @@
 import Jimp from "jimp";
-// const { FileReader } = require("file-api");
 
 export const resizeFromBase64 = async (base64: string, width: number, height: number): Promise<string> => {
   const image = await Jimp.read(base64);
