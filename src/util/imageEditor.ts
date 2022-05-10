@@ -23,27 +23,28 @@ export const toBafferFromBase64 = async (base64: string): Promise<Buffer> => {
 };
 
 export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
-  return new Promise(((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(blob);
     reader.onload = () => {
       const result = reader.result;
-      if (!result || typeof result != "string"){
+
+      if (!result || typeof result !== "string") {
         reject("cannot convert to base64 string");
       } else {
         resolve(result);
       }
     };
     reader.onerror = (error: Error) => reject(error);
-  }))
+  })
 };
 
-export const getMimeType = async (file: File): Promise<string> => {
+export const getMimeType = (file: File): string => {
   return file.type;
 };
 
 export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
-  return new Promise(((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsArrayBuffer(blob);
     reader.onload = () => {
@@ -55,5 +56,5 @@ export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
       }
     };
     reader.onerror = (error: Error) => reject(error);
-  }))
+  })
 };

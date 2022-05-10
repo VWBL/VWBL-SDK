@@ -5,11 +5,11 @@ import Web3 from "web3";
 import { AWSConfig } from "../aws/types";
 import { uploadAll, uploadMetadata } from "../aws/upload";
 import { createRandomKey, decrypt, encrypt } from "../util/cryptoHelper";
+import { getMimeType, toBase64FromBlob } from "../util/imageEditor";
 import { VWBLApi } from "./api";
 import { signToProtocol, VWBLNFT } from "./blockchain";
 import { ExtractMetadata, Metadata } from "./metadata";
 import { ManageKeyType, UploadContentType, UploadFile, UploadMetadata, UploadMetadataType } from "./types";
-import { getMimeType, toBase64FromBlob } from "../util/imageEditor";
 
 export type ConstructorProps = {
   web3: Web3;
@@ -95,11 +95,13 @@ export class VWBL {
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback");
     }
-    const mimeType = await getMimeType(plainData);
+
+    const mimeType = getMimeType(plainData);
     await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, mimeType, awsConfig);
     // 6. set key to vwbl-network
     console.log("set key");
-    await this.api.setKey(documentId, key, this.signature);
+    const chainId = await this.opts.web3.eth.getChainId();
+    await this.api.setKey(documentId, chainId, key, this.signature);
     return tokenId;
   };
 
@@ -165,7 +167,8 @@ export class VWBL {
     // metadata.encrypted_image_url is deprecated
     const encryptedData = (await axios.get(encryptedDataUrl)).data;
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const decryptKey = await this.api.getKey(documentId, this.signature);
+    const chainId = await this.opts.web3.eth.getChainId();
+    const decryptKey = await this.api.getKey(documentId, chainId, this.signature);
     const ownData = decrypt(encryptedData, decryptKey);
     // .encrypted is deprecated
     const fileName = encryptedDataUrl

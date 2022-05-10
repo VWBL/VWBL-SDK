@@ -1,10 +1,10 @@
 import AWS from "aws-sdk";
 
 import { createRandomKey } from "../util/cryptoHelper";
+import { getMimeType, toArrayBuffer } from "../util/imageEditor";
 import { PlainMetadata } from "../vwbl/metadata";
 import { UploadFilesRetVal } from "../vwbl/types";
 import { AWSConfig } from "./types";
-import { getMimeType, toArrayBuffer } from "../util/imageEditor";
 
 export const uploadAll = async (
   plainData: File,
@@ -22,11 +22,12 @@ export const uploadAll = async (
       Key: `data/${key}-${plainData.name}.vwbl`,
       Body: encryptedContent,
       ContentType: "text/plain",
+      ACL: "public-read",
     },
   });
   const encryptedData = await uploadEncrypted.promise();
   const encryptedDataUrl = `${awsConfig.cloudFrontUrl}/${encryptedData.Key}`;
-  const type = await getMimeType(thumbnailImage);
+  const type = getMimeType(thumbnailImage);
   const isRunningOnBrowser = typeof window !== "undefined";
   const uploadThumbnail = new AWS.S3.ManagedUpload({
     params: {
@@ -34,10 +35,11 @@ export const uploadAll = async (
       Key: `data/${key}-${thumbnailImage.name}`,
       Body: isRunningOnBrowser ? thumbnailImage : await toArrayBuffer(thumbnailImage),
       ContentType: type,
+      ACL: "public-read",
     },
   });
   const thumbnailData = await uploadThumbnail.promise();
-  const thumbnailImageUrl = `${awsConfig.cloudFrontUrl.replace(/\/$/,"")}/${thumbnailData.Key}`;
+  const thumbnailImageUrl = `${awsConfig.cloudFrontUrl.replace(/\/$/, "")}/${thumbnailData.Key}`;
   return { encryptedDataUrl, thumbnailImageUrl };
 };
 
@@ -66,6 +68,7 @@ export const uploadMetadata = async (
       Key: `metadata/${tokenId}`,
       Body: JSON.stringify(metadata),
       ContentType: "application/json",
+      ACL: "public-read",
     },
   });
   await upload.promise();
