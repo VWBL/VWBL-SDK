@@ -147,6 +147,34 @@ export class VWBL {
     };
   };
 
+  approve = async (operator: string, tokenId: number): Promise<void> => {
+    if (!this.signature) {
+      throw "please sign first";
+    }
+    await this.nft.approve(operator, tokenId);
+  };
+
+  getApproved = async (tokenId: number): Promise<string> => {
+    if (!this.signature) {
+      throw "please sign first";
+    }
+    return await this.nft.getApproved(tokenId);
+  };
+
+  setApprovalForAll = async (operator: string): Promise<void> => {
+    if (!this.signature) {
+      throw "please sign first";
+    }
+    await this.nft.setApprovalForAll(operator);
+  };
+
+  isApprovedForAll = async (owner: string, operator: string): Promise<boolean> => {
+    if (!this.signature) {
+      throw "please sign first";
+    }
+    return await this.nft.isApprovedForAll(owner, operator);
+  };
+
   extractMetadata = async (tokenId: number): Promise<ExtractMetadata | undefined> => {
     if (!this.signature) {
       throw "please sign first";
