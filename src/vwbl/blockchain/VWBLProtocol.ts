@@ -56,6 +56,24 @@ export class VWBLNFT {
   async getTokenInfo(tokenId: number) {
     return await this.contract.methods.tokenIdToTokenInfo(tokenId).call();
   }
+
+  async approve(operator: string, tokenId: number): Promise<void> {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    await this.contract.methods.approve(operator, tokenId).send({ from: myAddress });
+  }
+
+  async getApproved(tokenId: number): Promise<string> {
+    return await this.contract.methods.getApproved(tokenId).call();
+  }
+
+  async setApprovalForAll(operator: string): Promise<void> {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    await this.contract.methods.setApprovalForAll(operator, true).send({ from: myAddress });
+  }
+
+  async isApprovedForAll(owner: string, operator: string): Promise<boolean> {
+    return await this.contract.methods.isApprovedForAll(owner, operator).call();
+  }
 }
 
 const range = (length: number) => {
