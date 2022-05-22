@@ -128,6 +128,14 @@ export class VWBL {
     return ownTokens;
   };
 
+  getTokenByMinter = async (): Promise<number[]> => {
+    if (!this.signature) {
+      throw "please sign first";
+    }
+    const mintedTokenIds = await this.nft.getTokenByMinter();
+    return mintedTokenIds;
+  };
+
   getMetadata = async (tokenId: number): Promise<Metadata | undefined> => {
     if (!this.signature) {
       throw "please sign first";
