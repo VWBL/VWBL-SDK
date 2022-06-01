@@ -129,9 +129,6 @@ export class VWBL {
   };
 
   getTokenByMinter = async (): Promise<number[]> => {
-    if (!this.signature) {
-      throw "please sign first";
-    }
     return await this.nft.getTokenByMinter();
   };
 
