@@ -3,8 +3,8 @@ type UploadFilesRetVal = {
   thumbnailImageUrl: string;
 };
 type UploadFile = (
-  plainData: File,
-  thumbnailImage: File,
+  plainData: File | Buffer,
+  thumbnailImage: File | Buffer,
   encryptedContent: string
 ) => Promise<UploadFilesRetVal>;
 type UploadMetadata = (

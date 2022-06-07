@@ -7,19 +7,26 @@ import { UploadFilesRetVal } from "../vwbl/types";
 import { AWSConfig } from "./types";
 
 export const uploadAll = async (
-  plainData: File,
-  thumbnailImage: File,
+  plainData: File | Buffer,
+  thumbnailImage: File | Buffer,
   encryptedContent: string,
   awsConfig?: AWSConfig
 ): Promise<UploadFilesRetVal> => {
   if (!awsConfig || !awsConfig.bucketName.content) {
     throw new Error("bucket is not specified.");
   }
+  const type = await getMimeType(thumbnailImage);
+  if (!type) {
+    throw new Error("Failed to get mime")
+  }
   const key = createRandomKey();
+  const isPlainDataInstanceofFile = plainData instanceof File;
+  const isThumbnailInstanceofFile = thumbnailImage instanceof File;
+  const plainFileName = isPlainDataInstanceofFile ?`${plainData.name}-${key}` : key;
   const uploadEncrypted = new AWS.S3.ManagedUpload({
     params: {
       Bucket: awsConfig.bucketName.content,
-      Key: `data/${key}-${plainData.name}.vwbl`,
+      Key: `data/${plainFileName}.vwbl`,
       Body: encryptedContent,
       ContentType: "text/plain",
       ACL: "public-read",
@@ -27,13 +34,12 @@ export const uploadAll = async (
   });
   const encryptedData = await uploadEncrypted.promise();
   const encryptedDataUrl = `${awsConfig.cloudFrontUrl}/${encryptedData.Key}`;
-  const type = getMimeType(thumbnailImage);
-  const isRunningOnBrowser = typeof window !== "undefined";
+  const thumbnailFileName = isThumbnailInstanceofFile ?`${thumbnailImage.name}-${key}` : key;
   const uploadThumbnail = new AWS.S3.ManagedUpload({
     params: {
       Bucket: awsConfig.bucketName.content,
-      Key: `data/${key}-${thumbnailImage.name}`,
-      Body: isRunningOnBrowser ? thumbnailImage : await toArrayBuffer(thumbnailImage),
+      Key: `data/${thumbnailFileName}`,
+      Body: thumbnailImage,
       ContentType: type,
       ACL: "public-read",
     },

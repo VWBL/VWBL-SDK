@@ -56,15 +56,20 @@ export class VWBL {
   createToken = async (
     name: string,
     description: string,
-    plainData: File,
-    thumbnailImage: File,
+    plainData: File | Buffer,
+    thumbnailImage: File | Buffer,
     royaltiesPercentage: number,
     uploadFileCallback?: UploadFile,
     uploadMetadataCallBack?: UploadMetadata
   ) => {
     if (!this.signature) {
-      throw "please sign first";
+      throw new Error("please sign first");
     }
+    const mimeType = await getMimeType(plainData);
+    if (! mimeType){
+      throw new Error("can not get mimeType")
+    }
+    const isPlainDataInstanceofFile = plainData instanceof File;
     const { manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
@@ -73,11 +78,11 @@ export class VWBL {
     const key = createRandomKey();
     // 3. encrypt data
     console.log("encrypt data");
-    const content = await toBase64FromBlob(plainData);
+    const content = isPlainDataInstanceofFile ? await toBase64FromBlob(plainData) : plainData.toString("base64");
     const encryptedContent = encrypt(content, key);
     // 4. upload data
     console.log("upload data");
-    const uploadAllFunction = uploadContentType === UploadContentType.S3 ? uploadAll : uploadFileCallback;
+    const uploadAllFunction = uploadContentType === UploadContentType.S3 || !isPlainDataInstanceofFile? uploadAll : uploadFileCallback;
     if (!uploadAllFunction) {
       throw new Error("please specify upload file type or give callback");
     }
@@ -94,7 +99,6 @@ export class VWBL {
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback");
     }
-    const mimeType = getMimeType(plainData);
     await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, mimeType, awsConfig);
     // 6. set key to vwbl-network
     console.log("set key");
