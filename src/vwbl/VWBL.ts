@@ -69,9 +69,7 @@ export class VWBL {
     if (! mimeType){
       throw new Error("can not get mimeType")
     }
-
     const isPlainDataInstanceofFile = plainData instanceof File;
-
     const { manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
@@ -101,17 +99,12 @@ export class VWBL {
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback");
     }
-
     await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, mimeType, awsConfig);
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.web3.eth.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
     return tokenId;
-  };
-
-  sendToken = async (to: string, tokenId: number) => {
-    return await this.nft.send(to, tokenId);
   };
 
   getOwnTokenIds = async (): Promise<number[]> => {
