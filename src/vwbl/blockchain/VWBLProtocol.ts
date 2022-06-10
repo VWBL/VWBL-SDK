@@ -25,6 +25,11 @@ export class VWBLNFT {
     return tokenId;
   }
 
+  async send(to: string, tokenId: number) {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    await this.contract.methods.send(to, tokenId).send({from: myAddress});
+  }
+
   async getOwnTokenIds() {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const balance = await this.contract.methods.balanceOf(myAddress).call();

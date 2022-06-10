@@ -6,14 +6,15 @@ export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
     reader.readAsDataURL(blob);
     reader.onload = () => {
       const result = reader.result;
+
       if (!result || typeof result !== "string") {
         reject("cannot convert to base64 string");
       } else {
         resolve(result);
       }
     };
-    reader.onerror = (error) => reject(error);
-  });
+    reader.onerror = (error: Error) => reject(error);
+  })
 };
 
 export const getMimeType = async (data: File | Buffer): Promise<string | undefined> => {
@@ -32,6 +33,6 @@ export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
         resolve(result);
       }
     };
-    reader.onerror = (error) => reject(error);
-  });
+    reader.onerror = (error: Error) => reject(error);
+  })
 };
