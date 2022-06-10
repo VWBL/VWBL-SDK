@@ -113,7 +113,7 @@ export class VWBL {
     return createRandomKey();
   };
 
-  encryptData = async (plainData: File, key: string): Promise<string> => {
+  encryptDataViaBase64 = async (plainData: File, key: string): Promise<string> => {
     const content = await toBase64FromBlob(plainData);
     return encrypt(content, key);
   };
