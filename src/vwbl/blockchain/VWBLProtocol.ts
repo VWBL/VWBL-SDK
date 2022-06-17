@@ -74,10 +74,6 @@ export class VWBLNFT {
   async isApprovedForAll(owner: string, operator: string): Promise<boolean> {
     return await this.contract.methods.isApprovedForAll(owner, operator).call();
   }
-
-  async tokenIdToDocumentId(tokenId: string): Promise<string> {
-    return await this.contract.methods.tokenIdToDocumentId(tokenId).call();
-  }
 }
 
 const range = (length: number) => {
