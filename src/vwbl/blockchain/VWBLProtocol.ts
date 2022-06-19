@@ -36,9 +36,8 @@ export class VWBLNFT {
     );
   }
 
-  async getTokenByMinter() {
-    const myAddress = (await this.web3.eth.getAccounts())[0];
-    return await this.contract.methods.getTokenByMinter(myAddress).call();
+  async getTokenByMinter(address :string) {
+    return await this.contract.methods.getTokenByMinter(address).call();
   }
 
   async getMetadataUrl(tokenId: number) {
