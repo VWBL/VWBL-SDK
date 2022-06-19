@@ -35,6 +35,11 @@ export class VWBLNFT {
       })
     );
   }
+
+  async getTokenByMinter(address :string) {
+    return await this.contract.methods.getTokenByMinter(address).call();
+  }
+
   async getMetadataUrl(tokenId: number) {
     return await this.contract.methods.tokenURI(tokenId).call();
   }

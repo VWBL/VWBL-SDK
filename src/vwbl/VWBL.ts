@@ -245,6 +245,15 @@ export class VWBL {
   };
 
   /**
+   * Get token ids by minter address
+   * @param address - minter address
+   * @returns Token ids
+   */
+  getTokenByMinter = async (address: string): Promise<number[]> => {
+    return await this.nft.getTokenByMinter(address);
+  };
+
+  /**
    * Get NFT metadata from given `tokenId`
    *
    * @param tokenId - The ID of NFT
