@@ -1,5 +1,5 @@
 import Jimp from "jimp";
-const  { FileAPIReader } = require('file-api');
+const FileAPI = require('file-api');
 
 const isRunningOnBrowser = typeof window !== "undefined";
 
@@ -64,6 +64,6 @@ const switchReader = (): any => {
   if (isRunningOnBrowser) {
     return new FileReader();
   } else {
-    return new FileAPIReader();
+    return new FileAPI.FileReader();
   }
 }
