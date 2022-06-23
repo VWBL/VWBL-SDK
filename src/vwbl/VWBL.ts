@@ -9,7 +9,7 @@ import { getMimeType, toBase64FromBlob } from "../util/imageEditor";
 import { VWBLApi } from "./api";
 import { signToProtocol, VWBLNFT } from "./blockchain";
 import { ExtractMetadata, Metadata } from "./metadata";
-import { ManageKeyType, UploadContentType, UploadFile, UploadMetadata, UploadMetadataType } from "./types";
+import { ManageKeyType, UploadContentType, UploadFile, UploadMetadata, UploadMetadataType, GasSettings } from "./types";
 
 export type ConstructorProps = {
   web3: Web3;
@@ -74,6 +74,7 @@ export class VWBL {
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param uploadFileCallback - Optional: the function for uploading plainData
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
+   * @param gasSettings - Optional: the settings for gas
    * @returns
    */
   managedCreateToken = async (
@@ -83,7 +84,8 @@ export class VWBL {
     thumbnailImage: File,
     royaltiesPercentage: number,
     uploadFileCallback?: UploadFile,
-    uploadMetadataCallBack?: UploadMetadata
+    uploadMetadataCallBack?: UploadMetadata,
+    gasSettings?: GasSettings,
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -91,7 +93,7 @@ export class VWBL {
     const {uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl} = this.opts;
     // 1. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId, gasSettings);
     // 2. create key in frontend
     const key = createRandomKey();
     // 3. encrypt data
@@ -130,12 +132,13 @@ export class VWBL {
    * Mint new NFT
    *
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param gasSettings - the settings for gas
    * @returns The ID of minted NFT
    */
-  mintToken = async (royaltiesPercentage: number): Promise<number> => {
+  mintToken = async (royaltiesPercentage: number, gasSettings?: GasSettings): Promise<number> => {
     const {vwblNetworkUrl} = this.opts;
     const documentId = this.opts.web3.utils.randomHex(32);
-    return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId, gasSettings);
   };
 
   /**
@@ -283,12 +286,13 @@ export class VWBL {
    *
    * @param operator - The wallet address
    * @param tokenId - The ID of NFT
+   * @param gasSettings - the settings for gas
    */
-  approve = async (operator: string, tokenId: number): Promise<void> => {
+  approve = async (operator: string, tokenId: number, gasSettings?: GasSettings): Promise<void> => {
     if (!this.signature) {
       throw "please sign first";
     }
-    await this.nft.approve(operator, tokenId);
+    await this.nft.approve(operator, tokenId, gasSettings);
   };
 
   /**
@@ -308,12 +312,13 @@ export class VWBL {
    * Allows `operator` to transfer all tokens that a person who calls this function
    *
    * @param operator - The wallet address
+   * @param gasSettings - the settings for gas
    */
-  setApprovalForAll = async (operator: string): Promise<void> => {
+  setApprovalForAll = async (operator: string, gasSettings?: GasSettings): Promise<void> => {
     if (!this.signature) {
       throw "please sign first";
     }
-    await this.nft.setApprovalForAll(operator);
+    await this.nft.setApprovalForAll(operator, gasSettings);
   };
 
   /**
