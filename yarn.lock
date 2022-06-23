@@ -2155,7 +2155,7 @@ fastq@^1.6.0:
 file-api@^0.10.4:
   version "0.10.4"
   resolved "https://registry.yarnpkg.com/file-api/-/file-api-0.10.4.tgz#2f101226db727cc0172a0dd688f2f6883d52883d"
-  integrity sha1-LxASJttyfMAXKg3WiPL2iD1SiD0=
+  integrity sha512-RVBXJGmsnQxokdpy264pmsdBjbUuxE6QT2xxhOrO2pzwTetbTNoWVFgkONFWmopm5mellsXrQIQhMY9fjufi9g==
   dependencies:
     File ">= 0.10.0"
     FileList ">= 0.10.0"

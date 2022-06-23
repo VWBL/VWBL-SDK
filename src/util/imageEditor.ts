@@ -1,4 +1,7 @@
 import Jimp from "jimp";
+const  { FileAPIReader } = require('file-api');
+
+const isRunningOnBrowser = typeof window !== "undefined";
 
 export const resizeFromBase64 = async (base64: string, width: number, height: number): Promise<string> => {
   const image = await Jimp.read(base64);
@@ -23,7 +26,7 @@ export const toBafferFromBase64 = async (base64: string): Promise<Buffer> => {
 
 export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+    const reader = switchReader();
     reader.readAsDataURL(blob);
     reader.onload = () => {
       const result = reader.result;
@@ -33,7 +36,7 @@ export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
         resolve(result);
       }
     };
-    reader.onerror = (error) => reject(error);
+    reader.onerror = (error: any) => reject(error);
   });
 };
 
@@ -43,7 +46,7 @@ export const getMimeType = (file: File): string => {
 
 export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+    const reader = switchReader();
     reader.readAsArrayBuffer(blob);
     reader.onload = () => {
       const result = reader.result;
@@ -53,6 +56,14 @@ export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
         resolve(result);
       }
     };
-    reader.onerror = (error) => reject(error);
+    reader.onerror = (error: any) => reject(error);
   });
 };
+
+const switchReader = (): any => {
+  if (isRunningOnBrowser) {
+    return new FileReader();
+  } else {
+    return new FileAPIReader();
+  }
+}
