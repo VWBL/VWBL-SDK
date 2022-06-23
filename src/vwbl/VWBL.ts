@@ -83,9 +83,9 @@ export class VWBL {
     plainData: File,
     thumbnailImage: File,
     royaltiesPercentage: number,
-    uploadFileCallback?: UploadFile,
-    uploadMetadataCallBack?: UploadMetadata,
     gasSettings?: GasSettings,
+    uploadFileCallback?: UploadFile,
+    uploadMetadataCallBack?: UploadMetadata
   ) => {
     if (!this.signature) {
       throw "please sign first";
