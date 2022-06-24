@@ -383,10 +383,10 @@ export class VWBL {
    * @param to - The address that NFT will be transfered
    * @param tokenId - The ID of NFT
    */
-  safeTransfer = async (to: string, tokenId: number): Promise<void> => {
+  safeTransfer = async (to: string, tokenId: number, gasSettings?: GasSettings): Promise<void> => {
     if (!this.signature) {
       throw "please sign first";
     }
-    await this.nft.safeTransfer(to, tokenId);
+    await this.nft.safeTransfer(to, tokenId, gasSettings);
   };
 }
