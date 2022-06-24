@@ -16,13 +16,11 @@ export class VWBLNFT {
   async mintToken(decryptUrl: string, royaltiesPercentage: number, documentId: string, gasSettings?: GasSettings) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
-    const defaultOpts = { from: myAddress, value: fee };
-    const sendOpts = Object.assign(defaultOpts, gasSettings);
     console.log("transaction start");
     // TODO: callBackを受け取って、トランザクションの終了をユーザに通知できるようにする
     const receipt = await this.contract.methods
       .mint(decryptUrl, royaltiesPercentage, documentId)
-      .send(sendOpts);
+      .send({ from: myAddress, value: fee, ...gasSettings });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
@@ -67,9 +65,7 @@ export class VWBLNFT {
 
   async approve(operator: string, tokenId: number, gasSettings?: GasSettings): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
-    const defaultOpt = { from: myAddress };
-    const sendOpts = Object.assign(defaultOpt, gasSettings);
-    await this.contract.methods.approve(operator, tokenId).send(sendOpts);
+    await this.contract.methods.approve(operator, tokenId).send({ from: myAddress, ...gasSettings });
   }
 
   async getApproved(tokenId: number): Promise<string> {
@@ -78,9 +74,7 @@ export class VWBLNFT {
 
   async setApprovalForAll(operator: string, gasSettings?: GasSettings): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
-    const defaultOpt = { from: myAddress };
-    const sendOpts = Object.assign(defaultOpt, gasSettings);
-    await this.contract.methods.setApprovalForAll(operator, true).send(sendOpts);
+    await this.contract.methods.setApprovalForAll(operator, true).send({ from: myAddress, ...gasSettings });
   }
 
   async isApprovedForAll(owner: string, operator: string): Promise<boolean> {
