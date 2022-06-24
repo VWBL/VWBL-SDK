@@ -1,4 +1,4 @@
 export type GasSettings = {
-  maxPriorityFeePerGas: string;
-  maxFeePerGas: string;
+  maxPriorityFeePerGas?: string;
+  maxFeePerGas?: string;
 };
