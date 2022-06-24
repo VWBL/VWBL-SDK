@@ -371,4 +371,17 @@ export class VWBL {
       ownData,
     };
   };
+
+  /**
+   * Trnasfer NFT
+   *
+   * @param to - The address that NFT will be transfered
+   * @param tokenId - The ID of NFT
+   */
+  safeTransfer = async (to: string, tokenId: number): Promise<void> => {
+    if (!this.signature) {
+      throw "please sign first";
+    }
+    await this.nft.safeTransfer(to, tokenId);
+  };
 }
