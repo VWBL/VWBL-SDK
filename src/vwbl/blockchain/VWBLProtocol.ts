@@ -79,6 +79,11 @@ export class VWBLNFT {
   async isApprovedForAll(owner: string, operator: string): Promise<boolean> {
     return await this.contract.methods.isApprovedForAll(owner, operator).call();
   }
+
+  async safeTransfer(to: string, tokenId: number): Promise<void> {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    await this.contract.methods.safeTransferFrom(myAddress, to, tokenId).send({ from: myAddress });
+  }
 }
 
 const range = (length: number) => {
