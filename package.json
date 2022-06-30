@@ -1,17 +1,25 @@
 {
-  "name": "vwbl-sdk",
+  "name": "@VWBL/VWBL-SDK",
   "version": "1.0.0",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "license": "MIT",
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/VWBL/VWBL-SDK.git"
+  },
   "scripts": {
     "build": "tsc",
     "format": "eslint --fix --quiet './src/**/*.ts*'",
     "test": "mocha-parallel-tests -r ts-node/register test/unit/**/*.test.ts --exit"
   },
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "devDependencies": {
     "@types/chai": "^4.3.0",
     "@types/crypto-js": "^4.0.2",
