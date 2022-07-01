@@ -3,9 +3,15 @@ import axios from "axios";
 import Web3 from "web3";
 
 import { AWSConfig } from "../aws/types";
-import { uploadAll, uploadMetadata } from "../aws/upload";
-import { createRandomKey, decrypt, encrypt } from "../util/cryptoHelper";
-import { getMimeType, toBase64FromBlob } from "../util/imageEditor";
+import { uploadMetadata } from "../aws/upload";
+import {
+  createRandomKey,
+  decrypt,
+  encrypt,
+  encryptFileOnBrowser,
+  generateAESKey
+} from "../util/cryptoHelper";
+import { toBase64FromBlob } from "../util/imageEditor";
 import { VWBLApi } from "./api";
 import { signToProtocol, VWBLNFT } from "./blockchain";
 import { ExtractMetadata, Metadata } from "./metadata";
@@ -85,45 +91,49 @@ export class VWBL {
     uploadFileCallback?: UploadFile,
     uploadMetadataCallBack?: UploadMetadata
   ) => {
-    if (!this.signature) {
-      throw "please sign first";
-    }
-    const {uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl} = this.opts;
-    // 1. mint token
-    const documentId = this.opts.web3.utils.randomHex(32);
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
-    // 2. create key in frontend
+    console.log("before encrypt length: ", (await plainData.arrayBuffer()).byteLength);
     const key = createRandomKey();
-    // 3. encrypt data
-    console.log("encrypt data");
-    const content = await toBase64FromBlob(plainData);
-    const encryptedContent = encrypt(content, key);
-    // 4. upload data
-    console.log("upload data");
-    const uploadAllFunction = uploadContentType === UploadContentType.S3 ? uploadAll : uploadFileCallback;
-    if (!uploadAllFunction) {
-      throw new Error("please specify upload file type or give callback");
-    }
-    const {encryptedDataUrl, thumbnailImageUrl} = await uploadAllFunction(
-      plainData,
-      thumbnailImage,
-      encryptedContent,
-      awsConfig
-    );
-    // 5. upload metadata
-    console.log("upload meta data");
-    const uploadMetadataFunction =
-      uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
-    if (!uploadMetadataFunction) {
-      throw new Error("please specify upload metadata type or give callback");
-    }
-    const mimeType = getMimeType(plainData);
-    await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, mimeType, awsConfig);
-    // 6. set key to vwbl-network
-    console.log("set key");
-    const chainId = await this.opts.web3.eth.getChainId();
-    await this.api.setKey(documentId, chainId, key, this.signature);
-    return tokenId;
+    const encrypted = await encryptFileOnBrowser(plainData, key);
+    console.log("encrypted file length: ", encrypted.byteLength);
+    return 1;
+    // if (!this.signature) {
+    //   throw "please sign first";
+    // }
+    // const {uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl} = this.opts;
+    // // 1. mint token
+    // const documentId = this.opts.web3.utils.randomHex(32);
+    // const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    // // 2. create key in frontend
+    // const key = createRandomKey();
+    // // 3. encrypt data
+    // console.log("encrypt data");
+    // const encryptedContent = encrypt(await plainData.text(), key);
+    // // 4. upload data
+    // console.log("upload data");
+    // const uploadAllFunction = uploadContentType === UploadContentType.S3 ? uploadAll : uploadFileCallback;
+    // if (!uploadAllFunction) {
+    //   throw new Error("please specify upload file type or give callback");
+    // }
+    // const {encryptedDataUrl, thumbnailImageUrl} = await uploadAllFunction(
+    //   plainData,
+    //   thumbnailImage,
+    //   encryptedContent,
+    //   awsConfig
+    // );
+    // // 5. upload metadata
+    // console.log("upload meta data");
+    // const uploadMetadataFunction =
+    //   uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
+    // if (!uploadMetadataFunction) {
+    //   throw new Error("please specify upload metadata type or give callback");
+    // }
+    // const mimeType = getMimeType(plainData);
+    // await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, mimeType, awsConfig);
+    // // 6. set key to vwbl-network
+    // console.log("set key");
+    // const chainId = await this.opts.web3.eth.getChainId();
+    // await this.api.setKey(documentId, chainId, key, this.signature);
+    // return tokenId;
   };
 
   /**
