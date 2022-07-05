@@ -39,6 +39,6 @@ export const decryptFileOnBrowser = async (encryptedFile: BufferSource, key: str
     length: 256
   };
   const keyData = new TextEncoder().encode(key.replace(/-/g,""));
-  const aesKey = await subtle.importKey("raw", keyData, aesAlgorithmKeyGen, true,["encrypt"]);
+  const aesKey = await subtle.importKey("raw", keyData, aesAlgorithmKeyGen, true,["decrypt"]);
   return await subtle.decrypt(aes, aesKey, encryptedFile);
 };

@@ -102,11 +102,12 @@ export class VWBL {
     const documentId = this.opts.web3.utils.randomHex(32);
     const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
     // 2. create key in frontend
-    // const key = createRandomKey();
-    const key = "cb868e57-d4fc-4518-85d9-2ba0039b5610";
+    const key = createRandomKey();
     // 3. encrypt data
     console.log("encrypt data");
-    const encryptedContent = encryptLogic === "base64" ? encryptString(await plainData.text(), key) : await encryptFileOnBrowser(plainData, key);
+    const content = await toBase64FromBlob(plainData);
+    const encryptedContent = encryptLogic === "base64" ? encryptString(content, key) : await encryptFileOnBrowser(plainData, key);
+    console.log(typeof encryptedContent);
     // 4. upload data
     console.log("upload data");
     const uploadAllFunction = uploadContentType === UploadContentType.S3 ? uploadAll : uploadFileCallback;
@@ -130,8 +131,8 @@ export class VWBL {
     await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, mimeType, encryptLogic, awsConfig);
     // 6. set key to vwbl-network
     console.log("set key");
-    // const chainId = await this.opts.web3.eth.getChainId();
-    // await this.api.setKey(documentId, chainId, key, this.signature);
+    const chainId = await this.opts.web3.eth.getChainId();
+    await this.api.setKey(documentId, chainId, key, this.signature);
     return tokenId;
   };
 
@@ -364,20 +365,14 @@ export class VWBL {
     const metadataUrl = await this.nft.getMetadataUrl(tokenId);
     const metadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
     // delete token if metadata is not found
-    //TODO: delete  || !metadata.encrypt_logic
-    if (!metadata || !metadata.encrypt_logic) {
+    if (!metadata) {
       return undefined;
     }
     const encryptedDataUrl = metadata.encrypted_data;
-    const encryptedData = (await axios.get(encryptedDataUrl)).data;
-    if(metadata.encrypt_logic === "binary"){
-      console.log(await axios.get(encryptedDataUrl));
-      console.log(encryptedData);
-    }
+    const encryptedData = (await axios.get(encryptedDataUrl,{responseType: metadata.encrypt_logic === "binary" ? "arraybuffer" : "text"})).data;
     const {documentId} = await this.nft.getTokenInfo(tokenId);
     const chainId = await this.opts.web3.eth.getChainId();
-    // const decryptKey = await this.api.getKey(documentId, chainId, this.signature);
-    const decryptKey = "cb868e57-d4fc-4518-85d9-2ba0039b5610";
+    const decryptKey = await this.api.getKey(documentId, chainId, this.signature);
     const encryptLogic = metadata.encrypt_logic ?? "base64";
     const ownData = encryptLogic === "base64" ? decryptString(encryptedData, decryptKey) : await decryptFileOnBrowser(encryptedData, decryptKey);
     // .encrypted is deprecated
@@ -391,6 +386,7 @@ export class VWBL {
       description: metadata.description,
       image: metadata.image,
       mimeType: metadata.mime_type,
+      encryptLogic: metadata.encrypt_logic,
       fileName,
       ownData,
     };

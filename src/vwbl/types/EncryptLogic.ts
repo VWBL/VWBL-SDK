@@ -1,1 +1,1 @@
-export type EncryptLogic = "file" | "base64"
+export type EncryptLogic = "binary" | "base64"

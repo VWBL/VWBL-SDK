@@ -22,7 +22,6 @@ export const uploadAll = async (
       Bucket: awsConfig.bucketName.content,
       Key: `data/${key}-${plainData.name}.vwbl`,
       Body: encryptedContent,
-      ContentType: "text/plain",
       ACL: "public-read",
     },
   });

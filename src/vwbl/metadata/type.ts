@@ -16,6 +16,7 @@ export type Metadata = {
   description: string;
   image: string;
   mimeType: string;
+  encryptLogic: EncryptLogic;
 };
 
 export type ExtractMetadata = Metadata & {
