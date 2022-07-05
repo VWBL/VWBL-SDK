@@ -237,22 +237,6 @@ export class VWBL {
   };
 
   /**
-   * Get all NFT metadata owned by a person who call this method
-   *
-   * @returns Array of token metadata
-   */
-  getOwnTokens = async (): Promise<Metadata[]> => {
-    if (!this.signature) {
-      throw "please sign first";
-    }
-    const ownTokenIds = await this.nft.getOwnTokenIds();
-    const ownTokens = (await Promise.all(ownTokenIds.map(this.getMetadata.bind(this)))).filter(
-      (extractMetadata): extractMetadata is Metadata => extractMetadata !== undefined
-    );
-    return ownTokens;
-  };
-
-  /**
    * Get token ids by minter address
    * @param address - minter address
    * @returns Token ids
