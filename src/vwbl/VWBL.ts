@@ -294,6 +294,7 @@ export class VWBL {
       description: metadata.description,
       image: metadata.image,
       mimeType: metadata.mime_type,
+      encryptLogic: metadata.encrypt_logic
     };
   };
 
