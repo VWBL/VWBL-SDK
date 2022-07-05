@@ -1,3 +1,5 @@
+import { EncryptLogic } from "./EncryptLogic";
+
 type UploadFilesRetVal = {
   encryptedDataUrl: string;
   thumbnailImageUrl: string;
@@ -5,7 +7,7 @@ type UploadFilesRetVal = {
 type UploadFile = (
   plainData: File,
   thumbnailImage: File,
-  encryptedContent: string
+  encryptedContent: string | ArrayBuffer,
 ) => Promise<UploadFilesRetVal>;
 type UploadMetadata = (
   tokenId: number,
@@ -13,7 +15,8 @@ type UploadMetadata = (
   description: string,
   previewImageUrl: string,
   encryptedDataUrl: string,
-  mimeType: string
+  mimeType: string,
+  encryptLogic: EncryptLogic,
 ) => Promise<void>;
 
 export { UploadFilesRetVal, UploadFile, UploadMetadata };

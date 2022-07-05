@@ -3,19 +3,20 @@ import axios from "axios";
 import Web3 from "web3";
 
 import { AWSConfig } from "../aws/types";
-import { uploadMetadata } from "../aws/upload";
+import { uploadAll, uploadMetadata } from "../aws/upload";
 import {
   createRandomKey,
-  decrypt,
-  encrypt,
+  decryptString,
+  encryptString,
   encryptFileOnBrowser,
-  generateAESKey
+  decryptFileOnBrowser
 } from "../util/cryptoHelper";
-import { toBase64FromBlob } from "../util/imageEditor";
+import { getMimeType, toBase64FromBlob } from "../util/imageEditor";
 import { VWBLApi } from "./api";
 import { signToProtocol, VWBLNFT } from "./blockchain";
 import { ExtractMetadata, Metadata } from "./metadata";
 import { ManageKeyType, UploadContentType, UploadFile, UploadMetadata, UploadMetadataType } from "./types";
+import { EncryptLogic } from "./types/EncryptLogic";
 
 export type ConstructorProps = {
   web3: Web3;
@@ -78,6 +79,7 @@ export class VWBL {
    * @param plainData - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param encryptLogic //TODO: nagashima先生おねがいします。"base64" or "binary", "base64" はデータ容量効率は悪いが表示がらくなので、低容量向け、"binaryは逆"
    * @param uploadFileCallback - Optional: the function for uploading plainData
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
    * @returns
@@ -88,52 +90,49 @@ export class VWBL {
     plainData: File,
     thumbnailImage: File,
     royaltiesPercentage: number,
+    encryptLogic: EncryptLogic = "base64",
     uploadFileCallback?: UploadFile,
     uploadMetadataCallBack?: UploadMetadata
   ) => {
-    console.log("before encrypt length: ", (await plainData.arrayBuffer()).byteLength);
-    const key = createRandomKey();
-    const encrypted = await encryptFileOnBrowser(plainData, key);
-    console.log("encrypted file length: ", encrypted.byteLength);
-    return 1;
-    // if (!this.signature) {
-    //   throw "please sign first";
-    // }
-    // const {uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl} = this.opts;
-    // // 1. mint token
-    // const documentId = this.opts.web3.utils.randomHex(32);
-    // const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
-    // // 2. create key in frontend
+    if (!this.signature) {
+      throw "please sign first";
+    }
+    const {uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl} = this.opts;
+    // 1. mint token
+    const documentId = this.opts.web3.utils.randomHex(32);
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    // 2. create key in frontend
     // const key = createRandomKey();
-    // // 3. encrypt data
-    // console.log("encrypt data");
-    // const encryptedContent = encrypt(await plainData.text(), key);
-    // // 4. upload data
-    // console.log("upload data");
-    // const uploadAllFunction = uploadContentType === UploadContentType.S3 ? uploadAll : uploadFileCallback;
-    // if (!uploadAllFunction) {
-    //   throw new Error("please specify upload file type or give callback");
-    // }
-    // const {encryptedDataUrl, thumbnailImageUrl} = await uploadAllFunction(
-    //   plainData,
-    //   thumbnailImage,
-    //   encryptedContent,
-    //   awsConfig
-    // );
-    // // 5. upload metadata
-    // console.log("upload meta data");
-    // const uploadMetadataFunction =
-    //   uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
-    // if (!uploadMetadataFunction) {
-    //   throw new Error("please specify upload metadata type or give callback");
-    // }
-    // const mimeType = getMimeType(plainData);
-    // await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, mimeType, awsConfig);
-    // // 6. set key to vwbl-network
-    // console.log("set key");
+    const key = "cb868e57-d4fc-4518-85d9-2ba0039b5610";
+    // 3. encrypt data
+    console.log("encrypt data");
+    const encryptedContent = encryptLogic === "base64" ? encryptString(await plainData.text(), key) : await encryptFileOnBrowser(plainData, key);
+    // 4. upload data
+    console.log("upload data");
+    const uploadAllFunction = uploadContentType === UploadContentType.S3 ? uploadAll : uploadFileCallback;
+    if (!uploadAllFunction) {
+      throw new Error("please specify upload file type or give callback");
+    }
+    const {encryptedDataUrl, thumbnailImageUrl} = await uploadAllFunction(
+      plainData,
+      thumbnailImage,
+      encryptedContent,
+      awsConfig
+    );
+    // 5. upload metadata
+    console.log("upload meta data");
+    const uploadMetadataFunction =
+      uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
+    if (!uploadMetadataFunction) {
+      throw new Error("please specify upload metadata type or give callback");
+    }
+    const mimeType = getMimeType(plainData);
+    await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, mimeType, encryptLogic, awsConfig);
+    // 6. set key to vwbl-network
+    console.log("set key");
     // const chainId = await this.opts.web3.eth.getChainId();
     // await this.api.setKey(documentId, chainId, key, this.signature);
-    // return tokenId;
+    return tokenId;
   };
 
   /**
@@ -166,7 +165,18 @@ export class VWBL {
    */
   encryptDataViaBase64 = async (plainData: File, key: string): Promise<string> => {
     const content = await toBase64FromBlob(plainData);
-    return encrypt(content, key);
+    return encryptString(content, key);
+  };
+
+  /**
+   * Encrypt `plainData`
+   *
+   * @param plainData - The data that only NFT owner can view
+   * @param key - The key generated by {@link VWBL.createKey}
+   * @returns Encrypted file data
+   */
+  encryptFile = async (plainData: File, key: string): Promise<ArrayBuffer> => {
+    return encryptFileOnBrowser(plainData, key);
   };
 
   /**
@@ -184,15 +194,14 @@ export class VWBL {
    * @param mimeType - The mime type of encrypted file data
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
    */
-  uploadMetadata = async (tokenId: number, name: string, description: string, thumbnailImageUrl: string, encryptedDataUrl: string, mimeType: string, uploadMetadataCallBack?: UploadMetadata): Promise<void> => {
+  uploadMetadata = async (tokenId: number, name: string, description: string, thumbnailImageUrl: string, encryptedDataUrl: string, mimeType: string, encryptLogic: EncryptLogic, uploadMetadataCallBack?: UploadMetadata): Promise<void> => {
     const {uploadMetadataType, awsConfig} = this.opts;
     const uploadMetadataFunction =
       uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback");
     }
-
-    await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, mimeType, awsConfig);
+    await uploadMetadataFunction(tokenId, name, description, thumbnailImageUrl, encryptedDataUrl, mimeType, encryptLogic, awsConfig);
   };
 
   /**
@@ -248,10 +257,9 @@ export class VWBL {
       throw "please sign first";
     }
     const ownTokenIds = await this.nft.getOwnTokenIds();
-    const ownTokens = (await Promise.all(ownTokenIds.map(this.getMetadata.bind(this)))).filter(
+    return (await Promise.all(ownTokenIds.map(this.getMetadata.bind(this)))).filter(
       (extractMetadata): extractMetadata is Metadata => extractMetadata !== undefined
     );
-    return ownTokens;
   };
 
   /**
@@ -356,16 +364,22 @@ export class VWBL {
     const metadataUrl = await this.nft.getMetadataUrl(tokenId);
     const metadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
     // delete token if metadata is not found
-    if (!metadata) {
+    //TODO: delete  || !metadata.encrypt_logic
+    if (!metadata || !metadata.encrypt_logic) {
       return undefined;
     }
-    const encryptedDataUrl = metadata.encrypted_image_url ?? metadata.encrypted_data;
-    // metadata.encrypted_image_url is deprecated
+    const encryptedDataUrl = metadata.encrypted_data;
     const encryptedData = (await axios.get(encryptedDataUrl)).data;
+    if(metadata.encrypt_logic === "binary"){
+      console.log(await axios.get(encryptedDataUrl));
+      console.log(encryptedData);
+    }
     const {documentId} = await this.nft.getTokenInfo(tokenId);
     const chainId = await this.opts.web3.eth.getChainId();
-    const decryptKey = await this.api.getKey(documentId, chainId, this.signature);
-    const ownData = decrypt(encryptedData, decryptKey);
+    // const decryptKey = await this.api.getKey(documentId, chainId, this.signature);
+    const decryptKey = "cb868e57-d4fc-4518-85d9-2ba0039b5610";
+    const encryptLogic = metadata.encrypt_logic ?? "base64";
+    const ownData = encryptLogic === "base64" ? decryptString(encryptedData, decryptKey) : await decryptFileOnBrowser(encryptedData, decryptKey);
     // .encrypted is deprecated
     const fileName = encryptedDataUrl
       .split("/")
