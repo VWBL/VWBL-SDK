@@ -37,7 +37,7 @@ export class VWBL {
   public signature?: string;
 
   constructor(props: ConstructorProps) {
-    const {web3, contractAddress, manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl} =
+    const { web3, contractAddress, manageKeyType, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } =
       props;
     this.nft = new VWBLNFT(web3, contractAddress);
     this.opts = props;
@@ -97,7 +97,7 @@ export class VWBL {
     if (!this.signature) {
       throw "please sign first";
     }
-    const {uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl} = this.opts;
+    const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
     const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
@@ -114,7 +114,7 @@ export class VWBL {
     if (!uploadAllFunction) {
       throw new Error("please specify upload file type or give callback");
     }
-    const {encryptedDataUrl, thumbnailImageUrl} = await uploadAllFunction(
+    const { encryptedDataUrl, thumbnailImageUrl } = await uploadAllFunction(
       plainData,
       thumbnailImage,
       encryptedContent,
@@ -143,7 +143,7 @@ export class VWBL {
    * @returns The ID of minted NFT
    */
   mintToken = async (royaltiesPercentage: number): Promise<number> => {
-    const {vwblNetworkUrl} = this.opts;
+    const { vwblNetworkUrl } = this.opts;
     const documentId = this.opts.web3.utils.randomHex(32);
     return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
   };
@@ -215,7 +215,7 @@ export class VWBL {
     if (!this.signature) {
       throw "please sign first";
     }
-    const {documentId} = await this.nft.getTokenInfo(tokenId);
+    const { documentId } = await this.nft.getTokenInfo(tokenId);
     const chainId = await this.opts.web3.eth.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
   };
@@ -239,13 +239,13 @@ export class VWBL {
    * @returns Token metadata and an address of NFT owner
    */
   getTokenById = async (tokenId: number): Promise<(ExtractMetadata | Metadata) & { owner: string }> => {
-    const isOwner = await this.nft.isOwnerOf(tokenId);
+    const isOwnerOrMinter = (await this.nft.isOwnerOf(tokenId)) || (await this.nft.isMinterOf(tokenId));
     const owner = await this.nft.getOwner(tokenId);
-    const metadata = isOwner ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
+    const metadata = isOwnerOrMinter ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
     if (!metadata) {
       throw new Error("metadata not found");
     }
-    return {...metadata, owner};
+    return { ...metadata, owner };
   };
 
   /**
@@ -391,5 +391,18 @@ export class VWBL {
       fileName,
       ownData,
     };
+  };
+
+  /**
+   * Trnasfer NFT
+   *
+   * @param to - The address that NFT will be transfered
+   * @param tokenId - The ID of NFT
+   */
+  safeTransfer = async (to: string, tokenId: number): Promise<void> => {
+    if (!this.signature) {
+      throw "please sign first";
+    }
+    await this.nft.safeTransfer(to, tokenId);
   };
 }
