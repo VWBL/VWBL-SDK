@@ -252,9 +252,6 @@ export class VWBL {
    * @returns Token metadata
    */
   getMetadata = async (tokenId: number): Promise<Metadata | undefined> => {
-    if (!this.signature) {
-      throw "please sign first";
-    }
     const metadataUrl = await this.nft.getMetadataUrl(tokenId);
     const metadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
     // delete token if metadata is not found
@@ -277,9 +274,6 @@ export class VWBL {
    * @param tokenId - The ID of NFT
    */
   approve = async (operator: string, tokenId: number): Promise<void> => {
-    if (!this.signature) {
-      throw "please sign first";
-    }
     await this.nft.approve(operator, tokenId);
   };
 
@@ -290,9 +284,6 @@ export class VWBL {
    * @return The Wallet address that was approved
    */
   getApproved = async (tokenId: number): Promise<string> => {
-    if (!this.signature) {
-      throw "please sign first";
-    }
     return await this.nft.getApproved(tokenId);
   };
 
@@ -302,9 +293,6 @@ export class VWBL {
    * @param operator - The wallet address
    */
   setApprovalForAll = async (operator: string): Promise<void> => {
-    if (!this.signature) {
-      throw "please sign first";
-    }
     await this.nft.setApprovalForAll(operator);
   };
 
@@ -316,9 +304,6 @@ export class VWBL {
    * @returns
    */
   isApprovedForAll = async (owner: string, operator: string): Promise<boolean> => {
-    if (!this.signature) {
-      throw "please sign first";
-    }
     return await this.nft.isApprovedForAll(owner, operator);
   };
 
@@ -371,9 +356,6 @@ export class VWBL {
    * @param tokenId - The ID of NFT
    */
   safeTransfer = async (to: string, tokenId: number): Promise<void> => {
-    if (!this.signature) {
-      throw "please sign first";
-    }
     await this.nft.safeTransfer(to, tokenId);
   };
 }
