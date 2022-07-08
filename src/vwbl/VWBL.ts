@@ -79,7 +79,7 @@ export class VWBL {
    * @param plainData - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
-   * @param encryptLogic //TODO: nagashima先生おねがいします。"base64" or "binary", "base64" はデータ容量効率は悪いが表示がらくなので、低容量向け、"binaryは逆"
+   * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param uploadFileCallback - Optional: the function for uploading plainData
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
    * @returns
