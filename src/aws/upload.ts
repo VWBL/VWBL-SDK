@@ -5,11 +5,12 @@ import { getMimeType, toArrayBuffer } from "../util/imageEditor";
 import { PlainMetadata } from "../vwbl/metadata";
 import { UploadFilesRetVal } from "../vwbl/types";
 import { AWSConfig } from "./types";
+import { EncryptLogic } from "../vwbl/types/EncryptLogic";
 
 export const uploadAll = async (
   plainData: File,
   thumbnailImage: File,
-  encryptedContent: string,
+  encryptedContent: string | ArrayBuffer,
   awsConfig?: AWSConfig
 ): Promise<UploadFilesRetVal> => {
   if (!awsConfig || !awsConfig.bucketName.content) {
@@ -21,7 +22,6 @@ export const uploadAll = async (
       Bucket: awsConfig.bucketName.content,
       Key: `data/${key}-${plainData.name}.vwbl`,
       Body: encryptedContent,
-      ContentType: "text/plain",
       ACL: "public-read",
     },
   });
@@ -50,6 +50,7 @@ export const uploadMetadata = async (
   previewImageUrl: string,
   encryptedDataUrl: string,
   mimeType: string,
+  encryptLogic: EncryptLogic,
   awsConfig?: AWSConfig
 ): Promise<void> => {
   if (!awsConfig || !awsConfig.bucketName.metadata) {
@@ -61,6 +62,7 @@ export const uploadMetadata = async (
     image: previewImageUrl,
     encrypted_data: encryptedDataUrl,
     mime_type: mimeType,
+    encrypt_logic: encryptLogic
   };
   const upload = new AWS.S3.ManagedUpload({
     params: {
