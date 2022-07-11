@@ -1,46 +1,51 @@
 import AWS from "aws-sdk";
-
-import { createRandomKey } from "../util/cryptoHelper";
 import { getMimeType, toArrayBuffer } from "../util/imageEditor";
 import { PlainMetadata } from "../vwbl/metadata";
-import { UploadFilesRetVal } from "../vwbl/types";
+import { EncryptLogic } from "../vwbl/types";
 import { AWSConfig } from "./types";
-import { EncryptLogic } from "../vwbl/types/EncryptLogic";
 
-export const uploadAll = async (
-  plainData: File,
-  thumbnailImage: File,
+export const uploadEncryptedFile = async (
+  fileName: string,
   encryptedContent: string | ArrayBuffer,
+  uuid: string,
   awsConfig?: AWSConfig
-): Promise<UploadFilesRetVal> => {
+): Promise<string> => {
   if (!awsConfig || !awsConfig.bucketName.content) {
     throw new Error("bucket is not specified.");
   }
-  const key = createRandomKey();
   const uploadEncrypted = new AWS.S3.ManagedUpload({
     params: {
       Bucket: awsConfig.bucketName.content,
-      Key: `data/${key}-${plainData.name}.vwbl`,
+      Key: `data/${uuid}-${fileName}.vwbl`,
       Body: encryptedContent,
       ACL: "public-read",
     },
   });
   const encryptedData = await uploadEncrypted.promise();
-  const encryptedDataUrl = `${awsConfig.cloudFrontUrl}/${encryptedData.Key}`;
+  return `${awsConfig.cloudFrontUrl}/${encryptedData.Key}`;
+};
+
+export const uploadThumbnail = async (
+  thumbnailImage: File,
+  uuid: string,
+  awsConfig?: AWSConfig
+): Promise<string> => {
+  if (!awsConfig || !awsConfig.bucketName.content) {
+    throw new Error("bucket is not specified.");
+  }
   const type = getMimeType(thumbnailImage);
   const isRunningOnBrowser = typeof window !== "undefined";
   const uploadThumbnail = new AWS.S3.ManagedUpload({
     params: {
       Bucket: awsConfig.bucketName.content,
-      Key: `data/${key}-${thumbnailImage.name}`,
+      Key: `data/${uuid}-${thumbnailImage.name}`,
       Body: isRunningOnBrowser ? thumbnailImage : await toArrayBuffer(thumbnailImage),
       ContentType: type,
       ACL: "public-read",
     },
   });
   const thumbnailData = await uploadThumbnail.promise();
-  const thumbnailImageUrl = `${awsConfig.cloudFrontUrl.replace(/\/$/, "")}/${thumbnailData.Key}`;
-  return { encryptedDataUrl, thumbnailImageUrl };
+  return `${awsConfig.cloudFrontUrl.replace(/\/$/, "")}/${thumbnailData.Key}`;
 };
 
 export const uploadMetadata = async (
@@ -48,7 +53,7 @@ export const uploadMetadata = async (
   name: string,
   description: string,
   previewImageUrl: string,
-  encryptedDataUrl: string,
+  encryptedDataUrls: string[],
   mimeType: string,
   encryptLogic: EncryptLogic,
   awsConfig?: AWSConfig
@@ -60,7 +65,7 @@ export const uploadMetadata = async (
     name,
     description,
     image: previewImageUrl,
-    encrypted_data: encryptedDataUrl,
+    encrypted_data: encryptedDataUrls,
     mime_type: mimeType,
     encrypt_logic: encryptLogic
   };
