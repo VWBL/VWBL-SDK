@@ -121,12 +121,12 @@ export class VWBL {
     if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
       throw new Error("please specify upload file type or give callback");
     }
+    // 4. upload data
+    console.log("upload data");
     const encryptedDataUrls = await Promise.all(plainFileArray.map(async file => {
       const base64content = await toBase64FromBlob(file);
       const encryptedContent = encryptLogic === "base64" ? encryptString(base64content, key) : await encryptFileOnBrowser(file, key);
       console.log(typeof encryptedContent);
-      // 4. upload data
-      console.log("upload data");
       return await uploadEncryptedFunction(
         file.name,
         encryptedContent,
@@ -374,13 +374,12 @@ export class VWBL {
     if (!metadata) {
       return undefined;
     }
+    const {documentId} = await this.nft.getTokenInfo(tokenId);
+    const chainId = await this.opts.web3.eth.getChainId();
+    const decryptKey = await this.api.getKey(documentId, chainId, this.signature);
     const encryptedDataUrls = metadata.encrypted_data;
-    const signature = this.signature;
     const ownDataArray = await Promise.all(encryptedDataUrls.map(async encryptedDataUrl => {
       const encryptedData = (await axios.get(encryptedDataUrl, {responseType: metadata.encrypt_logic === "binary" ? "arraybuffer" : "text"})).data;
-      const {documentId} = await this.nft.getTokenInfo(tokenId);
-      const chainId = await this.opts.web3.eth.getChainId();
-      const decryptKey = await this.api.getKey(documentId, chainId, signature);
       const encryptLogic = metadata.encrypt_logic ?? "base64";
       return encryptLogic === "base64" ? decryptString(encryptedData, decryptKey) : await decryptFileOnBrowser(encryptedData, decryptKey);
     }));
