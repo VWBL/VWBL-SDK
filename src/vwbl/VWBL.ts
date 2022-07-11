@@ -3,20 +3,27 @@ import axios from "axios";
 import Web3 from "web3";
 
 import { AWSConfig } from "../aws/types";
-import { uploadAll, uploadMetadata } from "../aws/upload";
+import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../aws/upload";
 import {
   createRandomKey,
+  decryptFileOnBrowser,
   decryptString,
-  encryptString,
   encryptFileOnBrowser,
-  decryptFileOnBrowser
+  encryptString
 } from "../util/cryptoHelper";
 import { getMimeType, toBase64FromBlob } from "../util/imageEditor";
 import { VWBLApi } from "./api";
 import { signToProtocol, VWBLNFT } from "./blockchain";
 import { ExtractMetadata, Metadata } from "./metadata";
-import { ManageKeyType, UploadContentType, UploadFile, UploadMetadata, UploadMetadataType } from "./types";
-import { EncryptLogic } from "./types/EncryptLogic";
+import {
+  EncryptLogic,
+  ManageKeyType,
+  UploadContentType,
+  UploadEncryptedFile,
+  UploadMetadata,
+  UploadMetadataType,
+  UploadThumbnail
+} from "./types";
 
 export type ConstructorProps = {
   web3: Web3;
@@ -80,7 +87,8 @@ export class VWBL {
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic //TODO: nagashima先生おねがいします。"base64" or "binary", "base64" はデータ容量効率は悪いが表示がらくなので、低容量向け、"binaryは逆"
-   * @param uploadFileCallback - Optional: the function for uploading plainData
+   * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
+   * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
    * @returns
    */
@@ -91,7 +99,8 @@ export class VWBL {
     thumbnailImage: File,
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
-    uploadFileCallback?: UploadFile,
+    uploadEncryptedFileCallback?: UploadEncryptedFile,
+    uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata
   ) => {
     if (!this.signature) {
@@ -110,14 +119,21 @@ export class VWBL {
     console.log(typeof encryptedContent);
     // 4. upload data
     console.log("upload data");
-    const uploadAllFunction = uploadContentType === UploadContentType.S3 ? uploadAll : uploadFileCallback;
-    if (!uploadAllFunction) {
+    const uploadEncryptedFunction = uploadContentType === UploadContentType.S3 ? uploadEncryptedFile : uploadEncryptedFileCallback;
+    const uploadThumbnailFunction = uploadContentType === UploadContentType.S3 ? uploadThumbnail: uploadThumbnailCallback;
+    if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
       throw new Error("please specify upload file type or give callback");
     }
-    const { encryptedDataUrl, thumbnailImageUrl } = await uploadAllFunction(
-      plainData,
-      thumbnailImage,
+    const uuid = createRandomKey();
+    const encryptedDataUrl = await uploadEncryptedFunction(
+      plainData.name,
       encryptedContent,
+      uuid,
+      awsConfig
+    );
+    const thumbnailImageUrl = await uploadThumbnailFunction(
+      thumbnailImage,
+      uuid,
       awsConfig
     );
     // 5. upload metadata
