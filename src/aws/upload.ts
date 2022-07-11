@@ -5,7 +5,7 @@ import { getMimeType, toArrayBuffer } from "../util/imageEditor";
 import { PlainMetadata } from "../vwbl/metadata";
 import { UploadFilesRetVal } from "../vwbl/types";
 import { AWSConfig } from "./types";
-import { EncryptLogic } from "../vwbl/types/EncryptLogic";
+import { EncryptLogic } from "../vwbl/types";
 
 export const uploadAll = async (
   plainData: File,

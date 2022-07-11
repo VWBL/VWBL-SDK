@@ -105,8 +105,8 @@ export class VWBL {
     const key = createRandomKey();
     // 3. encrypt data
     console.log("encrypt data");
-    const content = await toBase64FromBlob(plainData);
-    const encryptedContent = encryptLogic === "base64" ? encryptString(content, key) : await encryptFileOnBrowser(plainData, key);
+    const base64content = await toBase64FromBlob(plainData);
+    const encryptedContent = encryptLogic === "base64" ? encryptString(base64content, key) : await encryptFileOnBrowser(plainData, key);
     console.log(typeof encryptedContent);
     // 4. upload data
     console.log("upload data");
