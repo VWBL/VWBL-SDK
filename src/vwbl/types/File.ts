@@ -16,7 +16,7 @@ type UploadMetadata = (
   name: string,
   description: string,
   previewImageUrl: string,
-  encryptedDataUrl: string,
+  encryptedDataUrl: string[],
   mimeType: string,
   encryptLogic: EncryptLogic,
 ) => Promise<void>;

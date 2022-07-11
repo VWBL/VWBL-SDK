@@ -53,7 +53,7 @@ export const uploadMetadata = async (
   name: string,
   description: string,
   previewImageUrl: string,
-  encryptedDataUrl: string,
+  encryptedDataUrls: string[],
   mimeType: string,
   encryptLogic: EncryptLogic,
   awsConfig?: AWSConfig
@@ -65,7 +65,7 @@ export const uploadMetadata = async (
     name,
     description,
     image: previewImageUrl,
-    encrypted_data: encryptedDataUrl,
+    encrypted_data: encryptedDataUrls,
     mime_type: mimeType,
     encrypt_logic: encryptLogic
   };
