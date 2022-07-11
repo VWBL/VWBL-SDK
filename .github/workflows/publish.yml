@@ -1,0 +1,54 @@
+name: publish my library
+
+env:
+  CI: true
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "!*"
+
+jobs:
+  publish:
+    name: Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      # Nodeのバージョンを指定
+      - name: setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+          registry-url: https://npm.pkg.github.com
+
+      # 必要なモジュール（typescript）をインストール
+      - name: install node_modules
+        run: npm install
+
+      # トランスパイルを実行
+      - name: build
+        run: npx tsc
+
+      # パッケージとして公開する
+      - name: publish
+        run: npx can-npm-publish --verbose && npm publish || echo "No need to publish"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # バージョン情報を環境変数として設定
+      - name: set version to env
+        run: node -p -e '`VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
+
+      # バージョン情報持つタグを付与する
+      - name: add version tag
+        uses: pkgdeps/git-tag-action@v2
+        with:
+          version: ${{ env.VERSION }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_repo: ${{ github.repository }}
+          git_commit_sha: ${{ github.sha }}
+          git_tag_prefix: "v"
