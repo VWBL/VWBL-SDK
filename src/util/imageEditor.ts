@@ -1,4 +1,4 @@
-const FileReaderNodeJs = require('filereader');
+const FileReaderNodeJs = require("filereader");
 
 const isRunningOnBrowser = typeof window !== "undefined";
 
@@ -44,4 +44,4 @@ const switchReader = (): any => {
   } else {
     return new FileReaderNodeJs();
   }
-}
+};

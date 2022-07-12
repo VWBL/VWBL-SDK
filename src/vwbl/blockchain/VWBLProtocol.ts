@@ -3,15 +3,19 @@ import { Contract } from "web3-eth-contract";
 import { AbiItem } from "web3-utils";
 
 import vwbl from "../../contract/VWBL.json";
+import vwblIPFS from "../../contract/VWBLSupportIPFS.json";
 
 export class VWBLNFT {
   private contract: Contract;
   private web3: Web3;
 
-  constructor(web3: Web3, address: string) {
+  constructor(web3: Web3, address: string, isIpfs: boolean) {
     this.web3 = web3;
-    this.contract = new web3.eth.Contract(vwbl.abi as AbiItem[], address);
+    this.contract = isIpfs
+      ? new web3.eth.Contract(vwblIPFS.abi as AbiItem[], address)
+      : new web3.eth.Contract(vwbl.abi as AbiItem[], address);
   }
+
   async mintToken(decryptUrl: string, royaltiesPercentage: number, documentId: string) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
@@ -19,6 +23,19 @@ export class VWBLNFT {
     // TODO: callBackを受け取って、トランザクションの終了をユーザに通知できるようにする
     const receipt = await this.contract.methods
       .mint(decryptUrl, royaltiesPercentage, documentId)
+      .send({ from: myAddress, value: fee });
+    console.log("transaction end");
+    const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
+    return tokenId;
+  }
+
+  async mintTokenForIPFS(metadataUrl: string, decryptUrl: string, royaltiesPercentage: number, documentId: string) {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    const fee = await this.getFee();
+    console.log("transaction start");
+    // TODO: callBackを受け取って、トランザクションの終了をユーザに通知できるようにする
+    const receipt = await this.contract.methods
+      .mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId)
       .send({ from: myAddress, value: fee });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
