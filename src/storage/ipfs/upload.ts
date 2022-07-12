@@ -20,7 +20,7 @@ export class UploadToIPFS {
       : "https://ipfs.infura.io:5001/api/v0/add?pin=false";
 
     const encryptedContentData = typeof encryptedContent === "string" ? encryptedContent : new Blob([encryptedContent]);
-    const encryptedContentForm = isRunningOnBrowser ? new FormData() : new FormDataNodeJs();
+    let encryptedContentForm = isRunningOnBrowser ? new FormData() : new FormDataNodeJs();
     encryptedContentForm.append("file", encryptedContentData);
 
     const ipfsAddConfig: AxiosRequestConfig = {
@@ -32,7 +32,12 @@ export class UploadToIPFS {
       },
       data: encryptedContentForm,
     };
-    const ipfsAddRes = await axios(ipfsAddConfig);
+    let ipfsAddRes;
+    try {
+      ipfsAddRes = await axios(ipfsAddConfig);
+    } catch (err: any) {
+      throw new Error(err);
+    }
 
     const encryptedDataUrl = "https://infura-ipfs.io/ipfs/" + ipfsAddRes.data.Hash;
     return encryptedDataUrl;
@@ -61,7 +66,12 @@ export class UploadToIPFS {
       },
       data: thumbnailForm,
     };
-    const ipfsAddRes = await axios(ipfsAddConfig);
+    let ipfsAddRes;
+    try {
+      ipfsAddRes = await axios(ipfsAddConfig);
+    } catch (err: any) {
+      throw new Error(err);
+    }
 
     const thumbnailImageUrl = "https://infura-ipfs.io/ipfs/" + ipfsAddRes.data.Hash;
     return thumbnailImageUrl;
@@ -89,7 +99,7 @@ export class UploadToIPFS {
       encrypt_logic: encryptLogic,
     };
 
-    const metadataForm = isRunningOnBrowser ? new FormData() : new FormDataNodeJs();
+    let metadataForm = isRunningOnBrowser ? new FormData() : new FormDataNodeJs();
     metadataForm.append("file", JSON.stringify(metadata));
 
     const ipfsAddConfig: AxiosRequestConfig = {
@@ -101,7 +111,12 @@ export class UploadToIPFS {
       },
       data: metadataForm,
     };
-    const ipfsAddRes = await axios(ipfsAddConfig);
+    let ipfsAddRes;
+    try {
+      ipfsAddRes = await axios(ipfsAddConfig);
+    } catch (err: any) {
+      throw new Error(err);
+    }
 
     const metadataUrl = "https://infura-ipfs.io/ipfs/" + ipfsAddRes.data.Hash;
     return metadataUrl;
