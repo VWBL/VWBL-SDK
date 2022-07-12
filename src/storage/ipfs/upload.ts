@@ -74,7 +74,7 @@ export class UploadToIPFS {
     encryptedDataUrls: string[],
     mimeType: string,
     encryptLogic: EncryptLogic,
-    isPin = true
+    isPin: boolean
   ): Promise<string> {
     const url = isPin
       ? "https://ipfs.infura.io:5001/api/v0/add?pin=true"

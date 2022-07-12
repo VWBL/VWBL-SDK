@@ -232,7 +232,8 @@ export class VWBL {
       thumbnailImageUrl as string,
       encryptedDataUrls as string[],
       mimeType,
-      encryptLogic
+      encryptLogic,
+      isPin
     );
     // 5. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
@@ -353,14 +354,12 @@ export class VWBL {
    * @param isPin - The Identifier of whether to pin uploaded data on IPFS.
    */
   uploadMetadataToIPFS = async (
-    tokenId: number,
     name: string,
     description: string,
     thumbnailImageUrl: string,
     encryptedDataUrls: string[],
     mimeType: string,
     encryptLogic: EncryptLogic,
-    uploadMetadataCallBack?: UploadMetadata,
     isPin = true
   ): Promise<string> => {
     const metadataUrl = await this.uploadToIpfs?.uploadMetadata(
@@ -369,7 +368,8 @@ export class VWBL {
       thumbnailImageUrl,
       encryptedDataUrls,
       mimeType,
-      encryptLogic
+      encryptLogic,
+      isPin
     );
     return metadataUrl as string;
   };
