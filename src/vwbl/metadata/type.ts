@@ -24,3 +24,11 @@ export type ExtractMetadata = Metadata & {
   ownDataBase64: string[]
   ownFiles: ArrayBuffer[];
 };
+
+export type MetadataAndOwner = Metadata & {
+  owner: string
+};
+
+export type ExtractMetadataAndOwner = ExtractMetadata & {
+  owner: string
+};

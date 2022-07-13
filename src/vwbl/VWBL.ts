@@ -14,7 +14,7 @@ import {
 import { getMimeType, toBase64FromBlob } from "../util/imageEditor";
 import { VWBLApi } from "./api";
 import { signToProtocol, VWBLNFT } from "./blockchain";
-import { ExtractMetadata, Metadata, PlainMetadata } from "./metadata";
+import { ExtractMetadata, ExtractMetadataAndOwner, Metadata, MetadataAndOwner, PlainMetadata } from "./metadata";
 import {
   EncryptLogic,
   ManageKeyType,
@@ -258,7 +258,7 @@ export class VWBL {
    * @param tokenId - The ID of NFT
    * @returns Token metadata and an address of NFT owner
    */
-  getTokenById = async (tokenId: number): Promise<(ExtractMetadata | Metadata) & { owner: string }> => {
+  getTokenById = async (tokenId: number): Promise<(ExtractMetadataAndOwner | MetadataAndOwner)> => {
     const isOwnerOrMinter = (await this.nft.isOwnerOf(tokenId)) || (await this.nft.isMinterOf(tokenId));
     const owner = await this.nft.getOwner(tokenId);
     const metadata = isOwnerOrMinter ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
