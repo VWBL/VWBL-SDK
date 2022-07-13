@@ -27,7 +27,7 @@ export class UploadToIPFS {
       method: "post",
       url: url,
       headers: {
-        Authorization: this.auth,
+        "Authorization": this.auth,
         "Content-Type": "multipart/form-data",
       },
       data: encryptedContentForm,
@@ -61,7 +61,7 @@ export class UploadToIPFS {
       method: "post",
       url: url,
       headers: {
-        Authorization: this.auth,
+        "Authorization": this.auth,
         "Content-Type": "multipart/form-data",
       },
       data: thumbnailForm,
@@ -106,7 +106,7 @@ export class UploadToIPFS {
       method: "post",
       url: url,
       headers: {
-        Authorization: this.auth,
+        "Authorization": this.auth,
         "Content-Type": "multipart/form-data",
       },
       data: metadataForm,
