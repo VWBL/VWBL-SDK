@@ -87,6 +87,8 @@ export class VWBL {
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic //TODO: nagashima先生おねがいします。"base64" or "binary", "base64" はデータ容量効率は悪いが表示がらくなので、低容量向け、"binaryは逆"
+   * @param hasNonce
+   * @param autoMigration
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
@@ -99,6 +101,8 @@ export class VWBL {
     thumbnailImage: File,
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
+    hasNonce: boolean = false,
+    autoMigration: boolean = false,
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata
@@ -151,7 +155,7 @@ export class VWBL {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.web3.eth.getChainId();
-    await this.api.setKey(documentId, chainId, key, this.signature);
+    await this.api.setKey(documentId, chainId, key, this.signature, hasNonce, autoMigration);
     return tokenId;
   };
 
