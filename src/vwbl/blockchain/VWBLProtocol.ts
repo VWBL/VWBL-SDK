@@ -20,7 +20,6 @@ export class VWBLNFT {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     console.log("transaction start");
-    // TODO: callBackを受け取って、トランザクションの終了をユーザに通知できるようにする
     const receipt = await this.contract.methods
       .mint(decryptUrl, royaltiesPercentage, documentId)
       .send({ from: myAddress, value: fee });
@@ -33,7 +32,6 @@ export class VWBLNFT {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     console.log("transaction start");
-    // TODO: callBackを受け取って、トランザクションの終了をユーザに通知できるようにする
     const receipt = await this.contract.methods
       .mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId)
       .send({ from: myAddress, value: fee });
