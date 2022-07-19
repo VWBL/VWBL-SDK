@@ -21,6 +21,6 @@ export type Metadata = {
 
 export type ExtractMetadata = Metadata & {
   fileName: string;
-  ownDataBase64: string[]
+  ownDataBase64: string[];
   ownFiles: ArrayBuffer[];
 };

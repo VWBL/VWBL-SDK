@@ -1,7 +1,7 @@
 import AWS from "aws-sdk";
-import { getMimeType, toArrayBuffer } from "../util/imageEditor";
-import { PlainMetadata } from "../vwbl/metadata";
-import { EncryptLogic } from "../vwbl/types";
+import { getMimeType, toArrayBuffer } from "../../util/imageEditor";
+import { PlainMetadata } from "../../vwbl/metadata";
+import { EncryptLogic } from "../../vwbl/types";
 import { AWSConfig } from "./types";
 
 export const uploadEncryptedFile = async (
@@ -25,11 +25,7 @@ export const uploadEncryptedFile = async (
   return `${awsConfig.cloudFrontUrl}/${encryptedData.Key}`;
 };
 
-export const uploadThumbnail = async (
-  thumbnailImage: File,
-  uuid: string,
-  awsConfig?: AWSConfig
-): Promise<string> => {
+export const uploadThumbnail = async (thumbnailImage: File, uuid: string, awsConfig?: AWSConfig): Promise<string> => {
   if (!awsConfig || !awsConfig.bucketName.content) {
     throw new Error("bucket is not specified.");
   }
@@ -67,7 +63,7 @@ export const uploadMetadata = async (
     image: previewImageUrl,
     encrypted_data: encryptedDataUrls,
     mime_type: mimeType,
-    encrypt_logic: encryptLogic
+    encrypt_logic: encryptLogic,
   };
   const upload = new AWS.S3.ManagedUpload({
     params: {
