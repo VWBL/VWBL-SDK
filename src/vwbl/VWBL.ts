@@ -13,7 +13,7 @@ import {
   encryptFileOnBrowser,
   encryptString,
 } from "../util/cryptoHelper";
-import { getMimeType, toBase64FromBlob } from "../util/imageEditor";
+import { getMimeType, toBase64FromBlob, toArrayBuffer } from "../util/imageEditor";
 import { VWBLApi } from "./api";
 import { signToProtocol, VWBLNFT } from "./blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "./metadata";
@@ -57,9 +57,9 @@ export class VWBL {
       vwblNetworkUrl,
       ipfsInfuraConfig,
     } = props;
-    this.nft = awsConfig ? new VWBLNFT(web3, contractAddress, false) : new VWBLNFT(web3, contractAddress, true);
     this.opts = props;
     this.api = new VWBLApi(vwblNetworkUrl);
+    this.nft = uploadContentType === UploadContentType.S3 ? new VWBLNFT(web3, contractAddress, false) : new VWBLNFT(web3, contractAddress, true);
     if (uploadContentType === UploadContentType.S3 || uploadMetadataType === UploadMetadataType.S3) {
       if (!awsConfig) {
         throw new Error("please specify S3 bucket.");
@@ -210,6 +210,10 @@ export class VWBL {
     const key = createRandomKey();
     // 2. encrypt data
     console.log("encrypt data");
+    const plain = plainFile as File;
+    const arrayBufferFile = await plain.arrayBuffer()
+    console.log("array buffer file", arrayBufferFile);
+    console.log()
     const plainFileArray = [plainFile].flat();
     // 3. upload data
     console.log("upload data");
@@ -219,6 +223,7 @@ export class VWBL {
         const encryptedContent =
           encryptLogic === "base64" ? encryptString(base64content, key) : await encryptFileOnBrowser(file, key);
         console.log(typeof encryptedContent);
+        console.log("encrypted content", encryptedContent);
         return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent, isPin);
       })
     );
@@ -514,6 +519,7 @@ export class VWBL {
    * @returns Token metadata
    */
   extractMetadata = async (tokenId: number): Promise<ExtractMetadata | undefined> => {
+    console.log("3============");
     if (!this.signature) {
       throw "please sign first";
     }
@@ -537,9 +543,15 @@ export class VWBL {
         const encryptLogic = metadata.encrypt_logic ?? "base64";
         return encryptLogic === "base64"
           ? decryptString(encryptedData, decryptKey)
-          : await decryptFileOnBrowser(encryptedData, decryptKey);
+          : await decryptFileOnBrowser(await encryptedData, decryptKey);
       })
     );
+    console.log("is instance of ArrayBuffer: ", ownDataArray[0] instanceof ArrayBuffer);
+    console.log("is instance of blob ", ownDataArray[0] instanceof Blob);
+    console.log("import array buffer");
+    console.log("sdk in array buffer", ownDataArray);
+    console.log("sdk in array buffer length", ownDataArray.length);
+    console.log("array buffer length ", ownDataArray[0]);
     const ownFiles = ownDataArray.filter((ownData): ownData is ArrayBuffer => ownData instanceof ArrayBuffer);
     const ownDataBase64 = ownDataArray.filter((ownData): ownData is string => typeof ownData === "string");
     const fileName = encryptedDataUrls[0]
