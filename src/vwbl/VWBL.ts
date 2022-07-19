@@ -13,7 +13,7 @@ import {
   encryptFileOnBrowser,
   encryptString,
 } from "../util/cryptoHelper";
-import { getMimeType, toBase64FromBlob, toArrayBuffer } from "../util/imageEditor";
+import { getMimeType, toBase64FromBlob } from "../util/imageEditor";
 import { VWBLApi } from "./api";
 import { signToProtocol, VWBLNFT } from "./blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "./metadata";
@@ -537,7 +537,7 @@ export class VWBL {
         const encryptLogic = metadata.encrypt_logic ?? "base64";
         return encryptLogic === "base64"
           ? decryptString(encryptedData, decryptKey)
-          : await decryptFileOnBrowser(await encryptedData, decryptKey);
+          : await decryptFileOnBrowser(encryptedData, decryptKey);
       })
     );
     const ownFiles = ownDataArray.filter((ownData): ownData is ArrayBuffer => ownData instanceof ArrayBuffer);
