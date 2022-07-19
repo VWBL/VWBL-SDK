@@ -210,10 +210,6 @@ export class VWBL {
     const key = createRandomKey();
     // 2. encrypt data
     console.log("encrypt data");
-    const plain = plainFile as File;
-    const arrayBufferFile = await plain.arrayBuffer()
-    console.log("array buffer file", arrayBufferFile);
-    console.log()
     const plainFileArray = [plainFile].flat();
     // 3. upload data
     console.log("upload data");
@@ -223,7 +219,6 @@ export class VWBL {
         const encryptedContent =
           encryptLogic === "base64" ? encryptString(base64content, key) : await encryptFileOnBrowser(file, key);
         console.log(typeof encryptedContent);
-        console.log("encrypted content", encryptedContent);
         return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent, isPin);
       })
     );
@@ -519,7 +514,6 @@ export class VWBL {
    * @returns Token metadata
    */
   extractMetadata = async (tokenId: number): Promise<ExtractMetadata | undefined> => {
-    console.log("3============");
     if (!this.signature) {
       throw "please sign first";
     }
@@ -546,12 +540,6 @@ export class VWBL {
           : await decryptFileOnBrowser(await encryptedData, decryptKey);
       })
     );
-    console.log("is instance of ArrayBuffer: ", ownDataArray[0] instanceof ArrayBuffer);
-    console.log("is instance of blob ", ownDataArray[0] instanceof Blob);
-    console.log("import array buffer");
-    console.log("sdk in array buffer", ownDataArray);
-    console.log("sdk in array buffer length", ownDataArray.length);
-    console.log("array buffer length ", ownDataArray[0]);
     const ownFiles = ownDataArray.filter((ownData): ownData is ArrayBuffer => ownData instanceof ArrayBuffer);
     const ownDataBase64 = ownDataArray.filter((ownData): ownData is string => typeof ownData === "string");
     const fileName = encryptedDataUrls[0]
