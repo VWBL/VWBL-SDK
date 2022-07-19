@@ -43,6 +43,7 @@
   "dependencies": {
     "aws-sdk": "^2.1046.0",
     "axios": "^0.27.2",
+    "crypto": "^1.0.1",
     "crypto-js": "^4.1.1",
     "dotenv": "^16.0.0",
     "filereader": "^0.10.3",

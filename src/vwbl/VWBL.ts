@@ -8,10 +8,9 @@ import { IPFSInfuraConfig } from "../storage/ipfs/types";
 import { UploadToIPFS } from "../storage/ipfs/upload";
 import {
   createRandomKey,
-  decryptFileOnBrowser,
   decryptString,
-  encryptFileOnBrowser,
   encryptString,
+  encryptFile, decryptFile,
 } from "../util/cryptoHelper";
 import { getMimeType, toBase64FromBlob } from "../util/imageEditor";
 import { VWBLApi } from "./api";
@@ -145,7 +144,7 @@ export class VWBL {
       plainFileArray.map(async (file) => {
         const base64content = await toBase64FromBlob(file);
         const encryptedContent =
-          encryptLogic === "base64" ? encryptString(base64content, key) : await encryptFileOnBrowser(file, key);
+          encryptLogic === "base64" ? encryptString(base64content, key) : await encryptFile(file, key);
         console.log(typeof encryptedContent);
         return await uploadEncryptedFunction(file.name, encryptedContent, uuid, awsConfig);
       })
@@ -217,7 +216,7 @@ export class VWBL {
       plainFileArray.map(async (file) => {
         const base64content = await toBase64FromBlob(file);
         const encryptedContent =
-          encryptLogic === "base64" ? encryptString(base64content, key) : await encryptFileOnBrowser(file, key);
+          encryptLogic === "base64" ? encryptString(base64content, key) : await encryptFile(file, key);
         console.log(typeof encryptedContent);
         return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent, isPin);
       })
@@ -291,7 +290,7 @@ export class VWBL {
    * @returns Encrypted file data
    */
   encryptFile = async (plainData: File, key: string): Promise<ArrayBuffer> => {
-    return encryptFileOnBrowser(plainData, key);
+    return encryptFile(plainData, key);
   };
 
   /**
@@ -537,7 +536,7 @@ export class VWBL {
         const encryptLogic = metadata.encrypt_logic ?? "base64";
         return encryptLogic === "base64"
           ? decryptString(encryptedData, decryptKey)
-          : await decryptFileOnBrowser(encryptedData, decryptKey);
+          : await decryptFile(encryptedData, decryptKey);
       })
     );
     const ownFiles = ownDataArray.filter((ownData): ownData is ArrayBuffer => ownData instanceof ArrayBuffer);
