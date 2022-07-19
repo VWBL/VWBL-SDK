@@ -195,6 +195,8 @@ export class VWBL {
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param isPin - The Identifier of whether to pin uploaded data on IPFS.
+   * @param hasNonce
+   * @param autoMigration 
    * @returns
    */
   managedCreateTokenForIPFS = async (
