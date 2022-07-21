@@ -102,7 +102,7 @@ export class VWBL {
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
-   * @param encryptLogic //TODO: nagashima先生おねがいします。"base64" or "binary", "base64" はデータ容量効率は悪いが表示がらくなので、低容量向け、"binaryは逆"
+   * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param hasNonce
    * @param autoMigration
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
@@ -193,8 +193,10 @@ export class VWBL {
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
-   * @param encryptLogic //TODO: nagashima先生おねがいします。"base64" or "binary", "base64" はデータ容量効率は悪いが表示がらくなので、低容量向け、"binaryは逆"
+   * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param isPin - The Identifier of whether to pin uploaded data on IPFS.
+   * @param hasNonce
+   * @param autoMigration 
    * @returns
    */
   managedCreateTokenForIPFS = async (
@@ -204,7 +206,9 @@ export class VWBL {
     thumbnailImage: File,
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
-    isPin = true
+    isPin = true,
+    hasNonce: boolean = false,
+    autoMigration: boolean = false
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -250,7 +254,7 @@ export class VWBL {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.web3.eth.getChainId();
-    await this.api.setKey(documentId, chainId, key, this.signature, hasNonce, autoMigration);
+    await this.api.setKey(documentId, chainId, key, this.signature);
     return tokenId;
   };
 
