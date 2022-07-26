@@ -59,7 +59,7 @@ export class VWBL {
     } = props;
     this.opts = props;
     this.api = new VWBLApi(vwblNetworkUrl);
-    this.nft = uploadContentType === UploadContentType.S3 ? new VWBLNFT(web3, contractAddress, false) : new VWBLNFT(web3, contractAddress, true);
+    this.nft = uploadMetadataType === UploadMetadataType.S3 ? new VWBLNFT(web3, contractAddress, false) : new VWBLNFT(web3, contractAddress, true);
     if (uploadContentType === UploadContentType.S3 || uploadMetadataType === UploadMetadataType.S3) {
       if (!awsConfig) {
         throw new Error("please specify S3 bucket.");
