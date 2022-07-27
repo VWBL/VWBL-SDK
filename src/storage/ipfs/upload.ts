@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 import FormDataNodeJs from "form-data";
 
-import { toArrayBuffer } from "../../util/imageEditor";
+import { toArrayBuffer } from "../../util/fileHelper";
 import { PlainMetadata } from "../../vwbl/metadata";
 import { EncryptLogic } from "../../vwbl/types";
 import { IPFSInfuraConfig } from "./types";

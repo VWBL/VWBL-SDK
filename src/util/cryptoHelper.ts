@@ -1,6 +1,7 @@
 import crypto from "crypto-js";
 import * as uuid from "uuid";
 import nodeCrypto from "crypto"
+import { toArrayBuffer } from "./fileHelper";
 
 export const createRandomKey = uuid.v4;
 export const encryptString = (message: string, key: string) => {
@@ -47,7 +48,7 @@ export const decryptFileOnBrowser = async (encryptedFile: ArrayBuffer, key: stri
 export const encryptFileOnNode = async (file: File, key: string): Promise<ArrayBuffer> => {
   const keyData = new TextEncoder().encode(key.replace(/-/g, ""));
   const cipher = nodeCrypto.createCipheriv("aes-256-cbc", keyData, new Uint8Array(16));
-  const start = cipher.update(Buffer.from(await file.arrayBuffer()));
+  const start = cipher.update(Buffer.from(await toArrayBuffer(file)));
   const final = cipher.final();
   return Buffer.concat([start, final]).buffer;
 };

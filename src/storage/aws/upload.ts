@@ -1,5 +1,5 @@
 import AWS from "aws-sdk";
-import { getMimeType, toArrayBuffer } from "../../util/imageEditor";
+import { getMimeType, toArrayBuffer } from "../../util/fileHelper";
 import { PlainMetadata } from "../../vwbl/metadata";
 import { EncryptLogic } from "../../vwbl/types";
 import { AWSConfig } from "./types";
