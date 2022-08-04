@@ -6,12 +6,7 @@ import { AWSConfig } from "../storage/aws/types";
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../storage/aws/upload";
 import { IPFSInfuraConfig } from "../storage/ipfs/types";
 import { UploadToIPFS } from "../storage/ipfs/upload";
-import {
-  createRandomKey,
-  decryptString,
-  encryptString,
-  encryptFile, decryptFile,
-} from "../util/cryptoHelper";
+import { createRandomKey, decryptFile, decryptString, encryptFile, encryptString } from "../util/cryptoHelper";
 import { getMimeType, toBase64FromBlob } from "../util/fileHelper";
 import { VWBLApi } from "./api";
 import { signToProtocol, VWBLNFT } from "./blockchain";
@@ -58,7 +53,10 @@ export class VWBL {
     } = props;
     this.opts = props;
     this.api = new VWBLApi(vwblNetworkUrl);
-    this.nft = uploadMetadataType === UploadMetadataType.S3 ? new VWBLNFT(web3, contractAddress, false) : new VWBLNFT(web3, contractAddress, true);
+    this.nft =
+      uploadMetadataType === UploadMetadataType.S3
+        ? new VWBLNFT(web3, contractAddress, false)
+        : new VWBLNFT(web3, contractAddress, true);
     if (uploadContentType === UploadContentType.S3 || uploadMetadataType === UploadMetadataType.S3) {
       if (!awsConfig) {
         throw new Error("please specify S3 bucket.");
@@ -116,8 +114,8 @@ export class VWBL {
     thumbnailImage: File,
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
-    hasNonce: boolean = false,
-    autoMigration: boolean = false,
+    hasNonce = false,
+    autoMigration = false,
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata
@@ -146,9 +144,8 @@ export class VWBL {
     console.log("upload data");
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
-        const base64content = await toBase64FromBlob(file);
         const encryptedContent =
-          encryptLogic === "base64" ? encryptString(base64content, key) : await encryptFile(file, key);
+          encryptLogic === "base64" ? encryptString(await toBase64FromBlob(file), key) : await encryptFile(file, key);
         console.log(typeof encryptedContent);
         return await uploadEncryptedFunction(file.name, encryptedContent, uuid, awsConfig);
       })
@@ -195,7 +192,7 @@ export class VWBL {
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param isPin - The Identifier of whether to pin uploaded data on IPFS.
    * @param hasNonce
-   * @param autoMigration 
+   * @param autoMigration
    * @returns
    */
   managedCreateTokenForIPFS = async (
@@ -206,8 +203,8 @@ export class VWBL {
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
     isPin = true,
-    hasNonce: boolean = false,
-    autoMigration: boolean = false
+    hasNonce = false,
+    autoMigration = false
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -222,9 +219,8 @@ export class VWBL {
     console.log("upload data");
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
-        const base64content = await toBase64FromBlob(file);
         const encryptedContent =
-          encryptLogic === "base64" ? encryptString(base64content, key) : await encryptFile(file, key);
+          encryptLogic === "base64" ? encryptString(await toBase64FromBlob(file), key) : await encryptFile(file, key);
         console.log(typeof encryptedContent);
         return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent, isPin);
       })
@@ -301,8 +297,8 @@ export class VWBL {
     return encryptFile(plainFile, key);
   };
 
-  decryptFile = async (encryptFile: ArrayBuffer, key:string): Promise<ArrayBuffer> => {
-    return decryptFile(encryptFile,key)
+  decryptFile = async (encryptFile: ArrayBuffer, key: string): Promise<ArrayBuffer> => {
+    return decryptFile(encryptFile, key);
   };
 
   /**
