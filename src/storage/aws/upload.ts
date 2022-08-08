@@ -1,4 +1,6 @@
 import AWS from "aws-sdk";
+import * as Stream from "stream";
+
 import { getMimeType, toArrayBuffer } from "../../util/fileHelper";
 import { PlainMetadata } from "../../vwbl/metadata";
 import { EncryptLogic } from "../../vwbl/types";
@@ -6,7 +8,7 @@ import { AWSConfig } from "./types";
 
 export const uploadEncryptedFile = async (
   fileName: string,
-  encryptedContent: string | ArrayBuffer,
+  encryptedContent: string | ArrayBuffer | Stream,
   uuid: string,
   awsConfig?: AWSConfig
 ): Promise<string> => {

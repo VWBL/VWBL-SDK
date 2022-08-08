@@ -1,6 +1,8 @@
+import nodeCrypto from "crypto";
 import crypto from "crypto-js";
+import * as Stream from "stream";
 import * as uuid from "uuid";
-import nodeCrypto from "crypto"
+
 import { toArrayBuffer } from "./fileHelper";
 
 export const createRandomKey = uuid.v4;
@@ -53,12 +55,26 @@ export const encryptFileOnNode = async (file: File, key: string): Promise<ArrayB
   return Buffer.concat([start, final]).buffer;
 };
 
-export const decryptFileOnNode = async (encryptedFile: ArrayBuffer, key: string): Promise<ArrayBuffer> => {
+export const decryptFileOnNode = (encryptedFile: ArrayBuffer, key: string): ArrayBuffer => {
   const keyData = new TextEncoder().encode(key.replace(/-/g, ""));
   const decipher = nodeCrypto.createDecipheriv("aes-256-cbc", keyData, new Uint8Array(16));
   const start = decipher.update(Buffer.from(encryptedFile));
   const final = decipher.final();
   return Buffer.concat([start, final]).buffer;
 };
+
+export const encryptStream = (file: File, key: string): Stream => {
+  const keyData = new TextEncoder().encode(key.replace(/-/g, ""));
+  const cipher = nodeCrypto.createCipheriv("aes-256-cbc", keyData, new Uint8Array(16));
+  const stream = file.stream();
+  return stream.pipe(cipher);
+};
+
+export const decryptStream = (stream: Stream, key: string): Stream => {
+  const keyData = new TextEncoder().encode(key.replace(/-/g, ""));
+  const decipher = nodeCrypto.createDecipheriv("aes-256-cbc", keyData, new Uint8Array(16));
+  return stream.pipe(decipher);
+};
+
 export const encryptFile = typeof window === "undefined" ? encryptFileOnNode : encryptFileOnBrowser;
 export const decryptFile = typeof window === "undefined" ? decryptFileOnNode : decryptFileOnBrowser;

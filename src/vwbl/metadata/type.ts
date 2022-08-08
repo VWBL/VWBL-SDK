@@ -1,5 +1,6 @@
 // use snake case because OpenSea's metadata standard is snake case.
 import { EncryptLogic } from "../types";
+import * as stream from "stream";
 
 export type PlainMetadata = {
   name: string;
@@ -22,5 +23,5 @@ export type Metadata = {
 export type ExtractMetadata = Metadata & {
   fileName: string;
   ownDataBase64: string[];
-  ownFiles: ArrayBuffer[];
+  ownFiles: ArrayBuffer[] | stream[];
 };
