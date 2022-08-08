@@ -6,12 +6,7 @@ import { AWSConfig } from "../storage/aws/types";
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../storage/aws/upload";
 import { IPFSInfuraConfig } from "../storage/ipfs/types";
 import { UploadToIPFS } from "../storage/ipfs/upload";
-import {
-  createRandomKey,
-  decryptString,
-  encryptString,
-  encryptFile, decryptFile,
-} from "../util/cryptoHelper";
+import { createRandomKey, decryptFile, decryptString, encryptFile, encryptString } from "../util/cryptoHelper";
 import { getMimeType, toBase64FromBlob } from "../util/fileHelper";
 import { VWBLApi } from "./api";
 import { signToProtocol, VWBLNFT } from "./blockchain";
@@ -56,9 +51,12 @@ export class VWBL {
       vwblNetworkUrl,
       ipfsInfuraConfig,
     } = props;
-    this.nft = awsConfig ? new VWBLNFT(web3, contractAddress, false) : new VWBLNFT(web3, contractAddress, true);
     this.opts = props;
     this.api = new VWBLApi(vwblNetworkUrl);
+    this.nft =
+      uploadMetadataType === UploadMetadataType.S3
+        ? new VWBLNFT(web3, contractAddress, false)
+        : new VWBLNFT(web3, contractAddress, true);
     if (uploadContentType === UploadContentType.S3 || uploadMetadataType === UploadMetadataType.S3) {
       if (!awsConfig) {
         throw new Error("please specify S3 bucket.");
@@ -101,7 +99,9 @@ export class VWBL {
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
-   * @param encryptLogic //TODO: nagashima先生おねがいします。"base64" or "binary", "base64" はデータ容量効率は悪いが表示がらくなので、低容量向け、"binaryは逆"
+   * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
+   * @param hasNonce
+   * @param autoMigration
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
@@ -114,6 +114,8 @@ export class VWBL {
     thumbnailImage: File,
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
+    hasNonce = false,
+    autoMigration = false,
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata
@@ -142,9 +144,8 @@ export class VWBL {
     console.log("upload data");
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
-        const base64content = await toBase64FromBlob(file);
         const encryptedContent =
-          encryptLogic === "base64" ? encryptString(base64content, key) : await encryptFile(file, key);
+          encryptLogic === "base64" ? encryptString(await toBase64FromBlob(file), key) : await encryptFile(file, key);
         console.log(typeof encryptedContent);
         return await uploadEncryptedFunction(file.name, encryptedContent, uuid, awsConfig);
       })
@@ -188,8 +189,10 @@ export class VWBL {
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
-   * @param encryptLogic //TODO: nagashima先生おねがいします。"base64" or "binary", "base64" はデータ容量効率は悪いが表示がらくなので、低容量向け、"binaryは逆"
+   * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param isPin - The Identifier of whether to pin uploaded data on IPFS.
+   * @param hasNonce
+   * @param autoMigration
    * @returns
    */
   managedCreateTokenForIPFS = async (
@@ -199,7 +202,9 @@ export class VWBL {
     thumbnailImage: File,
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
-    isPin = true
+    isPin = true,
+    hasNonce = false,
+    autoMigration = false
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -214,9 +219,8 @@ export class VWBL {
     console.log("upload data");
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
-        const base64content = await toBase64FromBlob(file);
         const encryptedContent =
-          encryptLogic === "base64" ? encryptString(base64content, key) : await encryptFile(file, key);
+          encryptLogic === "base64" ? encryptString(await toBase64FromBlob(file), key) : await encryptFile(file, key);
         console.log(typeof encryptedContent);
         return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent, isPin);
       })
@@ -293,8 +297,8 @@ export class VWBL {
     return encryptFile(plainFile, key);
   };
 
-  decryptFile = async (encryptFile: ArrayBuffer, key:string): Promise<ArrayBuffer> => {
-    return decryptFile(encryptFile,key)
+  decryptFile = async (encryptFile: ArrayBuffer, key: string): Promise<ArrayBuffer> => {
+    return decryptFile(encryptFile, key);
   };
 
   /**
@@ -382,8 +386,10 @@ export class VWBL {
    *
    * @param tokenId - The ID of NFT
    * @param key - The key generated by {@link VWBL.createKey}
+   * @param hasNonce
+   * @param autoMigration
    */
-  setKey = async (tokenId: number, key: string): Promise<void> => {
+  setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
     if (!this.signature) {
       throw "please sign first";
     }

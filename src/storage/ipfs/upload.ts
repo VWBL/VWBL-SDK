@@ -15,9 +15,7 @@ export class UploadToIPFS {
   }
 
   async uploadEncryptedFile(encryptedContent: string | ArrayBuffer, isPin: boolean): Promise<string> {
-    const url = isPin
-      ? "https://ipfs.infura.io:5001/api/v0/add?pin=true"
-      : "https://ipfs.infura.io:5001/api/v0/add?pin=false";
+    const url = `https://ipfs.infura.io:5001/api/v0/add?pin=${isPin}`;
 
     const encryptedContentData = typeof encryptedContent === "string" ? encryptedContent : new Blob([encryptedContent]);
     let encryptedContentForm = isRunningOnBrowser ? new FormData() : new FormDataNodeJs();
@@ -44,9 +42,7 @@ export class UploadToIPFS {
   }
 
   async uploadThumbnail(thumbnailImage: File, isPin: boolean): Promise<string> {
-    const url = isPin
-      ? "https://ipfs.infura.io:5001/api/v0/add?pin=true"
-      : "https://ipfs.infura.io:5001/api/v0/add?pin=false";
+    const url = `https://ipfs.infura.io:5001/api/v0/add?pin=${isPin}`;
 
     let thumbnailForm;
     if (isRunningOnBrowser) {
@@ -86,10 +82,8 @@ export class UploadToIPFS {
     encryptLogic: EncryptLogic,
     isPin: boolean
   ): Promise<string> {
-    const url = isPin
-      ? "https://ipfs.infura.io:5001/api/v0/add?pin=true"
-      : "https://ipfs.infura.io:5001/api/v0/add?pin=false";
-
+    const url = `https://ipfs.infura.io:5001/api/v0/add?pin=${isPin}`;
+  
     const metadata: PlainMetadata = {
       name,
       description,
