@@ -17,6 +17,9 @@ export class UploadToIPFS {
   async uploadEncryptedFile(encryptedContent: string | ArrayBuffer, isPin: boolean): Promise<string> {
     const url = `https://ipfs.infura.io:5001/api/v0/add?pin=${isPin}`;
 
+    const encryptedContentData = typeof encryptedContent === "string" ? encryptedContent : new Blob([encryptedContent]);
+    const encryptedContentForm = isRunningOnBrowser ? new FormData() : new FormDataNodeJs();
+    encryptedContentForm.append("file", encryptedContentData);
     const ipfsAddConfig: AxiosRequestConfig = {
       method: "post",
       url: url,
@@ -24,7 +27,7 @@ export class UploadToIPFS {
         Authorization: this.auth,
         "Content-Type": "multipart/form-data",
       },
-      data: encryptedContent,
+      data: encryptedContentForm,
     };
     let ipfsAddRes;
     try {
