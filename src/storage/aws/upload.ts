@@ -1,5 +1,4 @@
 import AWS from "aws-sdk";
-import * as Stream from "stream";
 
 import { getMimeType, toArrayBuffer } from "../../util/fileHelper";
 import { PlainMetadata } from "../../vwbl/metadata";
