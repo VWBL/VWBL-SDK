@@ -63,10 +63,9 @@ export const decryptFileOnNode = (encryptedFile: ArrayBuffer, key: string): Arra
   return Buffer.concat([start, final]).buffer;
 };
 
-export const encryptStream = (file: File, key: string): Stream => {
+export const encryptStream = (stream: Stream, key: string): Stream => {
   const keyData = new TextEncoder().encode(key.replace(/-/g, ""));
   const cipher = nodeCrypto.createCipheriv("aes-256-cbc", keyData, new Uint8Array(16));
-  const stream = file.stream();
   return stream.pipe(cipher);
 };
 

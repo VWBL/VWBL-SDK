@@ -8,7 +8,7 @@ import { AWSConfig } from "./types";
 
 export const uploadEncryptedFile = async (
   fileName: string,
-  encryptedContent: string | ArrayBuffer | Stream,
+  encryptedContent: string | ArrayBuffer,
   uuid: string,
   awsConfig?: AWSConfig
 ): Promise<string> => {
