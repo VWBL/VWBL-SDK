@@ -101,7 +101,7 @@ Arguments
 | uploadThumbnailCallback | true if uploadContentType is CUSTOM | UploadThumbnail | you can custom upload function |
 | uploadMetadataCallback| true if uploadMetadataType is CUSTOM | UploadMetadata | you can custom upload function |
 
-### view contents ( get NFT metadat from given tokenId)
+### view contents ( get NFT metadata from given tokenId)
 ```typescript
 const token = await vwbl.getTokenById(tokenId)
 ```
