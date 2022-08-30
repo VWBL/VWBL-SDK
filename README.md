@@ -66,7 +66,7 @@ IPFSConfig
 | projectSecret | true | string | project secret that given by infura |
 
 ### sign to server
-Signing is necessary before creatting token or viewing contents.
+Signing is necessary before creating token or viewing contents.
 ```typescript
 if (!vwbl.signature) {
   await vwbl.sign();
