@@ -156,8 +156,7 @@ export class VWBL {
             ? encryptString(await toBase64FromBlob(file), key)
             : isRunningOnBrowser
             ? await encryptFile(file, key)
-            : // @ts-ignore
-              encryptStream(fs.createReadStream(file.path), key);
+            : encryptStream(fs.createReadStream((file as any).path), key);
         return await uploadEncryptedFunction(file.name, encryptedContent, uuid, awsConfig);
       })
     );
