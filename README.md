@@ -1,10 +1,13 @@
 # VWBL SDK
 
+## install dependencies(in VWBL-SDK)
+`yarn install`
+
 ## build
 
 `yarn build`
 
-## install
+## install (in your project)
 
 `yarn add ../VWBL-SDK`
 <!-- 
@@ -19,9 +22,9 @@ new VWBL({
   web3,
   contractAddress: "0x...",
   manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
-  uploadImageType: UploadImageType.S3,
+  uploadContentType: UploadContentType.S3,
   uploadMetadataType: UploadMetadataType.S3,
-  vwblNetworkUrl: "https://example.com",
+  vwblNetworkUrl: "https://vwbl.network",
   awsConfig: {
     region: "ap-northeast-1",
     idPoolId: "ap-northeast-1:...",
@@ -40,10 +43,12 @@ Constructor Options
 | --- | --- | --- | --- |
 | web3 | true | [Web3](https://www.npmjs.com/package/web3) | web3 instance |
 | contractAddress | true | string |VWBL nft's contract address|
-| manageKeyType | true | ManageKeyType | how to manage key, you can choose from <br> VWBL_NETWORK_SERVER <br> VWBL_NETWORK_CONSORTIUM(not implemented yet)<br> MY_SERVER(not implemented yet). |
-| uploadContentType | true | UploadContentType | where to upload content, you can choose from <br> S3 <br> IPFS(not implemented yet) <br> CUSTOM|
 | vwblNetworkUrl | true | string | VWBL network's url |
-| awsConfig | true if you choose upload content or metadata to S3 | AWSConfig | AWSConfig *1 |
+| manageKeyType | false | ManageKeyType | how to manage key, you can choose from <br> VWBL_NETWORK_SERVER <br> VWBL_NETWORK_CONSORTIUM(not implemented yet)<br> MY_SERVER(not implemented yet). |
+| uploadContentType | flase | UploadContentType | where to upload content, you can choose from <br> S3 <br> IPFS <br> CUSTOM|
+| uploadMetadataType | flase | UploadMetadataType | where to upload content, you can choose from <br> S3 <br> IPFS <br> CUSTOM|
+| awsConfig | true if you choose to upload content or metadata to S3 | AWSConfig | AWSConfig *1 |
+| ipfsInfuraConfig | true if you choose to upload content or metadata to IPFS | IPFSInfuraConfig | IPFSInfuraCofig *2 | 
 
 AWSConfig
 
@@ -54,22 +59,28 @@ AWSConfig
 | cloudFrontUrl | true | string | cloudFront url connect to s3 which is uploaded content |
 | bucketName | true | {content: string, metadata: string} | bucketName of metadata and content, it's ok they are same |
 
+IPFSConfig
+| name | required | type | description |
+| --- | --- | --- | --- |
+| projectId | true | string | project id that given by infura |
+| projectSecret | true | string | project secret that given by infura |
+
 ### sign to server
-sign is necessary before create token or view contents.
+Signing is necessary before creating token or viewing contents.
 ```typescript
-if (!vwbl.hasSign()) {
+if (!vwbl.signature) {
   await vwbl.sign();
 }
 ```
 
 ### create token
 ```typescript
-await vwbl.createToken(
+await vwbl.managedCreateToken(
   name,
   description,
   fileContent,
-  FileType.IMAGE,
-  thumbnailContent
+  thumbnailContent,
+  0 // royaltiesPercentage
 );
 ```
 
@@ -79,18 +90,17 @@ Arguments
 | --- | --- | --- | --- |
 | name | true | string | [ERC721](https://eips.ethereum.org/EIPS/eip-721) metadata name |
 | description | true | string | [ERC721](https://eips.ethereum.org/EIPS/eip-721) metadata description |
-| fileContent | true | File | upload file |
-| fileType | true | FileType | IMAGE or OTHER (MOVIE, MUSIC etc. are support later)|
-| thumbnailContent | true | File) | [ERC721](https://eips.ethereum.org/EIPS/eip-721) metadata image |
-| uploadFileCallback | true if uploadContentType is CUSTOM | UploadFile | you can custom upload function |
+| plainFile | true | File \| File[] | The data that only NFT owner can view |
+| thumbnailImage | true | File | [ERC721](https://eips.ethereum.org/EIPS/eip-721) metadata image |
+| royaltiesPercentage | true | number | If the marketplace supports EIP2981, this percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold |
+| encryptLogic | false (default="base64") | EncryptLogic |  "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data. |
+| hasNonce | false (default=false) | boolean |whether to contain account's nonce in signature |
+| autoMigration | false (default=false) | boolean | whether to deligate to destribute key fragments of a split key when new one was created |
+| uploadEncryptedFileCallback | true if uploadContentType is CUSTOM | UploadEncryptedFile |  you can custom upload function |
+| uploadThumbnailCallback | true if uploadContentType is CUSTOM | UploadThumbnail | you can custom upload function |
 | uploadMetadataCallback| true if uploadMetadataType is CUSTOM | UploadMetadata | you can custom upload function |
 
-### view contents
-list
+### view contents ( get NFT metadata from given tokenId)
 ```typescript
-const tokens = await vwbl.getOwnTokens();
-```
-Detail
-```typescript
-const token = await vwbl.getTokenById(id)
+const token = await vwbl.getTokenById(tokenId)
 ```
