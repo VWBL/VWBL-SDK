@@ -18,14 +18,13 @@ export class UploadToIPFS {
     const url = `https://ipfs.infura.io:5001/api/v0/add?pin=${isPin}`;
 
     const encryptedContentData = typeof encryptedContent === "string" ? encryptedContent : new Blob([encryptedContent]);
-    let encryptedContentForm = isRunningOnBrowser ? new FormData() : new FormDataNodeJs();
+    const encryptedContentForm = isRunningOnBrowser ? new FormData() : new FormDataNodeJs();
     encryptedContentForm.append("file", encryptedContentData);
-
     const ipfsAddConfig: AxiosRequestConfig = {
       method: "post",
       url: url,
       headers: {
-        "Authorization": this.auth,
+        Authorization: this.auth,
         "Content-Type": "multipart/form-data",
       },
       data: encryptedContentForm,
@@ -37,8 +36,7 @@ export class UploadToIPFS {
       throw new Error(err);
     }
 
-    const encryptedDataUrl = "https://infura-ipfs.io/ipfs/" + ipfsAddRes.data.Hash;
-    return encryptedDataUrl;
+    return `https://infura-ipfs.io/ipfs/${ipfsAddRes.data.Hash}`;
   }
 
   async uploadThumbnail(thumbnailImage: File, isPin: boolean): Promise<string> {
@@ -57,7 +55,7 @@ export class UploadToIPFS {
       method: "post",
       url: url,
       headers: {
-        "Authorization": this.auth,
+        Authorization: this.auth,
         "Content-Type": "multipart/form-data",
       },
       data: thumbnailForm,
@@ -69,8 +67,7 @@ export class UploadToIPFS {
       throw new Error(err);
     }
 
-    const thumbnailImageUrl = "https://infura-ipfs.io/ipfs/" + ipfsAddRes.data.Hash;
-    return thumbnailImageUrl;
+    return `https://infura-ipfs.io/ipfs/${ipfsAddRes.data.Hash}`;
   }
 
   async uploadMetadata(
@@ -83,7 +80,7 @@ export class UploadToIPFS {
     isPin: boolean
   ): Promise<string> {
     const url = `https://ipfs.infura.io:5001/api/v0/add?pin=${isPin}`;
-  
+
     const metadata: PlainMetadata = {
       name,
       description,
@@ -93,14 +90,14 @@ export class UploadToIPFS {
       encrypt_logic: encryptLogic,
     };
 
-    let metadataForm = isRunningOnBrowser ? new FormData() : new FormDataNodeJs();
+    const metadataForm = isRunningOnBrowser ? new FormData() : new FormDataNodeJs();
     metadataForm.append("file", JSON.stringify(metadata));
 
     const ipfsAddConfig: AxiosRequestConfig = {
       method: "post",
       url: url,
       headers: {
-        "Authorization": this.auth,
+        Authorization: this.auth,
         "Content-Type": "multipart/form-data",
       },
       data: metadataForm,
@@ -112,7 +109,6 @@ export class UploadToIPFS {
       throw new Error(err);
     }
 
-    const metadataUrl = "https://infura-ipfs.io/ipfs/" + ipfsAddRes.data.Hash;
-    return metadataUrl;
+    return `https://infura-ipfs.io/ipfs/${ipfsAddRes.data.Hash}`;
   }
 }
