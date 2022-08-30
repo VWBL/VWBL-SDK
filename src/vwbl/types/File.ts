@@ -4,7 +4,7 @@ import { EncryptLogic } from "./EncryptLogic";
 
 type UploadEncryptedFile = (
   fileName: string,
-  encryptedContent: string | ArrayBuffer,
+  encryptedContent: string | ArrayBuffer | Stream,
   uuid: string
 ) => Promise<string>;
 
