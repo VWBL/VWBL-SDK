@@ -8,9 +8,8 @@
 `yarn build`
 
 ## install (in your project)
-※please place VWBL-SDK in the root directory of your project 
 
-`yarn add ./VWBL-SDK`
+`yarn add ../VWBL-SDK`
 <!-- 
 npmリポジトリに公開したら以下に変更
 `yarn add vwbl-sdk`
