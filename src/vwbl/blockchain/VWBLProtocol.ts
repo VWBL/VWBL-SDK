@@ -3,7 +3,7 @@ import { Contract } from "web3-eth-contract";
 import { AbiItem } from "web3-utils";
 
 import vwbl from "../../contract/VWBL.json";
-import vwblIPFS from "../../contract/VWBLSupportIPFS.json";
+import vwblMetadata from "../../contract/VWBLMetadata.json";
 
 export class VWBLNFT {
   private contract: Contract;
@@ -12,7 +12,7 @@ export class VWBLNFT {
   constructor(web3: Web3, address: string, isIpfs: boolean) {
     this.web3 = web3;
     this.contract = isIpfs
-      ? new web3.eth.Contract(vwblIPFS.abi as AbiItem[], address)
+      ? new web3.eth.Contract(vwblMetadata.abi as AbiItem[], address)
       : new web3.eth.Contract(vwbl.abi as AbiItem[], address);
   }
 
