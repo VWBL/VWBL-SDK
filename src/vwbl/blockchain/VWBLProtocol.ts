@@ -22,7 +22,7 @@ export class VWBLNFT {
     console.log("transaction start");
     const receipt = await this.contract.methods
       .mint(decryptUrl, royaltiesPercentage, documentId)
-      .send({ from: myAddress, value: fee });
+      .send({ from: myAddress, value: fee, maxPriorityFeePerGas: null, maxFeePerGas: null });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
@@ -34,7 +34,7 @@ export class VWBLNFT {
     console.log("transaction start");
     const receipt = await this.contract.methods
       .mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId)
-      .send({ from: myAddress, value: fee });
+      .send({ from: myAddress, value: fee, maxPriorityFeePerGas: null, maxFeePerGas: null });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
@@ -89,7 +89,9 @@ export class VWBLNFT {
 
   async approve(operator: string, tokenId: number): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
-    await this.contract.methods.approve(operator, tokenId).send({ from: myAddress });
+    await this.contract.methods
+      .approve(operator, tokenId)
+      .send({ from: myAddress, maxPriorityFeePerGas: null, maxFeePerGas: null });
   }
 
   async getApproved(tokenId: number): Promise<string> {
@@ -98,7 +100,9 @@ export class VWBLNFT {
 
   async setApprovalForAll(operator: string): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
-    await this.contract.methods.setApprovalForAll(operator, true).send({ from: myAddress });
+    await this.contract.methods
+      .setApprovalForAll(operator, true)
+      .send({ from: myAddress, maxPriorityFeePerGas: null, maxFeePerGas: null });
   }
 
   async isApprovedForAll(owner: string, operator: string): Promise<boolean> {
@@ -107,7 +111,9 @@ export class VWBLNFT {
 
   async safeTransfer(to: string, tokenId: number): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
-    await this.contract.methods.safeTransferFrom(myAddress, to, tokenId).send({ from: myAddress });
+    await this.contract.methods
+      .safeTransferFrom(myAddress, to, tokenId)
+      .send({ from: myAddress, maxPriorityFeePerGas: null, maxFeePerGas: null });
   }
 }
 
