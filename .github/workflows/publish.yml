@@ -1,54 +1,44 @@
-name: publish my library
-
-env:
-  CI: true
+name: Publish npm package
 
 on:
   push:
-    branches:
-      - master
     tags:
-      - "!*"
+      - "v*"
+
+env:
+  # Check available versions below
+  # https://github.com/actions/node-versions/blob/main/versions-manifest.json
+  node-version: "16.x"
 
 jobs:
   publish:
-    name: Setup
     runs-on: ubuntu-latest
+
     steps:
-      - name: checkout
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      # Nodeのバージョンを指定
-      - name: setup node
-        uses: actions/setup-node@v1
+      - name: Setup node
+        uses: actions/setup-node@v3
         with:
-          node-version: 14.x
-          registry-url: https://npm.pkg.github.com
+          cache: "yarn"
+          node-version: ${{ env.node-version }}
+          registry-url: https://npm.pkg.github.com/
 
-      # 必要なモジュール（typescript）をインストール
-      - name: install node_modules
-        run: npm install
-
-      # トランスパイルを実行
-      - name: build
-        run: npx tsc
-
-      # パッケージとして公開する
-      - name: publish
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # バージョン情報を環境変数として設定
-      - name: set version to env
-        run: node -p -e '`VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
-
-      # バージョン情報持つタグを付与する
-      - name: add version tag
-        uses: pkgdeps/git-tag-action@v2
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        id: cache_node_modules
         with:
-          version: ${{ env.VERSION }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          github_repo: ${{ github.repository }}
-          git_commit_sha: ${{ github.sha }}
-          git_tag_prefix: "v"
+          # check diff of package.json and yarn.lock
+          key: ${{ runner.os }}-build-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          path: "**/node_modules"
+
+      - name: Authenticate with GitHub PAT
+        run: echo "npmAuthToken:" ${{ secrets.NPM_TOKEN }} >> ~/.yarnrc.yml
+
+      - name: Install Dependencies
+        if: steps.cache_node_modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
+
+      - name: Publish private npm package
+        run: npx can-npm-publish --verbose && yarn npm publish
