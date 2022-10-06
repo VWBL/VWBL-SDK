@@ -48,7 +48,7 @@ Constructor Options
 | uploadContentType | flase | UploadContentType | where to upload content, you can choose from <br> S3 <br> IPFS <br> CUSTOM|
 | uploadMetadataType | flase | UploadMetadataType | where to upload content, you can choose from <br> S3 <br> IPFS <br> CUSTOM|
 | awsConfig | true if you choose to upload content or metadata to S3 | AWSConfig | AWSConfig *1 |
-| ipfsInfuraConfig | true if you choose to upload content or metadata to IPFS | IPFSInfuraConfig | IPFSInfuraCofig *2 | 
+| ipfsNftStorageConfig | true if you choose to upload content or metadata to IPFS | NftStorageConfig | NftStorageConfig *2 | 
 
 AWSConfig
 
@@ -64,6 +64,11 @@ IPFSConfig
 | --- | --- | --- | --- |
 | projectId | true | string | project id that given by infura |
 | projectSecret | true | string | project secret that given by infura |
+
+IPFSNftStorageConfig
+| name | required | type | description |
+| --- | --- | --- | --- |
+| nftStorageKey | true | string | API Key that given by nftstorage |
 
 ### sign to server
 Signing is necessary before creating token or viewing contents.

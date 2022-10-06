@@ -11,6 +11,7 @@ import Web3 from "web3";
 import sinon from "sinon"
 import { expect } from "chai";
 import * as dotenv from "dotenv";
+import { IPFSNftStorageConfig } from "../storage/ipfs/types";
 
 dotenv.config();
 
@@ -25,7 +26,12 @@ describe("VWBL",  () => {
     setKey: sinon.stub(VWBLApi.prototype, "setKey")
   };
 
+  const ipfsNftStorageConfig : IPFSNftStorageConfig = {
+    nftStorageKey: ''
+  } 
+
   const vwbl = new VWBL({
+    ipfsNftStorageConfig: ipfsNftStorageConfig, 
     awsConfig: undefined,
     contractAddress: "0x2c7e967093d7fe0eeb5440bf49e5D148417B0412",
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
