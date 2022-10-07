@@ -60,6 +60,7 @@ AWSConfig
 | bucketName | true | {content: string, metadata: string} | bucketName of metadata and content, it's ok they are same |
 
 IPFSNftStorageConfig
+
 | name | required | type | description |
 | --- | --- | --- | --- |
 | nftStorageKey | true | string | api key that given by nftstorage |
