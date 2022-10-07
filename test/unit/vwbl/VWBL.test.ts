@@ -27,7 +27,7 @@ describe("VWBL",  () => {
   };
 
   const ipfsNftStorageConfig : IPFSNftStorageConfig = {
-    nftStorageKey: ''
+    nftStorageKey: "set nftstorage api key"
   } 
 
   const vwbl = new VWBL({

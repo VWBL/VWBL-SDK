@@ -79,7 +79,7 @@ export class VWBL {
       });
     } else if (uploadContentType === UploadContentType.IPFS || uploadMetadataType === UploadMetadataType.IPFS) {
       if (!ipfsNftStorageConfig) {
-        throw new Error("please specify Infura config of IPFS.");
+        throw new Error("please specify nftstorage config of IPFS.");
       }
       this.uploadToIpfs = new UploadToIPFS(ipfsNftStorageConfig);
     }

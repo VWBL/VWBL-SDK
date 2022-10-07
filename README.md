@@ -59,16 +59,10 @@ AWSConfig
 | cloudFrontUrl | true | string | cloudFront url connect to s3 which is uploaded content |
 | bucketName | true | {content: string, metadata: string} | bucketName of metadata and content, it's ok they are same |
 
-IPFSConfig
-| name | required | type | description |
-| --- | --- | --- | --- |
-| projectId | true | string | project id that given by infura |
-| projectSecret | true | string | project secret that given by infura |
-
 IPFSNftStorageConfig
 | name | required | type | description |
 | --- | --- | --- | --- |
-| nftStorageKey | true | string | API Key that given by nftstorage |
+| nftStorageKey | true | string | api key that given by nftstorage |
 
 ### sign to server
 Signing is necessary before creating token or viewing contents.
