@@ -6,7 +6,6 @@ import Web3 from "web3";
 
 import { AWSConfig } from "../storage/aws/types";
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../storage/aws/upload";
-import { IPFSNftStorageConfig } from "../storage/ipfs/types";
 import { UploadToIPFS } from "../storage/ipfs/upload";
 import {
   createRandomKey,
@@ -39,7 +38,7 @@ export type ConstructorProps = {
   uploadContentType?: UploadContentType;
   uploadMetadataType?: UploadMetadataType;
   awsConfig?: AWSConfig;
-  ipfsNftStorageConfig?: IPFSNftStorageConfig;
+  ipfsNftStorageKey?: string;
 };
 
 export type VWBLOption = ConstructorProps;
@@ -59,7 +58,7 @@ export class VWBL {
       uploadMetadataType,
       awsConfig,
       vwblNetworkUrl,
-      ipfsNftStorageConfig,
+      ipfsNftStorageKey,
     } = props;
     this.opts = props;
     this.api = new VWBLApi(vwblNetworkUrl);
@@ -78,10 +77,10 @@ export class VWBL {
         }),
       });
     } else if (uploadContentType === UploadContentType.IPFS || uploadMetadataType === UploadMetadataType.IPFS) {
-      if (!ipfsNftStorageConfig) {
+      if (!ipfsNftStorageKey) {
         throw new Error("please specify nftstorage config of IPFS.");
       }
-      this.uploadToIpfs = new UploadToIPFS(ipfsNftStorageConfig);
+      this.uploadToIpfs = new UploadToIPFS(ipfsNftStorageKey);
     }
   }
 
