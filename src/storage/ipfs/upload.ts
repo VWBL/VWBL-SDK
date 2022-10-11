@@ -1,73 +1,40 @@
-import axios, { AxiosRequestConfig } from "axios";
-import FormDataNodeJs from "form-data";
+import { Blob, File, NFTStorage } from "nft.storage";
 
-import { toArrayBuffer } from "../../util/fileHelper";
+import { getMimeType } from "../../util/fileHelper";
 import { PlainMetadata } from "../../vwbl/metadata";
 import { EncryptLogic } from "../../vwbl/types";
-import { IPFSInfuraConfig } from "./types";
-
-const isRunningOnBrowser = typeof window !== "undefined";
 
 export class UploadToIPFS {
-  private auth: string;
-  constructor(infuraConfig: IPFSInfuraConfig) {
-    this.auth = "Basic " + Buffer.from(infuraConfig.projectId + ":" + infuraConfig.projectSecret).toString("base64");
+  private client: NFTStorage;
+  constructor(ipfsNftStorageKey: string) {
+    this.client = new NFTStorage({ token: ipfsNftStorageKey });
   }
 
-  async uploadEncryptedFile(encryptedContent: string | ArrayBuffer, isPin: boolean): Promise<string> {
-    const url = `https://ipfs.infura.io:5001/api/v0/add?pin=${isPin}`;
+  async uploadEncryptedFile(encryptedContent: string | ArrayBuffer): Promise<string> {
+    const encryptedContentData = new Blob([encryptedContent]);
 
-    const encryptedContentData = typeof encryptedContent === "string" ? encryptedContent : new Blob([encryptedContent]);
-    const encryptedContentForm = isRunningOnBrowser ? new FormData() : new FormDataNodeJs();
-    encryptedContentForm.append("file", encryptedContentData);
-    const ipfsAddConfig: AxiosRequestConfig = {
-      method: "post",
-      url: url,
-      headers: {
-        Authorization: this.auth,
-        "Content-Type": "multipart/form-data",
-      },
-      data: encryptedContentForm,
-    };
-    let ipfsAddRes;
+    let cid;
     try {
-      ipfsAddRes = await axios(ipfsAddConfig);
+      cid = await this.client.storeBlob(encryptedContentData);
     } catch (err: any) {
       throw new Error(err);
     }
 
-    return `https://infura-ipfs.io/ipfs/${ipfsAddRes.data.Hash}`;
+    return `https://nftstorage.link/ipfs/${cid}`;
   }
 
-  async uploadThumbnail(thumbnailImage: File, isPin: boolean): Promise<string> {
-    const url = `https://ipfs.infura.io:5001/api/v0/add?pin=${isPin}`;
+  async uploadThumbnail(thumbnailImage: File): Promise<string> {
+    const thumbnailFileType = getMimeType(thumbnailImage);
+    const thumbnailblob = new Blob([thumbnailImage], { type: thumbnailFileType });
 
-    let thumbnailForm;
-    if (isRunningOnBrowser) {
-      thumbnailForm = new FormData();
-      thumbnailForm.append("file", thumbnailImage);
-    } else {
-      thumbnailForm = new FormDataNodeJs();
-      thumbnailForm.append("file", await toArrayBuffer(thumbnailImage));
-    }
-
-    const ipfsAddConfig: AxiosRequestConfig = {
-      method: "post",
-      url: url,
-      headers: {
-        Authorization: this.auth,
-        "Content-Type": "multipart/form-data",
-      },
-      data: thumbnailForm,
-    };
-    let ipfsAddRes;
+    let cid;
     try {
-      ipfsAddRes = await axios(ipfsAddConfig);
+      cid = await this.client.storeBlob(thumbnailblob);
     } catch (err: any) {
       throw new Error(err);
     }
 
-    return `https://infura-ipfs.io/ipfs/${ipfsAddRes.data.Hash}`;
+    return `https://nftstorage.link/ipfs/${cid}`;
   }
 
   async uploadMetadata(
@@ -76,10 +43,8 @@ export class UploadToIPFS {
     previewImageUrl: string,
     encryptedDataUrls: string[],
     mimeType: string,
-    encryptLogic: EncryptLogic,
-    isPin: boolean
+    encryptLogic: EncryptLogic
   ): Promise<string> {
-    const url = `https://ipfs.infura.io:5001/api/v0/add?pin=${isPin}`;
 
     const metadata: PlainMetadata = {
       name,
@@ -90,25 +55,16 @@ export class UploadToIPFS {
       encrypt_logic: encryptLogic,
     };
 
-    const metadataForm = isRunningOnBrowser ? new FormData() : new FormDataNodeJs();
-    metadataForm.append("file", JSON.stringify(metadata));
+    const metadataJSON = JSON.stringify(metadata);
+    const metaDataBlob = new Blob([metadataJSON]);
 
-    const ipfsAddConfig: AxiosRequestConfig = {
-      method: "post",
-      url: url,
-      headers: {
-        Authorization: this.auth,
-        "Content-Type": "multipart/form-data",
-      },
-      data: metadataForm,
-    };
-    let ipfsAddRes;
+    let cid;
     try {
-      ipfsAddRes = await axios(ipfsAddConfig);
+      cid = await this.client.storeBlob(metaDataBlob);
     } catch (err: any) {
       throw new Error(err);
     }
 
-    return `https://infura-ipfs.io/ipfs/${ipfsAddRes.data.Hash}`;
+    return `https://nftstorage.link/ipfs/${cid}`;
   }
 }

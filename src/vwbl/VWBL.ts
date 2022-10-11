@@ -6,7 +6,6 @@ import Web3 from "web3";
 
 import { AWSConfig } from "../storage/aws/types";
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../storage/aws/upload";
-import { IPFSInfuraConfig } from "../storage/ipfs/types";
 import { UploadToIPFS } from "../storage/ipfs/upload";
 import {
   createRandomKey,
@@ -39,7 +38,7 @@ export type ConstructorProps = {
   uploadContentType?: UploadContentType;
   uploadMetadataType?: UploadMetadataType;
   awsConfig?: AWSConfig;
-  ipfsInfuraConfig?: IPFSInfuraConfig;
+  ipfsNftStorageKey?: string;
 };
 
 export type VWBLOption = ConstructorProps;
@@ -59,7 +58,7 @@ export class VWBL {
       uploadMetadataType,
       awsConfig,
       vwblNetworkUrl,
-      ipfsInfuraConfig,
+      ipfsNftStorageKey,
     } = props;
     this.opts = props;
     this.api = new VWBLApi(vwblNetworkUrl);
@@ -78,10 +77,10 @@ export class VWBL {
         }),
       });
     } else if (uploadContentType === UploadContentType.IPFS || uploadMetadataType === UploadMetadataType.IPFS) {
-      if (!ipfsInfuraConfig) {
-        throw new Error("please specify Infura config of IPFS.");
+      if (!ipfsNftStorageKey) {
+        throw new Error("please specify nftstorage config of IPFS.");
       }
-      this.uploadToIpfs = new UploadToIPFS(ipfsInfuraConfig);
+      this.uploadToIpfs = new UploadToIPFS(ipfsNftStorageKey);
     }
   }
 
@@ -200,7 +199,6 @@ export class VWBL {
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
-   * @param isPin - The Identifier of whether to pin uploaded data on IPFS.
    * @returns
    */
   managedCreateTokenForIPFS = async (
@@ -209,8 +207,7 @@ export class VWBL {
     plainFile: File | File[],
     thumbnailImage: File,
     royaltiesPercentage: number,
-    encryptLogic: EncryptLogic = "base64",
-    isPin = true
+    encryptLogic: EncryptLogic = "base64"
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -228,10 +225,10 @@ export class VWBL {
         const encryptedContent =
           encryptLogic === "base64" ? encryptString(await toBase64FromBlob(file), key) : await encryptFile(file, key);
         console.log(typeof encryptedContent);
-        return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent, isPin);
+        return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent);
       })
     );
-    const thumbnailImageUrl = await this.uploadToIpfs?.uploadThumbnail(thumbnailImage, isPin);
+    const thumbnailImageUrl = await this.uploadToIpfs?.uploadThumbnail(thumbnailImage);
     // 4. upload metadata
     console.log("upload meta data");
     const mimeType = getMimeType(plainFileArray[0]);
@@ -241,8 +238,7 @@ export class VWBL {
       thumbnailImageUrl as string,
       encryptedDataUrls as string[],
       mimeType,
-      encryptLogic,
-      isPin
+      encryptLogic
     );
     // 5. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
@@ -393,7 +389,6 @@ export class VWBL {
    * @param encryptedDataUrls - The URL of the encrypted file data
    * @param mimeType - The mime type of encrypted file data
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
-   * @param isPin - The Identifier of whether to pin uploaded data on IPFS.
    */
   uploadMetadataToIPFS = async (
     name: string,
@@ -401,8 +396,7 @@ export class VWBL {
     thumbnailImageUrl: string,
     encryptedDataUrls: string[],
     mimeType: string,
-    encryptLogic: EncryptLogic,
-    isPin = true
+    encryptLogic: EncryptLogic
   ): Promise<string> => {
     const metadataUrl = await this.uploadToIpfs?.uploadMetadata(
       name,
@@ -410,8 +404,7 @@ export class VWBL {
       thumbnailImageUrl,
       encryptedDataUrls,
       mimeType,
-      encryptLogic,
-      isPin
+      encryptLogic
     );
     return metadataUrl as string;
   };
