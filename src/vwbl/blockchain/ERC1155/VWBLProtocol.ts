@@ -3,7 +3,7 @@ import { Contract } from "web3-eth-contract";
 import { AbiItem } from "web3-utils";
 
 import vwbl1155 from "../../../contract/VWBLERC1155.json";
-import vwbl1155IPFS from "../../../contract/VWBLERC1155.json";
+import vwbl1155IPFS from "../../../contract/VWBLERC1155SupportIPFS.json";
 
 export class VWBLNFT {
   private contract: Contract;
