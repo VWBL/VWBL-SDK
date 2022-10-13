@@ -2,8 +2,8 @@ name: Publish npm package
 
 on:
   push:
-    tags:
-      - "v*"
+    pull_request:
+      branches: ["*"]
 
 env:
   # Check available versions below
@@ -41,4 +41,4 @@ jobs:
         run: yarn install
 
       - name: Publish private npm package
-        run: npx can-npm-publish --verbose && yarn npm publish
+        run: yarn npm publish
