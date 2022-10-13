@@ -31,6 +31,21 @@ export class VWBLNFT {
     return tokenId;
   }
 
+  async batchMintToken(decryptUrl: string, amount: number[], royaltiesPercentage: number[], documentId: string[]) {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    const fee = await this.getFee();
+    console.log("transaction start");
+    const receipt = await this.contract.methods.mintBatch(decryptUrl, amount, royaltiesPercentage, documentId).send({
+      from: myAddress,
+      value: fee,
+      maxPriorityFeePerGas: null,
+      maxFeePerGas: null,
+    });
+    console.log("transaction end");
+    const tokenIds: number[] = receipt.events.Transfer.returnValues.tokenIds;
+    return tokenIds;
+  }
+
   async mintTokenForIPFS(
     metadataUrl: string,
     decryptUrl: string,
@@ -52,6 +67,29 @@ export class VWBLNFT {
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
+  }
+
+  async batchMintTokenForIPFS(
+    metadataUrl: string,
+    decryptUrl: string,
+    amount: number[],
+    royaltiesPercentage: number[],
+    documentId: string[]
+  ) {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    const fee = await this.getFee();
+    console.log("transaction start");
+    const receipt = await this.contract.methods
+      .mintBatch(metadataUrl, decryptUrl, amount, royaltiesPercentage, documentId)
+      .send({
+        from: myAddress,
+        value: fee,
+        maxPriorityFeePerGas: null,
+        maxFeePerGas: null,
+      });
+    console.log("transaction end");
+    const tokenIds: number[] = receipt.events.Transfer.returnValues.tokenIds;
+    return tokenIds;
   }
 
   async getOwnTokenIds() {
@@ -117,6 +155,24 @@ export class VWBLNFT {
   async safeTransfer(to: string, tokenId: number, amount: number): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     await this.contract.methods.safeTransferFrom(myAddress, to, tokenId, amount).send({
+      from: myAddress,
+      maxPriorityFeePerGas: null,
+      maxFeePerGas: null,
+    });
+  }
+
+  async burn(owner: string, tokenId: number, amount: number): Promise<void> {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    await this.contract.methods.burn(owner, tokenId, amount).send({
+      from: myAddress,
+      maxPriorityFeePerGas: null,
+      maxFeePerGas: null,
+    });
+  }
+
+  async burnBatch(owner: string, tokenIds: number[], amount: number[]): Promise<void> {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    await this.contract.methods.burnBatch(owner, tokenIds, amount).send({
       from: myAddress,
       maxPriorityFeePerGas: null,
       maxFeePerGas: null,
