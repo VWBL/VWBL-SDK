@@ -45,7 +45,6 @@ export class UploadToIPFS {
     mimeType: string,
     encryptLogic: EncryptLogic
   ): Promise<string> {
-
     const metadata: PlainMetadata = {
       name,
       description,
