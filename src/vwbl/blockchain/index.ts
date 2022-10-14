@@ -1,2 +1,3 @@
 export * from "./Sign";
-export * from "./VWBLProtocol";
+export * from "./erc721/VWBLProtocol";
+export * from "./erc1155/VWBLProtocol";
