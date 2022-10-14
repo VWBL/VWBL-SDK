@@ -38,3 +38,5 @@ jobs:
 
       - name: Test
         run: yarn test
+        env:
+          PROVIDER_URL: https://goerli.infura.io/v3/${{ secrets.INFURA_KEY }}
