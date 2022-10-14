@@ -26,6 +26,7 @@ __metadata:
     eslint-config-prettier: ^8.4.0
     eslint-plugin-prettier: ^4.0.0
     eslint-plugin-simple-import-sort: ^7.0.0
+    file-api: ^0.10.4
     filereader: ^0.10.3
     form-data: ^4.0.0
     jimp: ^0.16.1
@@ -1454,6 +1455,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"File@npm:>= 0.10.0, File@npm:^0.10.2":
+  version: 0.10.2
+  resolution: "File@npm:0.10.2"
+  dependencies:
+    mime: ">= 0.0.0"
+  checksum: 2c6b80d8792821a55b3d4c4de80459d20e6a26f49bc689c09c815bce8503d984fff5f61c8d7c9d65246cb996cbb93d5bcbf22d8f44973348bddb3bf12470a476
+  languageName: node
+  linkType: hard
+
+"FileList@npm:>= 0.10.0, FileList@npm:^0.10.2":
+  version: 0.10.2
+  resolution: "FileList@npm:0.10.2"
+  checksum: dffaafc03f3ef4a442f2839208df5ca5a906233c800f1097e9e3123d563881340d805d49c1215f60b74724b3faac158633e33f9e6a65f744cc89ed372c6e3b9d
+  languageName: node
+  linkType: hard
+
 "abbrev@npm:1":
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
@@ -2139,6 +2156,20 @@ __metadata:
     base64-js: ^1.3.1
     ieee754: ^1.2.1
   checksum: 5ad23293d9a731e4318e420025800b42bf0d264004c0286c8cc010af7a270c7a0f6522e84f54b9ad65cbd6db20b8badbfd8d2ebf4f80fa03dab093b89e68c3f9
+  languageName: node
+  linkType: hard
+
+"bufferjs@npm:> 0.2.0":
+  version: 3.0.1
+  resolution: "bufferjs@npm:3.0.1"
+  checksum: 03aacfa7bd4c53474ada615e184ed8ca84c05ff001b6f0b8f5e9d528f8120532f38a8a33f1e42eba6ceb9f353a56e17616c8439f74f6bfeefe59521794477523
+  languageName: node
+  linkType: hard
+
+"bufferjs@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "bufferjs@npm:2.0.0"
+  checksum: 3a7ff85afc801ac577533f7d724a118165f91af470673c7ef77538654fd5aca3aaef24775b71a6bd490dad98d2fa2f1d6db466950d0555f77d5cedcfdd89a4e2
   languageName: node
   linkType: hard
 
@@ -3569,12 +3600,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"file-api@npm:^0.10.4":
+  version: 0.10.4
+  resolution: "file-api@npm:0.10.4"
+  dependencies:
+    File: ">= 0.10.0"
+    FileList: ">= 0.10.0"
+    bufferjs: "> 0.2.0"
+    file-error: ">= 0.10.0"
+    filereader: ">= 0.10.3"
+    formdata: ">= 0.10.0"
+    mime: ">= 1.2.11"
+    remedial: ">= 1.0.7"
+  checksum: f90c19cbd7cb00b8d52d29299eb0fc26a64323159136942ecadc1d51aade1b297ea896a7bd42dcd31e3d1c44508f095968e2c37cbd0d94f71d5a0461b6ecff84
+  languageName: node
+  linkType: hard
+
 "file-entry-cache@npm:^6.0.1":
   version: 6.0.1
   resolution: "file-entry-cache@npm:6.0.1"
   dependencies:
     flat-cache: ^3.0.4
   checksum: f49701feaa6314c8127c3c2f6173cfefff17612f5ed2daaafc6da13b5c91fd43e3b2a58fd0d63f9f94478a501b167615931e7200e31485e320f74a33885a9c74
+  languageName: node
+  linkType: hard
+
+"file-error@npm:>= 0.10.0":
+  version: 0.10.2
+  resolution: "file-error@npm:0.10.2"
+  checksum: 06cdeebaaaad4dd58a85c1f19dfcd2f1ab9989644cf2859a61f40aae08a4577f7817ee03fb1fecba4b5b9f28d430c0c6c0a77a5aee1c78374a0ad1f9c1dc9755
   languageName: node
   linkType: hard
 
@@ -3585,7 +3639,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"filereader@npm:^0.10.3":
+"filereader@npm:>= 0.10.3, filereader@npm:^0.10.3":
   version: 0.10.3
   resolution: "filereader@npm:0.10.3"
   checksum: 870b38a4ea2e77512c642cdc03059171e4792a49610929f14d7e495137de8f4d3c8e408f5e30b22d45c5b18f6813bebb1854d7c8356ab9b7f08f06a6745a2772
@@ -3692,6 +3746,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"foreachasync@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "foreachasync@npm:3.0.0"
+  checksum: 4791f64b539b06c751b14adb2881173c780d41ce37d881715a5e5787fa4a08961f2c6a6cf3bccdfa48e56fb91d8676d867fdc63c008cdb576bd33261716e8381
+  languageName: node
+  linkType: hard
+
 "forever-agent@npm:~0.6.1":
   version: 0.6.1
   resolution: "forever-agent@npm:0.6.1"
@@ -3734,6 +3795,20 @@ __metadata:
   dependencies:
     samsam: 1.x
   checksum: 59b7429ac3ba07bb7f610559d2adb25624409bf42acb122a812456ae4d481a9b3bfd180608a97e026038065c1d3193570d3dcd8ac25dc6b6c37cf3cb9b53b88e
+  languageName: node
+  linkType: hard
+
+"formdata@npm:>= 0.10.0":
+  version: 0.10.4
+  resolution: "formdata@npm:0.10.4"
+  dependencies:
+    File: ^0.10.2
+    FileList: ^0.10.2
+    bufferjs: ^2.0.0
+    filereader: ^0.10.3
+    foreachasync: ^3.0.0
+    remedial: ^1.0.7
+  checksum: 26bc2525abbefebc2c40ecca19fe53eb88c5915b92e8e5df733b6c6c9cb8c73ec1f81906d1379be9f7df47a61cafd5facfd52e3b143ed38a5244a3c6789ffa67
   languageName: node
   linkType: hard
 
@@ -5591,6 +5666,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"mime@npm:>= 0.0.0, mime@npm:>= 1.2.11":
+  version: 3.0.0
+  resolution: "mime@npm:3.0.0"
+  bin:
+    mime: cli.js
+  checksum: f43f9b7bfa64534e6b05bd6062961681aeb406a5b53673b53b683f27fcc4e739989941836a355eef831f4478923651ecc739f4a5f6e20a76487b432bfd4db928
+  languageName: node
+  linkType: hard
+
 "mimic-response@npm:^1.0.0":
   version: 1.0.1
   resolution: "mimic-response@npm:1.0.1"
@@ -6999,6 +7083,13 @@ fsevents@~2.1.1:
   version: 3.2.0
   resolution: "regexpp@npm:3.2.0"
   checksum: a78dc5c7158ad9ddcfe01aa9144f46e192ddbfa7b263895a70a5c6c73edd9ce85faf7c0430e59ac38839e1734e275b9c3de5c57ee3ab6edc0e0b1bdebefccef8
+  languageName: node
+  linkType: hard
+
+"remedial@npm:>= 1.0.7, remedial@npm:^1.0.7":
+  version: 1.0.8
+  resolution: "remedial@npm:1.0.8"
+  checksum: 12df7c55eb92501d7f33cfe5f5ad12be13bb6ac0c53f494aaa9963d5a5155bb8be2143e8d5e17afa1a500ef5dc71d13642920d35350f2a31b65a9778afab6869
   languageName: node
   linkType: hard
 
