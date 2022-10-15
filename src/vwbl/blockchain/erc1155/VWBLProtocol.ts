@@ -27,7 +27,7 @@ export class VWBLERC1155NFT {
       maxFeePerGas: null,
     });
     console.log("transaction end");
-    const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
+    const tokenId: number = receipt.events.TransferSingle.returnValues.id;
     return tokenId;
   }
 
@@ -42,7 +42,7 @@ export class VWBLERC1155NFT {
       maxFeePerGas: null,
     });
     console.log("transaction end");
-    const tokenIds: number[] = receipt.events.Transfer.returnValues.tokenIds;
+    const tokenIds: number[] = receipt.events.TransferBatch.returnValues.ids;
     return tokenIds;
   }
 
@@ -65,7 +65,7 @@ export class VWBLERC1155NFT {
         maxFeePerGas: null,
       });
     console.log("transaction end");
-    const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
+    const tokenId: number = receipt.events.TransferSingle.returnValues.id;
     return tokenId;
   }
 
@@ -88,7 +88,7 @@ export class VWBLERC1155NFT {
         maxFeePerGas: null,
       });
     console.log("transaction end");
-    const tokenIds: number[] = receipt.events.Transfer.returnValues.tokenIds;
+    const tokenIds: number[] = receipt.events.TransferBatch.returnValues.ids;
     return tokenIds;
   }
 
