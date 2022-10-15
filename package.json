@@ -1,5 +1,5 @@
 {
-  "name": "@VWBL/vwbl-sdk",
+  "name": "vwbl-sdk",
   "version": "0.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -8,8 +8,7 @@
   ],
   "license": "MIT",
   "publishConfig": {
-    "access": "restricted",
-    "registry": "https://npm.pkg.github.com/"
+    "access": "restricted"
   },
   "repository": {
     "type": "git",
@@ -53,6 +52,6 @@
     "jimp": "^0.16.1",
     "nft.storage": "^7.0.0",
     "uuid": "^8.3.2",
-    "web3": "^1.7.1"
+    "web3": "^1.8.0"
   }
 }

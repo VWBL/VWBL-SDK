@@ -9,7 +9,7 @@
 
 ## install (in your project)
 
-`yarn add ../VWBL-SDK`
+`yarn add vwbl-sdk`
 <!-- 
 npmリポジトリに公開したら以下に変更
 `yarn add vwbl-sdk`
