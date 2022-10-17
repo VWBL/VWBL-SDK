@@ -19,10 +19,7 @@ export class VWBL extends VWBLBase<VWBLNFT> {
     super(props);
 
     const { web3, contractAddress, uploadMetadataType } = props;
-    this.nft =
-      uploadMetadataType === UploadMetadataType.S3
-        ? new VWBLNFT(web3, contractAddress, false)
-        : new VWBLNFT(web3, contractAddress, true);
+    this.nft = new VWBLNFT(web3, contractAddress, uploadMetadataType === UploadMetadataType.IPFS);
   }
 
   /**
