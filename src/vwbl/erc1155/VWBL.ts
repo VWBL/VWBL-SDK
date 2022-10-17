@@ -19,10 +19,7 @@ export class VWBLERC1155 extends VWBLBase<VWBLERC1155NFT> {
     super(props);
 
     const { web3, contractAddress, uploadMetadataType } = props;
-    this.nft =
-      uploadMetadataType === UploadMetadataType.S3
-        ? new VWBLERC1155NFT(web3, contractAddress, false)
-        : new VWBLERC1155NFT(web3, contractAddress, true);
+    this.nft = new VWBLERC1155NFT(web3, contractAddress, uploadMetadataType === UploadMetadataType.IPFS);
   }
 
   /**
