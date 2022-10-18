@@ -3,20 +3,8 @@
 ## official document
 https://docs.vwbl-protocol.org
 
-## install dependencies(in VWBL-SDK)
-`yarn install`
-
-## build
-
-`yarn build`
-
-## install (in your project)
-
+## install
 `yarn add vwbl-sdk`
-<!-- 
-npmリポジトリに公開したら以下に変更
-`yarn add vwbl-sdk`
- -->
 
 ## api document
 ### create instance
