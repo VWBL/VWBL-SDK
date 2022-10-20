@@ -17,6 +17,7 @@
   "scripts": {
     "build": "tsc",
     "format": "eslint --fix --quiet './src/**/*.ts*'",
+    "lint": "eslint './src/**/*.ts*'",
     "test": "mocha-parallel-tests -r ts-node/register test/unit/**/*.test.ts --exit"
   },
   "devDependencies": {
