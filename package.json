@@ -33,6 +33,7 @@
     "eslint-config-prettier": "^8.4.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
+    "file-api": "^0.10.4",
     "mocha": "^7.1.2",
     "mocha-parallel-tests": "^2.3.0",
     "prettier": "^2.5.1",
