@@ -1,5 +1,6 @@
 {
   "name": "vwbl-sdk",
+  "description": "VWBL SDK for TypeScript",
   "version": "0.1.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
