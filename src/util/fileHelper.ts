@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const FileReaderNodeJs = require("filereader");
 
 const isRunningOnBrowser = typeof window !== "undefined";

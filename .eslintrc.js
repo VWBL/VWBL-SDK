@@ -1,28 +1,28 @@
 module.exports = {
   env: {
     browser: true,
-    es6: true
+    es6: true,
   },
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
   ],
   plugins: ["@typescript-eslint", "simple-import-sort"],
   parser: "@typescript-eslint/parser",
   globals: {
     Atomics: "readonly",
-    SharedArrayBuffer: "readonly"
+    SharedArrayBuffer: "readonly",
   },
   parserOptions: {
     sourceType: "module",
     project: "./tsconfig.json",
-    tsconfigRootDir: "./"
+    tsconfigRootDir: "./",
   },
   rules: {
-    "eqeqeq": ["error", "always", { "null": "ignore", }],
+    eqeqeq: ["error", "always", { null: "ignore" }],
     "prettier/prettier": [
       "error",
       {
@@ -30,19 +30,14 @@ module.exports = {
         singleQuote: false,
         semi: true,
         printWidth: 120,
-        arrowParens: "always"
-      }
+        arrowParens: "always",
+      },
     ],
     "simple-import-sort/imports": [
       "error",
       {
-        "groups": [
-          ["\\u0000"],
-          ["^@?\\w"],
-          ["^[^.]"],
-          ["^\\."]
-        ]
-      }
+        groups: [["\\u0000"], ["^@?\\w"], ["^[^.]"], ["^\\."]],
+      },
     ],
     "@typescript-eslint/no-misused-promises": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
@@ -53,5 +48,5 @@ module.exports = {
     "@typescript-eslint/no-unsafe-member-access": "warn",
     "@typescript-eslint/no-unsafe-call": "warn",
     "@typescript-eslint/no-unsafe-return": "warn",
-  }
+  },
 };
