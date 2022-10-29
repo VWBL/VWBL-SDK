@@ -108,7 +108,7 @@ export class VWBLERC1155NFT {
   }
 
   async getMetadataUrl(tokenId: number) {
-    return await this.contract.methods.uri(tokenId).call();
+    return await this.contract.methods.tokenURI(tokenId).call();
   }
 
   async getOwner(tokenId: number) {
