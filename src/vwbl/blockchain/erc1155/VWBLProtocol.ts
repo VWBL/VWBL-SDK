@@ -161,18 +161,26 @@ export class VWBLERC1155NFT {
     });
   }
 
-  async burn(owner: string, tokenId: number, amount: number): Promise<void> {
+  async balanceOf(owner: string, tokenId: number) {
+    return await this.contract.methods.balanceOf(owner, tokenId).call();
+  }
+
+  async balanceOfBatch(owners: string[], tokenIds: number[]) {
+    return await this.contract.methods.balanceOfBatch(owners, tokenIds).call();
+  }
+
+  async burn(owner: string, tokenId: number, amount: number) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
-    await this.contract.methods.burn(owner, tokenId, amount).send({
+    return await this.contract.methods.burn(owner, tokenId, amount).send({
       from: myAddress,
       maxPriorityFeePerGas: null,
       maxFeePerGas: null,
     });
   }
 
-  async burnBatch(owner: string, tokenIds: number[], amount: number[]): Promise<void> {
+  async burnBatch(owner: string, tokenIds: number[], amount: number[]) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
-    await this.contract.methods.burnBatch(owner, tokenIds, amount).send({
+    return await this.contract.methods.burnBatch(owner, tokenIds, amount).send({
       from: myAddress,
       maxPriorityFeePerGas: null,
       maxFeePerGas: null,

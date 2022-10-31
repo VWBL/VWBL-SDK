@@ -208,7 +208,7 @@ export class VWBLERC1155 extends VWBLBase<VWBLERC1155NFT> {
    * @param amount - The amount of erc1155 tokens to be transferred
    */
   safeTransfer = async (to: string, tokenId: number, amount: number): Promise<void> => {
-    await this.nft.safeTransfer(to, tokenId, amount);
+    return await this.nft.safeTransfer(to, tokenId, amount);
   };
 
   /**
@@ -219,6 +219,20 @@ export class VWBLERC1155 extends VWBLBase<VWBLERC1155NFT> {
    * @param amount - The amount of erc1155 tokens to be burnt
    */
   burn = async (owner: string, tokenId: number, amount: number): Promise<void> => {
-    await this.nft.burn(owner, tokenId, amount);
+    return await this.nft.burn(owner, tokenId, amount);
+  };
+
+  /**
+   * Get balance of nft
+   *
+   * @param owner - The address of nft owner
+   * @param tokenId - The ID of NFT
+   */
+  balanceOf = async (owner: string, tokenId: number): Promise<number> => {
+    return await this.nft.balanceOf(owner, tokenId);
+  };
+
+  getOwner = async (tokenId: number) => {
+    return await this.nft.getOwner(tokenId);
   };
 }
