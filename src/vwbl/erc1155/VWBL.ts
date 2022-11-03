@@ -207,8 +207,8 @@ export class VWBLERC1155 extends VWBLBase<VWBLERC1155NFT> {
    * @param tokenId - The ID of NFT
    * @param amount - The amount of erc1155 tokens to be transferred
    */
-  safeTransfer = async (to: string, tokenId: number, amount: number): Promise<void> => {
-    return await this.nft.safeTransfer(to, tokenId, amount);
+  safeTransfer = async (to: string, tokenId: number, amount: number, data = "0x00"): Promise<void> => {
+    return await this.nft.safeTransfer(to, tokenId, amount, data);
   };
 
   /**
