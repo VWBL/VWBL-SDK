@@ -154,7 +154,7 @@ export class VWBLERC1155NFT {
 
   async safeTransfer(to: string, tokenId: number, amount: number, data: string): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
-    await this.contract.methods.safeTransferFrom(myAddress, to, tokenId, amount, data).send({
+    return await this.contract.methods.safeTransferFrom(myAddress, to, tokenId, amount, data).send({
       from: myAddress,
       maxPriorityFeePerGas: null,
       maxFeePerGas: null,
