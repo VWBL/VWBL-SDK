@@ -16,33 +16,48 @@ export class VWBLNFT {
       : new web3.eth.Contract(vwbl.abi as AbiItem[], address);
   }
 
-  async mintToken(decryptUrl: string, royaltiesPercentage: number, documentId: string, maxPriorityFeePerGas?: number, maxFeePerGas?: number) {
+  async mintToken(
+    decryptUrl: string,
+    royaltiesPercentage: number,
+    documentId: string,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
+  ) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     console.log("transaction start");
-    const receipt = (typeof maxPriorityFeePerGas !== 'undefined' && typeof maxFeePerGas !== 'undefined') 
-      ? await this.contract.methods
-          .mint(decryptUrl, royaltiesPercentage, documentId)
-          .send({ from: myAddress, value: fee, maxPriorityFeePerGas, maxFeePerGas})
-      : await this.contract.methods
-          .mint(decryptUrl, royaltiesPercentage, documentId)
-          .send({ from: myAddress, value: fee, maxPriorityFeePerGas: null, maxFeePerGas: null });
+    const receipt =
+      typeof maxPriorityFeePerGas !== "undefined" && typeof maxFeePerGas !== "undefined"
+        ? await this.contract.methods
+            .mint(decryptUrl, royaltiesPercentage, documentId)
+            .send({ from: myAddress, value: fee, maxPriorityFeePerGas, maxFeePerGas })
+        : await this.contract.methods
+            .mint(decryptUrl, royaltiesPercentage, documentId)
+            .send({ from: myAddress, value: fee, maxPriorityFeePerGas: null, maxFeePerGas: null });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
   }
 
-  async mintTokenForIPFS(metadataUrl: string, decryptUrl: string, royaltiesPercentage: number, documentId: string, maxPriorityFeePerGas?: number, maxFeePerGas?: number) {
+  async mintTokenForIPFS(
+    metadataUrl: string,
+    decryptUrl: string,
+    royaltiesPercentage: number,
+    documentId: string,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
+  ) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     console.log("transaction start");
-    const receipt = (typeof maxPriorityFeePerGas !== 'undefined' && typeof maxFeePerGas !== 'undefined') 
-      ? await this.contract.methods
-          .mint(decryptUrl, royaltiesPercentage, documentId)
-          .send({ from: myAddress, value: fee, maxPriorityFeePerGas, maxFeePerGas})
-      : await this.contract.methods
-          .mint(decryptUrl, royaltiesPercentage, documentId)
-          .send({ from: myAddress, value: fee, maxPriorityFeePerGas: null, maxFeePerGas: null });
+    const receipt =
+      typeof maxPriorityFeePerGas !== "undefined" && typeof maxFeePerGas !== "undefined"
+        ? await this.contract.methods
+            .mint(decryptUrl, royaltiesPercentage, documentId)
+            .send({ from: myAddress, value: fee, maxPriorityFeePerGas, maxFeePerGas })
+        : await this.contract.methods
+            .mint(decryptUrl, royaltiesPercentage, documentId)
+            .send({ from: myAddress, value: fee, maxPriorityFeePerGas: null, maxFeePerGas: null });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
