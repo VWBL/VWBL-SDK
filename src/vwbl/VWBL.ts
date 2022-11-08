@@ -123,7 +123,9 @@ export class VWBL {
     encryptLogic: EncryptLogic = "base64",
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
-    uploadMetadataCallBack?: UploadMetadata
+    uploadMetadataCallBack?: UploadMetadata,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
   ) => {
     if (!this.signature) {
       throw "please sign first";
