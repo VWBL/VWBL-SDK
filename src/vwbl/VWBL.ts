@@ -112,6 +112,8 @@ export class VWBL {
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
+   * @param maxPriorityFeePerGas - Optinal: the max priority fee per gas (EIP1559)
+   * @param maxFeePerGas - Optional: the max fee per gas (EIP1559)
    * @returns
    */
   managedCreateToken = async (
@@ -133,7 +135,13 @@ export class VWBL {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    const tokenId = await this.nft.mintToken(
+      vwblNetworkUrl,
+      royaltiesPercentage,
+      documentId,
+      maxPriorityFeePerGas,
+      maxFeePerGas
+    );
     // 2. create key in frontend
     const key = createRandomKey();
     // 3. encrypt data
@@ -201,6 +209,8 @@ export class VWBL {
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
+   * @param maxPriorityFeePerGas - Optional: the max priority fee per gas (EIP1559)
+   * @param maxFeePerGas - Optional: the max fee per gas (EIP1559)
    * @returns
    */
   managedCreateTokenForIPFS = async (
@@ -209,7 +219,9 @@ export class VWBL {
     plainFile: File | File[],
     thumbnailImage: File,
     royaltiesPercentage: number,
-    encryptLogic: EncryptLogic = "base64"
+    encryptLogic: EncryptLogic = "base64",
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -248,7 +260,9 @@ export class VWBL {
       metadataUrl as string,
       vwblNetworkUrl,
       royaltiesPercentage,
-      documentId
+      documentId,
+      maxPriorityFeePerGas,
+      maxFeePerGas
     );
     // 6. set key to vwbl-network
     console.log("set key");
