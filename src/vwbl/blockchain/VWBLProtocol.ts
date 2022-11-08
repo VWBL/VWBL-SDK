@@ -53,10 +53,10 @@ export class VWBLNFT {
     const receipt =
       typeof maxPriorityFeePerGas !== "undefined" && typeof maxFeePerGas !== "undefined"
         ? await this.contract.methods
-            .mint(decryptUrl, royaltiesPercentage, documentId)
+            .mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId)
             .send({ from: myAddress, value: fee, maxPriorityFeePerGas, maxFeePerGas })
         : await this.contract.methods
-            .mint(decryptUrl, royaltiesPercentage, documentId)
+            .mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId)
             .send({ from: myAddress, value: fee, maxPriorityFeePerGas: null, maxFeePerGas: null });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
