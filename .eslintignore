@@ -1,1 +1,3 @@
-yanode_modules**/*
+node_modules/**/*
+.eslintrc.*
+test/**/*
