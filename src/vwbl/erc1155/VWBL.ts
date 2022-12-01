@@ -335,9 +335,6 @@ export class VWBLERC1155 extends VWBLBase {
    *
    */
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
-    if (!this.signature) {
-      throw "please sign first";
-    }
     const { documentId } = await this.nft.getTokenInfo(tokenId);
     return await this._setKey(documentId, key, hasNonce, autoMigration);
   };
