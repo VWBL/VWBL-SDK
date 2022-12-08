@@ -64,7 +64,7 @@ export class VWBL {
     this.api = new VWBLApi(vwblNetworkUrl);
     this.nft =
       uploadMetadataType === UploadMetadataType.S3
-        ? new VWBLNFT(web3, contractAddress, false)
+        ? new VWBLNFT(web3, contractAddress, true)
         : new VWBLNFT(web3, contractAddress, true);
     if (uploadContentType === UploadContentType.S3 || uploadMetadataType === UploadMetadataType.S3) {
       if (!awsConfig) {
@@ -131,7 +131,8 @@ export class VWBL {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    const metadataKey = Math.floor(Math.random() * 10000);
+    const tokenId = await this.nft.mintTokenForIPFS(`${this.opts.awsConfig?.cloudFrontUrl}/metadata/${metadataKey}`,vwblNetworkUrl, royaltiesPercentage, documentId);
     // 2. create key in frontend
     const key = createRandomKey();
     // 3. encrypt data
@@ -148,17 +149,15 @@ export class VWBL {
     // 4. upload data
     console.log("upload data");
     const isRunningOnBrowser = typeof window !== "undefined";
+    console.log(isRunningOnBrowser);
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
-        const encryptedContent =
-          encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(file), key)
-            : isRunningOnBrowser
-            ? await encryptFile(file, key)
-            : encryptStream(fs.createReadStream((file as any).path), key);
+        const encryptedContent = encryptStream(fs.createReadStream((file as any).path), key);
+        console.log("stream done");
         return await uploadEncryptedFunction(file.name, encryptedContent, uuid, awsConfig);
       })
     );
+    console.log("upload thumbnail");
     const thumbnailImageUrl = await uploadThumbnailFunction(thumbnailImage, uuid, awsConfig);
     // 5. upload metadata
     console.log("upload meta data");
@@ -169,7 +168,7 @@ export class VWBL {
     }
     const mimeType = getMimeType(plainFileArray[0]);
     await uploadMetadataFunction(
-      tokenId,
+      metadataKey,
       name,
       description,
       thumbnailImageUrl,
@@ -222,6 +221,7 @@ export class VWBL {
     console.log("upload data");
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
+        console.log(encryptLogic);
         const encryptedContent =
           encryptLogic === "base64" ? encryptString(await toBase64FromBlob(file), key) : await encryptFile(file, key);
         console.log(typeof encryptedContent);

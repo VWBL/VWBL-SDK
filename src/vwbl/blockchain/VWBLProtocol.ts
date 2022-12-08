@@ -19,10 +19,12 @@ export class VWBLNFT {
   async mintToken(decryptUrl: string, royaltiesPercentage: number, documentId: string) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
+    const gasPrice = await this.web3.eth.getGasPrice();
+    const gas = await this.contract.methods.mint(decryptUrl, royaltiesPercentage, documentId).estimateGas({from: myAddress, value: fee});
     console.log("transaction start");
     const receipt = await this.contract.methods
       .mint(decryptUrl, royaltiesPercentage, documentId)
-      .send({ from: myAddress, value: fee, maxPriorityFeePerGas: null, maxFeePerGas: null });
+      .send({ from: myAddress, value: fee, gas, gasPrice });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
@@ -31,10 +33,13 @@ export class VWBLNFT {
   async mintTokenForIPFS(metadataUrl: string, decryptUrl: string, royaltiesPercentage: number, documentId: string) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
-    console.log("transaction start");
+    console.log("transaction start ipfs");
+    const gasPrice = await this.web3.eth.getGasPrice();
+    const gas = await this.contract.methods.mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId).estimateGas({from: myAddress, value: fee});
     const receipt = await this.contract.methods
       .mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId)
-      .send({ from: myAddress, value: fee, maxPriorityFeePerGas: null, maxFeePerGas: null });
+      .send({ from: myAddress, value: fee, gasPrice,
+        gas });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
