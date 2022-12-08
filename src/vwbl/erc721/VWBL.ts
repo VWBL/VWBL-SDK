@@ -241,6 +241,26 @@ export class VWBL extends VWBLBase {
   };
 
   /**
+   * Allows `operator` to transfer all tokens that a person who calls this function
+   *
+   * @param operator - The wallet address
+   */
+  setApprovalForAll = async (operator: string): Promise<void> => {
+    await this.nft.setApprovalForAll(operator);
+  };
+
+  /**
+   * Tells whether an `operator` is approved by a given `owner`
+   *
+   * @param owner - The wallet address of a NFT owner
+   * @param operator - The wallet address of an operator
+   * @returns
+   */
+  isApprovedForAll = async (owner: string, operator: string): Promise<boolean> => {
+    return await this.nft.isApprovedForAll(owner, operator);
+  };
+
+  /**
    * Transfer NFT
    *
    * @param to - The address that NFT will be transfered
