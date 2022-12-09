@@ -38,7 +38,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
-        run: yarn install
+        run: yarn install --immutable
 
       # - name: Bump version and push tag
       #   id: tag_version
