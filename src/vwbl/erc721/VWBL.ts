@@ -161,7 +161,8 @@ export class VWBL extends VWBLBase {
     plainFile: File | File[],
     thumbnailImage: File,
     royaltiesPercentage: number,
-    encryptLogic: EncryptLogic = "base64"
+    encryptLogic: EncryptLogic = "base64",
+    subscriber?: ProgressSubscriber
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -169,9 +170,13 @@ export class VWBL extends VWBLBase {
     const { vwblNetworkUrl } = this.opts;
     // 1. create key in frontend
     const key = createRandomKey();
+    subscriber && subscriber.kickStep(StepStatus.CREATE_KEY);
+
     // 2. encrypt data
     console.log("encrypt data");
     const plainFileArray = [plainFile].flat();
+    subscriber && subscriber.kickStep(StepStatus.ENCRYPT_DATA);
+
     // 3. upload data
     console.log("upload data");
     const encryptedDataUrls = await Promise.all(
@@ -183,6 +188,8 @@ export class VWBL extends VWBLBase {
       })
     );
     const thumbnailImageUrl = await this.uploadToIpfs?.uploadThumbnail(thumbnailImage);
+    subscriber && subscriber.kickStep(StepStatus.UPLOAD_CONTENT);
+
     // 4. upload metadata
     console.log("upload meta data");
     const mimeType = getMimeType(plainFileArray[0]);
@@ -194,6 +201,8 @@ export class VWBL extends VWBLBase {
       mimeType,
       encryptLogic
     );
+    subscriber && subscriber.kickStep(StepStatus.UPLOAD_METADATA);
+
     // 5. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
     const tokenId = await this.nft.mintTokenForIPFS(
@@ -202,10 +211,14 @@ export class VWBL extends VWBLBase {
       royaltiesPercentage,
       documentId
     );
+    subscriber && subscriber.kickStep(StepStatus.MINT_TOKEN);
+
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.web3.eth.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
+    subscriber && subscriber.kickStep(StepStatus.SET_KEY);
+
     return tokenId;
   };
 
