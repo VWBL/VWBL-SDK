@@ -17,6 +17,8 @@ import { VWBLNFT } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
   EncryptLogic,
+  ProgressSubscriber,
+  StepStatus,
   UploadContentType,
   UploadEncryptedFile,
   UploadMetadata,
@@ -62,7 +64,8 @@ export class VWBL extends VWBLBase {
     encryptLogic: EncryptLogic = "base64",
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
-    uploadMetadataCallBack?: UploadMetadata
+    uploadMetadataCallBack?: UploadMetadata,
+    subscriber?: ProgressSubscriber
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -71,8 +74,12 @@ export class VWBL extends VWBLBase {
     // 1. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
     const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    subscriber && subscriber.kickStep(StepStatus.MINT_TOKEN);
+
     // 2. create key in frontend
     const key = createRandomKey();
+    subscriber && subscriber.kickStep(StepStatus.CREATE_KEY);
+
     // 3. encrypt data
     console.log("encrypt data");
     const plainFileArray = [plainFile].flat();
@@ -84,6 +91,8 @@ export class VWBL extends VWBLBase {
     if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
       throw new Error("please specify upload file type or give callback");
     }
+    subscriber && subscriber.kickStep(StepStatus.ENCRYPT_DATA);
+
     // 4. upload data
     console.log("upload data");
     const isRunningOnBrowser = typeof window !== "undefined";
@@ -99,6 +108,8 @@ export class VWBL extends VWBLBase {
       })
     );
     const thumbnailImageUrl = await uploadThumbnailFunction(thumbnailImage, uuid, awsConfig);
+    subscriber && subscriber.kickStep(StepStatus.UPLOAD_CONTENT);
+
     // 5. upload metadata
     console.log("upload meta data");
     const uploadMetadataFunction =
@@ -117,10 +128,14 @@ export class VWBL extends VWBLBase {
       encryptLogic,
       awsConfig
     );
+    subscriber && subscriber.kickStep(StepStatus.UPLOAD_METADATA);
+
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.web3.eth.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
+    subscriber && subscriber.kickStep(StepStatus.SET_KEY);
+
     return tokenId;
   };
 
