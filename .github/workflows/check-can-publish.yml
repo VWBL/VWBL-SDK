@@ -1,0 +1,30 @@
+name: Check package can be published
+
+on:
+  pull_request:
+    branches:
+      - master
+
+env:
+  # Check available versions below
+  # https://github.com/actions/node-versions/blob/main/versions-manifest.json
+  node-version: "16.x"
+
+jobs:
+  check-can-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          cache: "yarn"
+          node-version: ${{ env.node-version }}
+          registry-url: "https://registry.npmjs.org"
+          always-auth: true
+
+      - name: npx can-npm-publish
+        run: npx can-npm-publish
