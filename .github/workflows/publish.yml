@@ -65,7 +65,7 @@ jobs:
       #     body: ${{ github.event.pull_request.body }}
 
       - name: Create .npmrc
-        run: touch ~/.npmrc echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ${{ github.workspace }}/.npmrc
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ${{ github.workspace }}/.npmrc
 
       - name: Publish npm package
         run: yarn publish --access=public
