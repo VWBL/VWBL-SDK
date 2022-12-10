@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-    types: [closed]
 
 env:
   # Check available versions below
@@ -13,7 +12,6 @@ env:
 
 jobs:
   publish:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -66,7 +64,10 @@ jobs:
           name: ${{ github.event.pull_request.title }}
           body: ${{ github.event.pull_request.body }}
 
+      # - name: Create .npmrc
+      #   run: touch ~/.npmrc echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
       - name: Publish npm package
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc && yarn publish
+        run: yarn publish --access=public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
