@@ -71,6 +71,6 @@ jobs:
         run: yarn build
 
       - name: Publish npm package
-        run: yarn publish --verbose
+        run: npm publish --verbose
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
