@@ -47,9 +47,9 @@ jobs:
       - name: npx can-npm-publish
         run: npx can-npm-publish
 
-      - name: Get new package version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@main
+      # - name: Get new package version
+      #   id: package-version
+      #   uses: martinbeentjes/npm-get-version-action@main
 
       # - name: Create tag
       #   uses: rickstaa/action-create-tag@v1
@@ -64,10 +64,13 @@ jobs:
       #     name: ${{ github.event.pull_request.title }}
       #     body: ${{ github.event.pull_request.body }}
 
-      - name: Create .npmrc
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ${{ github.workspace }}/.npmrc
+      - name: Cat .npmrc
+        run: cat $NPM_CONFIG_USERCONFIG
+
+      - name: Build package
+        run: yarn build
 
       - name: Publish npm package
-        run: yarn publish --access=public
+        run: yarn publish --verbose
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
