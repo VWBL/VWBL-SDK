@@ -9,5 +9,5 @@ export enum StepStatus {
 
 export type ProgressSubscriber = {
   kickStep: (status: StepStatus) => void;
-  kickProgress: () => void;
+  kickProgress?: () => void;
 };
