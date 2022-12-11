@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - master
-    types: [closed]
 
 env:
   # Check available versions below
@@ -13,7 +12,6 @@ env:
 
 jobs:
   publish:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
@@ -40,11 +38,11 @@ jobs:
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
         run: yarn install --immutable
 
-      # - name: Bump version and push tag
-      #   id: tag_version
-      #   uses: mathieudutour/github-tag-action@v6.0
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: npx can-npm-publish
         run: npx can-npm-publish
@@ -67,6 +65,6 @@ jobs:
           body: ${{ github.event.pull_request.body }}
 
       - name: Publish npm package
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc && yarn publish
+        run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
