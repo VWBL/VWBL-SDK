@@ -74,11 +74,11 @@ export class VWBL extends VWBLBase {
     // 1. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
     const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
-    subscriber && subscriber.kickStep(StepStatus.MINT_TOKEN);
+    subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
     const key = createRandomKey();
-    subscriber && subscriber.kickStep(StepStatus.CREATE_KEY);
+    subscriber?.kickStep(StepStatus.CREATE_KEY);
 
     // 3. encrypt data
     console.log("encrypt data");
@@ -91,7 +91,7 @@ export class VWBL extends VWBLBase {
     if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
       throw new Error("please specify upload file type or give callback");
     }
-    subscriber && subscriber.kickStep(StepStatus.ENCRYPT_DATA);
+    subscriber?.kickStep(StepStatus.ENCRYPT_DATA);
 
     // 4. upload data
     console.log("upload data");
@@ -108,7 +108,7 @@ export class VWBL extends VWBLBase {
       })
     );
     const thumbnailImageUrl = await uploadThumbnailFunction(thumbnailImage, uuid, awsConfig);
-    subscriber && subscriber.kickStep(StepStatus.UPLOAD_CONTENT);
+    subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
 
     // 5. upload metadata
     console.log("upload meta data");
@@ -128,13 +128,13 @@ export class VWBL extends VWBLBase {
       encryptLogic,
       awsConfig
     );
-    subscriber && subscriber.kickStep(StepStatus.UPLOAD_METADATA);
+    subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.web3.eth.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
-    subscriber && subscriber.kickStep(StepStatus.SET_KEY);
+    subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
   };
@@ -170,12 +170,12 @@ export class VWBL extends VWBLBase {
     const { vwblNetworkUrl } = this.opts;
     // 1. create key in frontend
     const key = createRandomKey();
-    subscriber && subscriber.kickStep(StepStatus.CREATE_KEY);
+    subscriber?.kickStep(StepStatus.CREATE_KEY);
 
     // 2. encrypt data
     console.log("encrypt data");
     const plainFileArray = [plainFile].flat();
-    subscriber && subscriber.kickStep(StepStatus.ENCRYPT_DATA);
+    subscriber?.kickStep(StepStatus.ENCRYPT_DATA);
 
     // 3. upload data
     console.log("upload data");
@@ -188,7 +188,7 @@ export class VWBL extends VWBLBase {
       })
     );
     const thumbnailImageUrl = await this.uploadToIpfs?.uploadThumbnail(thumbnailImage);
-    subscriber && subscriber.kickStep(StepStatus.UPLOAD_CONTENT);
+    subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
 
     // 4. upload metadata
     console.log("upload meta data");
@@ -201,7 +201,7 @@ export class VWBL extends VWBLBase {
       mimeType,
       encryptLogic
     );
-    subscriber && subscriber.kickStep(StepStatus.UPLOAD_METADATA);
+    subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
     // 5. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
@@ -211,13 +211,13 @@ export class VWBL extends VWBLBase {
       royaltiesPercentage,
       documentId
     );
-    subscriber && subscriber.kickStep(StepStatus.MINT_TOKEN);
+    subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.web3.eth.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
-    subscriber && subscriber.kickStep(StepStatus.SET_KEY);
+    subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
   };
