@@ -1,6 +1,8 @@
 import axios from "axios";
 import * as fs from "fs";
+import Web3 from "web3";
 
+import { AWSConfig } from "../../storage/aws/types";
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload";
 import {
   createRandomKey,
@@ -12,11 +14,12 @@ import {
   encryptString,
 } from "../../util/cryptoHelper";
 import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
-import { ConstructorProps, VWBLBase } from "../base";
+import { VWBLBase } from "../base";
 import { VWBLNFT } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
   EncryptLogic,
+  ManageKeyType,
   UploadContentType,
   UploadEncryptedFile,
   UploadMetadata,
@@ -24,15 +27,40 @@ import {
   UploadThumbnail,
 } from "../types";
 
+export type ConstructorProps = {
+  web3: Web3;
+  contractAddress: string;
+  vwblNetworkUrl: string;
+  manageKeyType?: ManageKeyType;
+  uploadContentType?: UploadContentType;
+  uploadMetadataType?: UploadMetadataType;
+  awsConfig?: AWSConfig;
+  ipfsNftStorageKey?: string;
+};
+
+export type VWBLOption = ConstructorProps;
+
 export class VWBL extends VWBLBase {
-  nft: VWBLNFT;
+  public opts: VWBLOption;
+  public nft: VWBLNFT;
 
   constructor(props: ConstructorProps) {
     super(props);
 
+    this.opts = props;
     const { web3, contractAddress, uploadMetadataType } = props;
     this.nft = new VWBLNFT(web3, contractAddress, uploadMetadataType === UploadMetadataType.IPFS);
   }
+
+  /**
+   * Sign to VWBL
+   *
+   * @remarks
+   * You need to call this method before you send a transaction（eg. mint NFT）
+   */
+  sign = async () => {
+    await this._sign(this.opts.web3);
+  };
 
   /**
    * Create VWBL NFT
@@ -205,7 +233,8 @@ export class VWBL extends VWBLBase {
    */
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    return await this._setKey(documentId, key, hasNonce, autoMigration);
+    const chainId = await this.opts.web3.eth.getChainId();
+    return await this._setKey(documentId, chainId, key, hasNonce, autoMigration);
   };
 
   /**

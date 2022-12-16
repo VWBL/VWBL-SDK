@@ -39,6 +39,7 @@ module.exports = {
         groups: [["\\u0000"], ["^@?\\w"], ["^[^.]"], ["^\\."]],
       },
     ],
+    "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-misused-promises": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-floating-promises": "off",
