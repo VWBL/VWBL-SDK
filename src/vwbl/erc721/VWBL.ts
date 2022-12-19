@@ -20,6 +20,8 @@ import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
   EncryptLogic,
   ManageKeyType,
+  ProgressSubscriber,
+  StepStatus,
   UploadContentType,
   UploadEncryptedFile,
   UploadMetadata,
@@ -90,7 +92,8 @@ export class VWBL extends VWBLBase {
     encryptLogic: EncryptLogic = "base64",
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
-    uploadMetadataCallBack?: UploadMetadata
+    uploadMetadataCallBack?: UploadMetadata,
+    subscriber?: ProgressSubscriber
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -99,8 +102,12 @@ export class VWBL extends VWBLBase {
     // 1. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
     const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    subscriber?.kickStep(StepStatus.MINT_TOKEN);
+
     // 2. create key in frontend
     const key = createRandomKey();
+    subscriber?.kickStep(StepStatus.CREATE_KEY);
+
     // 3. encrypt data
     console.log("encrypt data");
     const plainFileArray = [plainFile].flat();
@@ -112,6 +119,8 @@ export class VWBL extends VWBLBase {
     if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
       throw new Error("please specify upload file type or give callback");
     }
+    subscriber?.kickStep(StepStatus.ENCRYPT_DATA);
+
     // 4. upload data
     console.log("upload data");
     const isRunningOnBrowser = typeof window !== "undefined";
@@ -127,6 +136,8 @@ export class VWBL extends VWBLBase {
       })
     );
     const thumbnailImageUrl = await uploadThumbnailFunction(thumbnailImage, uuid, awsConfig);
+    subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
+
     // 5. upload metadata
     console.log("upload meta data");
     const uploadMetadataFunction =
@@ -145,10 +156,14 @@ export class VWBL extends VWBLBase {
       encryptLogic,
       awsConfig
     );
+    subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
+
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.web3.eth.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
+    subscriber?.kickStep(StepStatus.SET_KEY);
+
     return tokenId;
   };
 
@@ -174,7 +189,8 @@ export class VWBL extends VWBLBase {
     plainFile: File | File[],
     thumbnailImage: File,
     royaltiesPercentage: number,
-    encryptLogic: EncryptLogic = "base64"
+    encryptLogic: EncryptLogic = "base64",
+    subscriber?: ProgressSubscriber
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -182,9 +198,13 @@ export class VWBL extends VWBLBase {
     const { vwblNetworkUrl } = this.opts;
     // 1. create key in frontend
     const key = createRandomKey();
+    subscriber?.kickStep(StepStatus.CREATE_KEY);
+
     // 2. encrypt data
     console.log("encrypt data");
     const plainFileArray = [plainFile].flat();
+    subscriber?.kickStep(StepStatus.ENCRYPT_DATA);
+
     // 3. upload data
     console.log("upload data");
     const encryptedDataUrls = await Promise.all(
@@ -196,6 +216,8 @@ export class VWBL extends VWBLBase {
       })
     );
     const thumbnailImageUrl = await this.uploadToIpfs?.uploadThumbnail(thumbnailImage);
+    subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
+
     // 4. upload metadata
     console.log("upload meta data");
     const mimeType = getMimeType(plainFileArray[0]);
@@ -207,6 +229,8 @@ export class VWBL extends VWBLBase {
       mimeType,
       encryptLogic
     );
+    subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
+
     // 5. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
     const tokenId = await this.nft.mintTokenForIPFS(
@@ -215,10 +239,14 @@ export class VWBL extends VWBLBase {
       royaltiesPercentage,
       documentId
     );
+    subscriber?.kickStep(StepStatus.MINT_TOKEN);
+
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.web3.eth.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
+    subscriber?.kickStep(StepStatus.SET_KEY);
+
     return tokenId;
   };
 
