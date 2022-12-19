@@ -1,6 +1,3 @@
-/* tslint:disable no-var-requires */
-const Biconomy = require("@biconomy/mexa");
-
 import { ethers } from "ethers";
 
 import forwarder from "../../../contract/Forwarder.json";
@@ -14,32 +11,21 @@ import {
 } from "../../../util/biconomyHelper";
 
 export class VWBLNFTMetaTx {
-  private biconomy: any;
-  private ethersProvider: ethers.providers.Web3Provider;
   private walletProvider: ethers.providers.Web3Provider;
   private nftAddress: string;
   private forwarderAddress: string;
   private biconomyAPIKey: string;
 
   constructor(
-    provider: any,
-    providerUrl: string,
     biconomyAPIKey: string,
     walletProvider: ethers.providers.Web3Provider,
     nftAddress: string,
     forwarderAddress: string
   ) {
-    const jsonRpcProvider = new ethers.providers.JsonRpcProvider(providerUrl);
-    this.biconomy = new Biconomy(jsonRpcProvider, {
-      walletProvider: provider,
-      apiKey: biconomyAPIKey,
-      debug: true,
-    });
-    this.ethersProvider = new ethers.providers.Web3Provider(this.biconomy);
+    this.biconomyAPIKey = biconomyAPIKey;
     this.walletProvider = walletProvider;
     this.nftAddress = nftAddress;
     this.forwarderAddress = forwarderAddress;
-    this.biconomyAPIKey = biconomyAPIKey;
   }
 
   async mintToken(
@@ -50,11 +36,7 @@ export class VWBLNFTMetaTx {
   ): Promise<number> {
     const walletSigner = this.walletProvider.getSigner();
     const myAddress = await walletSigner.getAddress();
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTx.abi,
-      this.biconomy.getSignerByAddress(myAddress)
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTx.abi, walletSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.mint(decryptUrl, royaltiesPercentage, documentId);
     const chainId = await walletSigner.getChainId();
     const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
@@ -74,11 +56,7 @@ export class VWBLNFTMetaTx {
   ): Promise<number> {
     const walletSigner = this.walletProvider.getSigner();
     const myAddress = await walletSigner.getAddress();
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.biconomy.getSignerByAddress(myAddress)
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, walletSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.mint(
       metadataUrl,
       decryptUrl,
@@ -97,11 +75,7 @@ export class VWBLNFTMetaTx {
   async getOwnTokenIds() {
     const walletSigner = this.walletProvider.getSigner();
     const myAddress = await walletSigner.getAddress();
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.biconomy.getSignerByAddress(myAddress)
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, walletSigner);
     const balance = await vwblMetaTxContract.callStatic.balanceOf(myAddress);
     return await Promise.all(
       range(Number.parseInt(balance)).map(async (i) => {
@@ -112,45 +86,37 @@ export class VWBLNFTMetaTx {
   }
 
   async getTokenByMinter(address: string) {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.biconomy.getSignerByAddress(myAddress)
+      this.walletProvider.getSigner()
     );
     return await vwblMetaTxContract.callStatic.getTokenByMinter(address);
   }
 
   async getMetadataUrl(tokenId: number) {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.biconomy.getSignerByAddress(myAddress)
+      this.walletProvider.getSigner()
     );
     return await vwblMetaTxContract.callStatic.tokenURI(tokenId);
   }
 
   async getOwner(tokenId: number) {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.biconomy.getSignerByAddress(myAddress)
+      this.walletProvider.getSigner()
     );
     return await vwblMetaTxContract.callStatic.ownerOf(tokenId);
   }
 
   async getMinter(tokenId: number) {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.biconomy.getSignerByAddress(myAddress)
+      this.walletProvider.getSigner()
     );
     return await vwblMetaTxContract.callStatic.getMinter(tokenId);
   }
@@ -170,23 +136,19 @@ export class VWBLNFTMetaTx {
   }
 
   async getFee() {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.biconomy.getSignerByAddress(myAddress)
+      this.walletProvider.getSigner()
     );
     return await vwblMetaTxContract.callStatic.getFee();
   }
 
   async getTokenInfo(tokenId: number) {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.biconomy.getSignerByAddress(myAddress)
+      this.walletProvider.getSigner()
     );
     return await vwblMetaTxContract.callStatic.tokenIdToTokenInfo(tokenId);
   }
@@ -194,11 +156,7 @@ export class VWBLNFTMetaTx {
   async approve(operator: string, tokenId: number, approveApiId: string): Promise<void> {
     const walletSigner = this.walletProvider.getSigner();
     const myAddress = await walletSigner.getAddress();
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.biconomy.getSignerByAddress(myAddress)
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, walletSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.approve(operator, tokenId);
     const chainId = await walletSigner.getChainId();
     const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
@@ -208,12 +166,10 @@ export class VWBLNFTMetaTx {
   }
 
   async getApproved(tokenId: number): Promise<string> {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.biconomy.getSignerByAddress(myAddress)
+      this.walletProvider.getSigner()
     );
     return await vwblMetaTxContract.callStatic.getApproved(tokenId);
   }
@@ -221,11 +177,7 @@ export class VWBLNFTMetaTx {
   async setApprovalForAll(operator: string, setApprovalForAllApiId: string): Promise<void> {
     const walletSigner = this.walletProvider.getSigner();
     const myAddress = await walletSigner.getAddress();
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.biconomy.getSignerByAddress(myAddress)
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, walletSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.setApprovalForAll(operator);
     const chainId = await walletSigner.getChainId();
     const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
@@ -235,12 +187,10 @@ export class VWBLNFTMetaTx {
   }
 
   async isApprovedForAll(owner: string, operator: string): Promise<boolean> {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.biconomy.getSignerByAddress(myAddress)
+      this.walletProvider.getSigner()
     );
     return await vwblMetaTxContract.callStatic.isApprovedForAll(owner, operator);
   }
@@ -248,11 +198,7 @@ export class VWBLNFTMetaTx {
   async safeTransfer(to: string, tokenId: number, safeTransferFromApiId: string): Promise<void> {
     const walletSigner = this.walletProvider.getSigner();
     const myAddress = await walletSigner.getAddress();
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.biconomy.getSignerByAddress(myAddress)
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, walletSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.safeTransferFrom(myAddress, to, tokenId);
     const chainId = await walletSigner.getChainId();
     const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
@@ -262,7 +208,7 @@ export class VWBLNFTMetaTx {
   }
 
   private async constructMetaTx(myAddress: string, data: string, chainId: number) {
-    const gasLimit = await this.ethersProvider.estimateGas({
+    const gasLimit = await this.walletProvider.estimateGas({
       to: this.nftAddress,
       from: myAddress,
       data,
@@ -271,7 +217,7 @@ export class VWBLNFTMetaTx {
     const forwarderContract = new ethers.Contract(
       this.forwarderAddress,
       forwarder.abi,
-      this.biconomy.getSignerByAddress(myAddress)
+      this.walletProvider.getSigner()
     );
     const batchNonce = await forwarderContract.getNonce(myAddress, 0);
     const txParam: TxParam = buildForwardTxRequest(
@@ -314,7 +260,7 @@ export class VWBLNFTMetaTx {
         }),
       });
       const txHash = (await res.json()).txHash;
-      const receipt = await this.ethersProvider.waitForTransaction(txHash);
+      const receipt = await this.walletProvider.waitForTransaction(txHash);
       console.log("txHash:", txHash);
       return receipt;
     } catch (error) {

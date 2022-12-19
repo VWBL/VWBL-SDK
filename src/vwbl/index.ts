@@ -5,3 +5,4 @@ export * from "./metadata";
 export * from "./types";
 export * from "./blockchain";
 export * from "./api";
+export * from "./base";

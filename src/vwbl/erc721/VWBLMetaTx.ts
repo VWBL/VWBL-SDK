@@ -35,7 +35,7 @@ export type BiconomyConfig = {
 };
 
 export type MetaTxConstructorProps = {
-  bcProvider: any;
+  bcProvider: ethers.providers.ExternalProvider | ethers.providers.JsonRpcFetchFunc;
   contractAddress: string;
   vwblNetworkUrl: string;
   biconomyConfig: BiconomyConfig;
@@ -62,8 +62,6 @@ export class VWBLMetaTx extends VWBLBase {
     const walletProvider = new ethers.providers.Web3Provider(bcProvider);
     this.signer = walletProvider.getSigner();
     this.nft = new VWBLNFTMetaTx(
-      bcProvider,
-      biconomyConfig.providerUrl,
       biconomyConfig.apiKey,
       walletProvider,
       contractAddress,
