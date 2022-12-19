@@ -29,7 +29,6 @@ import {
 } from "../types";
 
 export type BiconomyConfig = {
-  providerUrl: string;
   apiKey: string;
   forwarderAddress: string;
 };
