@@ -62,7 +62,7 @@ export class VWBLBase {
    * @remarks
    * You need to call this method before you send a transaction（eg. mint NFT）
    */
-  protected _sign = async (signer: Web3 | ethers.providers.JsonRpcSigner) => {
+  protected _sign = async (signer: Web3 | ethers.providers.JsonRpcSigner | ethers.Wallet) => {
     this.signature = await signToProtocol(signer);
     console.log("signed");
   };
