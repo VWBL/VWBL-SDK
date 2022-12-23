@@ -8,7 +8,7 @@ interface IEthersSigner {
 }
 
 const isEthersSigner = (signer: IEthersSigner): signer is IEthersSigner => {
-  return (signer).signMessage !== undefined;
+  return signer.signMessage !== undefined;
 };
 
 export const signToProtocol = async (signer: Web3 | ethers.providers.JsonRpcSigner | ethers.Wallet) => {
