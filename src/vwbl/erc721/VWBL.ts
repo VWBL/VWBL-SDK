@@ -1,8 +1,6 @@
 import axios from "axios";
 import * as fs from "fs";
-import Web3 from "web3";
 
-import { AWSConfig } from "../../storage/aws/types";
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload";
 import {
   createRandomKey,
@@ -18,8 +16,8 @@ import { VWBLBase } from "../base";
 import { VWBLNFT } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
+  ConstructorProps,
   EncryptLogic,
-  ManageKeyType,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -27,20 +25,8 @@ import {
   UploadMetadata,
   UploadMetadataType,
   UploadThumbnail,
+  VWBLOption,
 } from "../types";
-
-export type ConstructorProps = {
-  web3: Web3;
-  contractAddress: string;
-  vwblNetworkUrl: string;
-  manageKeyType?: ManageKeyType;
-  uploadContentType?: UploadContentType;
-  uploadMetadataType?: UploadMetadataType;
-  awsConfig?: AWSConfig;
-  ipfsNftStorageKey?: string;
-};
-
-export type VWBLOption = ConstructorProps;
 
 export class VWBL extends VWBLBase {
   public opts: VWBLOption;

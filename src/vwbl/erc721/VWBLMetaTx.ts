@@ -2,7 +2,6 @@ import axios from "axios";
 import { ethers, utils } from "ethers";
 import * as fs from "fs";
 
-import { AWSConfig } from "../../storage/aws/types";
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload";
 import {
   createRandomKey,
@@ -15,12 +14,12 @@ import {
 } from "../../util/cryptoHelper";
 import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
 import { VWBLBase } from "../base";
-import { BaseConstructorProps } from "../base";
 import { VWBLNFTMetaTx } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
+  BaseConstructorProps,
   EncryptLogic,
-  ManageKeyType,
+  MetaTxConstructorProps,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -28,26 +27,8 @@ import {
   UploadMetadata,
   UploadMetadataType,
   UploadThumbnail,
+  VWBLMetaTxOption,
 } from "../types";
-
-export type BiconomyConfig = {
-  apiKey: string;
-  forwarderAddress: string;
-};
-
-export type MetaTxConstructorProps = {
-  bcProvider: ethers.providers.ExternalProvider | ethers.providers.JsonRpcFetchFunc;
-  contractAddress: string;
-  vwblNetworkUrl: string;
-  biconomyConfig: BiconomyConfig;
-  manageKeyType?: ManageKeyType;
-  uploadContentType?: UploadContentType;
-  uploadMetadataType?: UploadMetadataType;
-  awsConfig?: AWSConfig;
-  ipfsNftStorageKey?: string;
-};
-
-export type VWBLMetaTxOption = MetaTxConstructorProps;
 
 export class VWBLMetaTx extends VWBLBase {
   public opts: VWBLMetaTxOption;
@@ -55,8 +36,7 @@ export class VWBLMetaTx extends VWBLBase {
   public signer: ethers.providers.JsonRpcSigner;
 
   constructor(props: MetaTxConstructorProps) {
-    const baseProps: BaseConstructorProps = props;
-    super(baseProps);
+    super(props);
 
     this.opts = props;
     const { bcProvider, contractAddress, biconomyConfig } = props;

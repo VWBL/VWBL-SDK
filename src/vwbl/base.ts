@@ -3,7 +3,6 @@ import { ethers } from "ethers";
 import * as Stream from "stream";
 import Web3 from "web3";
 
-import { AWSConfig } from "../storage/aws/types";
 import { UploadToIPFS } from "../storage/ipfs/upload";
 import {
   createRandomKey,
@@ -17,15 +16,7 @@ import { toBase64FromBlob } from "../util/fileHelper";
 import { VWBLApi } from "./api";
 import { signToProtocol } from "./blockchain";
 import { VWBL } from "./erc721/VWBL";
-import { UploadContentType, UploadMetadataType } from "./types";
-
-export type BaseConstructorProps = {
-  vwblNetworkUrl: string;
-  uploadContentType?: UploadContentType;
-  uploadMetadataType?: UploadMetadataType;
-  awsConfig?: AWSConfig;
-  ipfsNftStorageKey?: string;
-};
+import { BaseConstructorProps, UploadContentType, UploadMetadataType } from "./types";
 
 export class VWBLBase {
   protected api: VWBLApi;
@@ -34,25 +25,23 @@ export class VWBLBase {
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(props: BaseConstructorProps) {
-    this.api = new VWBLApi(props.vwblNetworkUrl);
-    if (props.uploadContentType === UploadContentType.S3 || props.uploadMetadataType === UploadMetadataType.S3) {
-      if (!props.awsConfig) {
+    const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl, ipfsNftStorageKey } = props;
+    this.api = new VWBLApi(vwblNetworkUrl);
+    if (uploadContentType === UploadContentType.S3 || uploadMetadataType === UploadMetadataType.S3) {
+      if (!awsConfig) {
         throw new Error("please specify S3 bucket.");
       }
       AWS.config.update({
-        region: props.awsConfig.region,
+        region: awsConfig.region,
         credentials: new AWS.CognitoIdentityCredentials({
-          IdentityPoolId: props.awsConfig.idPoolId,
+          IdentityPoolId: awsConfig.idPoolId,
         }),
       });
-    } else if (
-      props.uploadContentType === UploadContentType.IPFS ||
-      props.uploadMetadataType === UploadMetadataType.IPFS
-    ) {
-      if (!props.ipfsNftStorageKey) {
+    } else if (uploadContentType === UploadContentType.IPFS || uploadMetadataType === UploadMetadataType.IPFS) {
+      if (!ipfsNftStorageKey) {
         throw new Error("please specify nftstorage config of IPFS.");
       }
-      this.uploadToIpfs = new UploadToIPFS(props.ipfsNftStorageKey);
+      this.uploadToIpfs = new UploadToIPFS(ipfsNftStorageKey);
     }
   }
 

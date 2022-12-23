@@ -14,9 +14,9 @@ import {
 import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
 import { VWBLBase } from "../base";
 import { VWBLERC1155NFT } from "../blockchain";
-import { ConstructorProps, VWBLOption } from "../erc721/VWBL";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
+  ConstructorProps,
   EncryptLogic,
   ProgressSubscriber,
   StepStatus,
@@ -25,6 +25,7 @@ import {
   UploadMetadata,
   UploadMetadataType,
   UploadThumbnail,
+  VWBLOption,
 } from "../types";
 
 export class VWBLERC1155 extends VWBLBase {
