@@ -7,17 +7,15 @@ interface IEthersSigner {
   signMessage(message: string | ethers.utils.Bytes): Promise<string>;
 }
 
-const isEthersSigner = (signer: unknown): signer is IEthersSigner => {
-  return (signer as IEthersSigner).signMessage !== undefined;
+const isEthersSigner = (signer: IEthersSigner): signer is IEthersSigner => {
+  return (signer).signMessage !== undefined;
 };
 
 export const signToProtocol = async (signer: Web3 | ethers.providers.JsonRpcSigner | ethers.Wallet) => {
-  if (isEthersSigner(signer)) {
-    console.log("ethers instance");
-    return await signer.signMessage(MESSAGE_TO_BE_SIGNED);
+  if (isEthersSigner(signer as IEthersSigner)) {
+    return await (signer as IEthersSigner).signMessage(MESSAGE_TO_BE_SIGNED);
   } else {
-    console.log("web3 instance");
-    const myAddress = (await signer.eth.getAccounts())[0];
-    return await signer.eth.personal.sign(MESSAGE_TO_BE_SIGNED, myAddress, "");
+    const myAddress = (await (signer as Web3).eth.getAccounts())[0];
+    return await (signer as Web3).eth.personal.sign(MESSAGE_TO_BE_SIGNED, myAddress, "");
   }
 };
