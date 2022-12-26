@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import axios from 'axios';
 
 import forwarder from "../../../contract/Forwarder.json";
 import vwblMetaTx from "../../../contract/VWBLMetaTx.json";
@@ -245,23 +246,24 @@ export class VWBLNFTMetaTx {
     const params = [request, domainSeparator, sig];
 
     try {
-      const res = await fetch(`https://api.biconomy.io/api/v2/meta-tx/native`, {
-        method: "POST",
-        headers: {
-          "x-api-key": this.biconomyAPIKey,
-          "Content-Type": "application/json;charset=utf-8",
-        },
-        body: JSON.stringify({
+      const headers = {
+        'x-api-key': this.biconomyAPIKey,
+        'content-Type': 'application/json;charset=utf-8',
+      };
+      const { data } = await axios.post(
+        `https://api.biconomy.io/api/v2/meta-tx/native`,
+        {
           to: this.nftAddress,
           apiId: methodApiId,
           params: params,
           from: myAddress,
           signatureType: signatureType,
-        }),
-      });
-      const txHash = (await res.json()).txHash;
-      const receipt = await this.walletProvider.waitForTransaction(txHash);
-      console.log("txHash:", txHash);
+        },
+        { headers: headers },
+      );
+      console.log("post meta tx resp", data);
+      const receipt = await this.walletProvider.waitForTransaction(data.txHash);
+      console.log("confirmed:", data.txHash);
       return receipt;
     } catch (error) {
       throw new Error("post meta tx error");
