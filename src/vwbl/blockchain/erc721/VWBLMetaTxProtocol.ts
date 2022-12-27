@@ -1,5 +1,5 @@
+import axios from "axios";
 import { ethers } from "ethers";
-import axios from 'axios';
 
 import forwarder from "../../../contract/Forwarder.json";
 import vwblMetaTx from "../../../contract/VWBLMetaTx.json";
@@ -247,8 +247,8 @@ export class VWBLNFTMetaTx {
 
     try {
       const headers = {
-        'x-api-key': this.biconomyAPIKey,
-        'content-Type': 'application/json;charset=utf-8',
+        "x-api-key": this.biconomyAPIKey,
+        "content-Type": "application/json;charset=utf-8",
       };
       const { data } = await axios.post(
         `https://api.biconomy.io/api/v2/meta-tx/native`,
@@ -259,7 +259,7 @@ export class VWBLNFTMetaTx {
           from: myAddress,
           signatureType: signatureType,
         },
-        { headers: headers },
+        { headers: headers }
       );
       console.log("post meta tx resp", data);
       const receipt = await this.walletProvider.waitForTransaction(data.txHash);

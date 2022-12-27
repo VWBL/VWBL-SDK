@@ -247,7 +247,7 @@ export class VWBLMetaTx extends VWBLBase {
     const chainId = await this.signer.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
     subscriber?.kickStep(StepStatus.SET_KEY);
-    
+
     return tokenId;
   };
 
