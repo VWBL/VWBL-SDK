@@ -1,7 +1,7 @@
 {
   "name": "vwbl-sdk",
   "description": "VWBL SDK for TypeScript",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -49,6 +49,7 @@
     "crypto": "^1.0.1",
     "crypto-js": "^4.1.1",
     "dotenv": "^16.0.0",
+    "ethers": "^5.7.2",
     "file-api": "^0.10.4",
     "filereader": "^0.10.3",
     "form-data": "^4.0.0",
