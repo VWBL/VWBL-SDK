@@ -6,7 +6,7 @@ import vwblDataCollector from "../contract/VWBLDataCollector.json";
 import { decryptFile, decryptStream, decryptString } from "../util/cryptoHelper";
 import { VWBLBase } from "./base";
 import { ExtendedMetadeta, ExtractMetadata, PlainMetadata } from "./metadata";
-import { ConstructorProps, VWBLOption } from "./types";
+import { ViewerConstructorProps, ViewerOption } from "./types";
 
 type TokenInfo = {
   contractAddress: string;
@@ -15,17 +15,15 @@ type TokenInfo = {
 };
 
 export class VWBLViewer extends VWBLBase {
-  public opts: VWBLOption;
+  public opts: ViewerOption;
   private dataCollector?: Contract;
 
-  constructor(props: ConstructorProps) {
+  constructor(props: ViewerConstructorProps) {
     super(props);
 
     this.opts = props;
     const { web3, dataCollectorAddress } = props;
-    this.dataCollector = !dataCollectorAddress
-      ? undefined
-      : new web3.eth.Contract(vwblDataCollector.abi as AbiItem[], dataCollectorAddress);
+    this.dataCollector = new web3.eth.Contract(vwblDataCollector.abi as AbiItem[], dataCollectorAddress);
   }
 
   sign = async () => {
@@ -82,10 +80,12 @@ export class VWBLViewer extends VWBLBase {
   };
 
   extractMetadata = async (
-    signature: string,
     contractAddress: string,
-    tokenId: number
+    tokenId: number,
+    signature?: string
   ): Promise<ExtractMetadata | undefined> => {
+    const sig = this.signature || signature;
+    if (!sig) throw new Error("please sign or set signature param");
     if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
     const metadataUrl = await this.dataCollector.methods.getTokenURI(contractAddress, tokenId).call();
     if (!metadataUrl) return undefined;
@@ -93,7 +93,7 @@ export class VWBLViewer extends VWBLBase {
     if (!metadata) return undefined;
     const documentId = await this.dataCollector.methods.getDocumentId(contractAddress, tokenId).call();
     const chainId = await this.opts.web3.eth.getChainId();
-    const decryptKey = await this.api.getKey(documentId, chainId, signature);
+    const decryptKey = await this.api.getKey(documentId, chainId, sig);
     const encryptedDataUrls = metadata.encrypted_data;
     const isRunningOnBrowser = typeof window !== "undefined";
     const encryptLogic = metadata.encrypt_logic ?? "base64";

@@ -19,7 +19,6 @@ export type ConstructorProps = BaseConstructorProps & {
   web3: Web3;
   contractAddress: string;
   manageKeyType?: ManageKeyType;
-  dataCollectorAddress?: string;
 };
 
 export type VWBLOption = ConstructorProps;
@@ -32,3 +31,10 @@ export type MetaTxConstructorProps = BaseConstructorProps & {
 };
 
 export type VWBLMetaTxOption = MetaTxConstructorProps;
+
+export type ViewerConstructorProps = BaseConstructorProps & {
+  web3: Web3;
+  dataCollectorAddress: string;
+};
+
+export type ViewerOption = ViewerConstructorProps;
