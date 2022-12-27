@@ -15,7 +15,6 @@ import {
 import { toBase64FromBlob } from "../util/fileHelper";
 import { VWBLApi } from "./api";
 import { signToProtocol } from "./blockchain";
-import { VWBL } from "./erc721/VWBL";
 import { BaseConstructorProps, UploadContentType, UploadMetadataType } from "./types";
 
 export class VWBLBase {
