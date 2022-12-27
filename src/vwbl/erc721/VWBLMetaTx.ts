@@ -1,4 +1,5 @@
 import axios from "axios";
+import { ethers, utils } from "ethers";
 import * as fs from "fs";
 
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload";
@@ -13,11 +14,12 @@ import {
 } from "../../util/cryptoHelper";
 import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
 import { VWBLBase } from "../base";
-import { VWBLERC1155NFT } from "../blockchain";
+import { VWBLNFTMetaTx } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
-  ConstructorProps,
+  BaseConstructorProps,
   EncryptLogic,
+  MetaTxConstructorProps,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -25,27 +27,41 @@ import {
   UploadMetadata,
   UploadMetadataType,
   UploadThumbnail,
-  VWBLOption,
+  VWBLMetaTxOption,
 } from "../types";
 
-export class VWBLERC1155 extends VWBLBase {
-  public opts: VWBLOption;
-  public nft: VWBLERC1155NFT;
+export class VWBLMetaTx extends VWBLBase {
+  public opts: VWBLMetaTxOption;
+  public nft: VWBLNFTMetaTx;
+  public signer: ethers.providers.JsonRpcSigner;
 
-  constructor(props: ConstructorProps) {
+  constructor(props: MetaTxConstructorProps) {
     super(props);
 
     this.opts = props;
-    const { web3, contractAddress, uploadMetadataType } = props;
-    this.nft = new VWBLERC1155NFT(web3, contractAddress, uploadMetadataType === UploadMetadataType.IPFS);
+    const { bcProvider, contractAddress, biconomyConfig } = props;
+    const walletProvider = new ethers.providers.Web3Provider(bcProvider);
+    this.signer = walletProvider.getSigner();
+    this.nft = new VWBLNFTMetaTx(
+      biconomyConfig.apiKey,
+      walletProvider,
+      contractAddress,
+      biconomyConfig.forwarderAddress
+    );
   }
 
+  /**
+   * Sign to VWBL
+   *
+   * @remarks
+   * You need to call this method before you send a transaction（eg. mint NFT）
+   */
   sign = async () => {
-    await this._sign(this.opts.web3);
+    await this._sign(this.signer);
   };
 
   /**
-   * Create VWBLERC1155 NFT
+   * Create VWBL NFT
    *
    * @remarks
    * The following happens: Minting NFT, Uploading encrypted data, Uploading metadata, Setting key to VWBL Network
@@ -54,11 +70,11 @@ export class VWBLERC1155 extends VWBLBase {
    *
    * @param name - The NFT name
    * @param description - The NFT description
-   * * @param amount - The amount of erc1155 tokens to be minted
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
+   * @param mintApiId - The mint method api id of biconomy
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
@@ -67,11 +83,11 @@ export class VWBLERC1155 extends VWBLBase {
   managedCreateToken = async (
     name: string,
     description: string,
-    amount: number,
     plainFile: File | File[],
     thumbnailImage: File,
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
+    mintApiId: string,
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata,
@@ -82,8 +98,8 @@ export class VWBLERC1155 extends VWBLBase {
     }
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
-    const documentId = this.opts.web3.utils.randomHex(32);
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId);
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId, mintApiId);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -142,7 +158,7 @@ export class VWBLERC1155 extends VWBLBase {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.opts.web3.eth.getChainId();
+    const chainId = await this.signer.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
     subscriber?.kickStep(StepStatus.SET_KEY);
 
@@ -150,7 +166,7 @@ export class VWBLERC1155 extends VWBLBase {
   };
 
   /**
-   * Create VWBLERC1155 NFT which metadata on IPFS.
+   * Create VWBL NFT which metadata on IPFS.
    *
    * @remarks
    * The following happens: Minting NFT, Uploading encrypted data, Uploading metadata, Setting key to VWBL Network
@@ -159,21 +175,21 @@ export class VWBLERC1155 extends VWBLBase {
    *
    * @param name - The NFT name
    * @param description - The NFT description
-   * @param amount - The amount of erc1155 tokens to be minted
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
+   * @param mintApiId - The mint method api id of biconomy
    * @returns
    */
   managedCreateTokenForIPFS = async (
     name: string,
     description: string,
-    amount: number,
     plainFile: File | File[],
     thumbnailImage: File,
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
+    mintApiId: string,
     subscriber?: ProgressSubscriber
   ) => {
     if (!this.signature) {
@@ -199,9 +215,9 @@ export class VWBLERC1155 extends VWBLBase {
         return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent);
       })
     );
-    const thumbnailImageUrl = await this.uploadToIpfs?.uploadThumbnail(thumbnailImage);
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
 
+    const thumbnailImageUrl = await this.uploadToIpfs?.uploadThumbnail(thumbnailImage);
     // 4. upload metadata
     console.log("upload meta data");
     const mimeType = getMimeType(plainFileArray[0]);
@@ -216,19 +232,19 @@ export class VWBLERC1155 extends VWBLBase {
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
     // 5. mint token
-    const documentId = this.opts.web3.utils.randomHex(32);
+    const documentId = utils.hexlify(utils.randomBytes(32));
     const tokenId = await this.nft.mintTokenForIPFS(
       metadataUrl as string,
       vwblNetworkUrl,
-      amount,
       royaltiesPercentage,
-      documentId
+      documentId,
+      mintApiId
     );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.opts.web3.eth.getChainId();
+    const chainId = await this.signer.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
     subscriber?.kickStep(StepStatus.SET_KEY);
 
@@ -236,52 +252,84 @@ export class VWBLERC1155 extends VWBLBase {
   };
 
   /**
-   * Mint new ERC1155 NFT
+   * Set key to VWBL Network
    *
-   * @param amount - The amount of erc1155 tokens to be minted
+   * @param tokenId - The ID of NFT
+   * @param key - The key generated by {@link VWBL.createKey}
+   * @param hasNonce
+   * @param autoMigration
+   *
+   */
+  setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
+    const { documentId } = await this.nft.getTokenInfo(tokenId);
+    const chainId = await this.signer.getChainId();
+    return await this._setKey(documentId, chainId, key, hasNonce, autoMigration);
+  };
+
+  /**
+   * Mint new NFT
+   *
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param mintApiId - The mint method api id of biconomy
    * @returns The ID of minted NFT
    */
-  mintToken = async (amount: number, royaltiesPercentage: number): Promise<number> => {
+  mintToken = async (royaltiesPercentage: number, mintApiId: string): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = this.opts.web3.utils.randomHex(32);
-    return await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId);
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId, mintApiId);
+  };
+
+  /**
+   * Approves `operator` to transfer the given `tokenId`
+   *
+   * @param operator - The wallet address
+   * @param tokenId - The ID of NFT
+   * @param approveApiId - The approve method api id of biconomy
+   */
+  approve = async (operator: string, tokenId: number, approveApiId: string): Promise<void> => {
+    await this.nft.approve(operator, tokenId, approveApiId);
+  };
+
+  /**
+   * Get the approved address for a `tokenId`
+   *
+   * @param tokenId - The ID of NFT
+   * @return The Wallet address that was approved
+   */
+  getApproved = async (tokenId: number): Promise<string> => {
+    return await this.nft.getApproved(tokenId);
+  };
+
+  /**
+   * Allows `operator` to transfer all tokens that a person who calls this function
+   *
+   * @param operator - The wallet address
+   * @param setApprovalForAllApiId - The setApprovalForAll method api id of biconomy
+   */
+  setApprovalForAll = async (operator: string, setApprovalForAllApiId: string): Promise<void> => {
+    await this.nft.setApprovalForAll(operator, setApprovalForAllApiId);
+  };
+
+  /**
+   * Tells whether an `operator` is approved by a given `owner`
+   *
+   * @param owner - The wallet address of a NFT owner
+   * @param operator - The wallet address of an operator
+   * @returns
+   */
+  isApprovedForAll = async (owner: string, operator: string): Promise<boolean> => {
+    return await this.nft.isApprovedForAll(owner, operator);
   };
 
   /**
    * Transfer NFT
    *
-   * @param to - The address that NFT will be transferred
+   * @param to - The address that NFT will be transfered
    * @param tokenId - The ID of NFT
-   * @param amount - The amount of erc1155 tokens to be transferred
+   * @param safeTransferFromApiId - The safeTransferFrom api id of biconomy
    */
-  safeTransfer = async (to: string, tokenId: number, amount: number, data = "0x00"): Promise<void> => {
-    return await this.nft.safeTransfer(to, tokenId, amount, data);
-  };
-
-  /**
-   * Burn NFT
-   *
-   * @param owner - The address of nft owner
-   * @param tokenId - The ID of NFT
-   * @param amount - The amount of erc1155 tokens to be burnt
-   */
-  burn = async (owner: string, tokenId: number, amount: number): Promise<void> => {
-    return await this.nft.burn(owner, tokenId, amount);
-  };
-
-  /**
-   * Get balance of nft
-   *
-   * @param owner - The address of nft owner
-   * @param tokenId - The ID of NFT
-   */
-  balanceOf = async (owner: string, tokenId: number): Promise<number> => {
-    return await this.nft.balanceOf(owner, tokenId);
-  };
-
-  getOwner = async (tokenId: number) => {
-    return await this.nft.getOwner(tokenId);
+  safeTransfer = async (to: string, tokenId: number, safeTransferFromApiId: string): Promise<void> => {
+    await this.nft.safeTransfer(to, tokenId, safeTransferFromApiId);
   };
 
   /**
@@ -359,21 +407,6 @@ export class VWBLERC1155 extends VWBLBase {
       encryptLogic
     );
     return metadataUrl as string;
-  };
-
-  /**
-   * Set key to VWBL Network
-   *
-   * @param tokenId - The ID of NFT
-   * @param key - The key generated by {@link VWBL.createKey}
-   * @param hasNonce
-   * @param autoMigration
-   *
-   */
-  setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
-    const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await this.opts.web3.eth.getChainId();
-    return await this._setKey(documentId, chainId, key, hasNonce, autoMigration);
   };
 
   /**
@@ -471,7 +504,7 @@ export class VWBLERC1155 extends VWBLBase {
       return undefined;
     }
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await this.opts.web3.eth.getChainId();
+    const chainId = await this.signer.getChainId();
     const decryptKey = await this.api.getKey(documentId, chainId, this.signature);
     const encryptedDataUrls = metadata.encrypted_data;
     const isRunningOnBrowser = typeof window !== "undefined";

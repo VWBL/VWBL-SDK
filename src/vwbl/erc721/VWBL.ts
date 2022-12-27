@@ -12,10 +12,11 @@ import {
   encryptString,
 } from "../../util/cryptoHelper";
 import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
-import { ConstructorProps, VWBLBase } from "../base";
+import { VWBLBase } from "../base";
 import { VWBLNFT } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
+  ConstructorProps,
   EncryptLogic,
   ProgressSubscriber,
   StepStatus,
@@ -24,17 +25,30 @@ import {
   UploadMetadata,
   UploadMetadataType,
   UploadThumbnail,
+  VWBLOption,
 } from "../types";
 
 export class VWBL extends VWBLBase {
-  nft: VWBLNFT;
+  public opts: VWBLOption;
+  public nft: VWBLNFT;
 
   constructor(props: ConstructorProps) {
     super(props);
 
+    this.opts = props;
     const { web3, contractAddress, uploadMetadataType } = props;
     this.nft = new VWBLNFT(web3, contractAddress, uploadMetadataType === UploadMetadataType.IPFS);
   }
+
+  /**
+   * Sign to VWBL
+   *
+   * @remarks
+   * You need to call this method before you send a transaction（eg. mint NFT）
+   */
+  sign = async () => {
+    await this._sign(this.opts.web3);
+  };
 
   /**
    * Create VWBL NFT
@@ -233,7 +247,8 @@ export class VWBL extends VWBLBase {
    */
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    return await this._setKey(documentId, key, hasNonce, autoMigration);
+    const chainId = await this.opts.web3.eth.getChainId();
+    return await this._setKey(documentId, chainId, key, hasNonce, autoMigration);
   };
 
   /**
