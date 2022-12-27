@@ -19,6 +19,7 @@ export type ConstructorProps = BaseConstructorProps & {
   web3: Web3;
   contractAddress: string;
   manageKeyType?: ManageKeyType;
+  dataCollectorAddress?: string;
 };
 
 export type VWBLOption = ConstructorProps;
