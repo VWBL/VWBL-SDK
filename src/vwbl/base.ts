@@ -26,6 +26,7 @@ export type ConstructorProps = {
   uploadMetadataType?: UploadMetadataType;
   awsConfig?: AWSConfig;
   ipfsNftStorageKey?: string;
+  dataCollectorAddress?: string;
 };
 
 export type VWBLOption = ConstructorProps;
