@@ -26,3 +26,7 @@ export type ExtractMetadata = Metadata & {
   ownDataBase64: string[];
   ownFiles: ArrayBuffer[] | Stream[];
 };
+
+export type ExtendedMetadeta = Metadata & {
+  address: string;
+};
