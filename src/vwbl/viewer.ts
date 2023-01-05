@@ -145,6 +145,28 @@ export class VWBLViewer extends VWBLBase {
     return items;
   };
 
+  listAllMintedMetadata = async (userAddress: string): Promise<(ExtendedMetadeta | undefined)[]> => {
+    if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
+    const tokens = await this.dataCollector.methods.getAllMintedTokens(userAddress).call();
+    const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
+      tokens.map(async (token: TokenInfo) => {
+        const metadata: PlainMetadata = (
+          await axios.get(token.tokenURI, { validateStatus: (status) => status === 200 })
+        ).data;
+        return {
+          id: token.tokenId,
+          name: metadata.name,
+          description: metadata.description,
+          image: metadata.image,
+          mimeType: metadata.mime_type,
+          encryptLogic: metadata.encrypt_logic,
+          address: token.contractAddress,
+        };
+      })
+    );
+    return items;
+  };
+
   listMintedNFTMetadata = async (userAddress: string): Promise<(ExtendedMetadeta | undefined)[]> => {
     if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
     const tokens = await this.dataCollector.methods.getAllMintedTokensOfNFT(userAddress).call();
