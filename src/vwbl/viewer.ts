@@ -254,4 +254,10 @@ export class VWBLViewer extends VWBLBase {
       fileName,
     };
   };
+
+  getNFTOwner = async (contractAddress: string, tokenId: number): Promise<string> => {
+    if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
+    const owner: string = await this.dataCollector.methods.getNFTOwner(contractAddress, tokenId).call();
+    return owner;
+  };
 }
