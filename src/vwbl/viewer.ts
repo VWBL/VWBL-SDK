@@ -164,7 +164,7 @@ export class VWBLViewer extends VWBLBase {
 
   listMintedNFTMetadata = async (userAddress: string): Promise<(ExtendedMetadeta | undefined)[]> => {
     if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
-    const tokens = await this.dataCollector.methods.getAllMintedTokensOfNFT(userAddress).call();
+    const tokens = await this.dataCollector.methods.getMintedNFTs(userAddress).call();
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
         const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
@@ -185,7 +185,7 @@ export class VWBLViewer extends VWBLBase {
 
   listMintedERC1155Metadata = async (userAddress: string): Promise<(ExtendedMetadeta | undefined)[]> => {
     if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
-    const tokens = await this.dataCollector.methods.getAllMintedTokensOfERC1155(userAddress).call();
+    const tokens = await this.dataCollector.methods.getMintedERC1155s(userAddress).call();
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
         const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
