@@ -1,4 +1,5 @@
 import axios from "axios";
+import { utils } from "ethers";
 import * as fs from "fs";
 
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload";
@@ -13,11 +14,11 @@ import {
 } from "../../util/cryptoHelper";
 import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
 import { VWBLBase } from "../base";
-import { VWBLERC1155Contract } from "../blockchain";
+import { VWBLNFTEthers } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
-  ConstructorProps,
   EncryptLogic,
+  EthersConstructorProps,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -25,27 +26,38 @@ import {
   UploadMetadata,
   UploadMetadataType,
   UploadThumbnail,
-  VWBLOption,
+  VWBLEthersOption,
 } from "../types";
 
-export class VWBLERC1155 extends VWBLBase {
-  public opts: VWBLOption;
-  public nft: VWBLERC1155Contract;
+export class VWBLEthers extends VWBLBase {
+  public opts: VWBLEthersOption;
+  public nft: VWBLNFTEthers;
 
-  constructor(props: ConstructorProps) {
+  constructor(props: EthersConstructorProps) {
     super(props);
 
     this.opts = props;
-    const { web3, contractAddress, uploadMetadataType } = props;
-    this.nft = new VWBLERC1155Contract(web3, contractAddress, uploadMetadataType === UploadMetadataType.IPFS);
+    const { contractAddress, ethersProvider, ethersSigner, uploadMetadataType } = props;
+    this.nft = new VWBLNFTEthers(
+      contractAddress,
+      uploadMetadataType === UploadMetadataType.IPFS,
+      ethersProvider,
+      ethersSigner
+    );
   }
 
+  /**
+   * Sign to VWBL
+   *
+   * @remarks
+   * You need to call this method before you send a transaction（eg. mint NFT）
+   */
   sign = async () => {
-    await this._sign(this.opts.web3);
+    await this._sign(this.opts.ethersSigner);
   };
 
   /**
-   * Create VWBLERC1155 NFT
+   * Create VWBL NFT
    *
    * @remarks
    * The following happens: Minting NFT, Uploading encrypted data, Uploading metadata, Setting key to VWBL Network
@@ -54,7 +66,6 @@ export class VWBLERC1155 extends VWBLBase {
    *
    * @param name - The NFT name
    * @param description - The NFT description
-   * * @param amount - The amount of erc1155 tokens to be minted
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
@@ -67,7 +78,6 @@ export class VWBLERC1155 extends VWBLBase {
   managedCreateToken = async (
     name: string,
     description: string,
-    amount: number,
     plainFile: File | File[],
     thumbnailImage: File,
     royaltiesPercentage: number,
@@ -82,8 +92,8 @@ export class VWBLERC1155 extends VWBLBase {
     }
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
-    const documentId = this.opts.web3.utils.randomHex(32);
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId);
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -142,7 +152,7 @@ export class VWBLERC1155 extends VWBLBase {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.opts.web3.eth.getChainId();
+    const chainId = await this.opts.ethersSigner.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
     subscriber?.kickStep(StepStatus.SET_KEY);
 
@@ -150,7 +160,7 @@ export class VWBLERC1155 extends VWBLBase {
   };
 
   /**
-   * Create VWBLERC1155 NFT which metadata on IPFS.
+   * Create VWBL NFT which metadata on IPFS.
    *
    * @remarks
    * The following happens: Minting NFT, Uploading encrypted data, Uploading metadata, Setting key to VWBL Network
@@ -159,7 +169,6 @@ export class VWBLERC1155 extends VWBLBase {
    *
    * @param name - The NFT name
    * @param description - The NFT description
-   * @param amount - The amount of erc1155 tokens to be minted
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
@@ -169,7 +178,6 @@ export class VWBLERC1155 extends VWBLBase {
   managedCreateTokenForIPFS = async (
     name: string,
     description: string,
-    amount: number,
     plainFile: File | File[],
     thumbnailImage: File,
     royaltiesPercentage: number,
@@ -216,11 +224,10 @@ export class VWBLERC1155 extends VWBLBase {
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
     // 5. mint token
-    const documentId = this.opts.web3.utils.randomHex(32);
+    const documentId = utils.hexlify(utils.randomBytes(32));
     const tokenId = await this.nft.mintTokenForIPFS(
       metadataUrl as string,
       vwblNetworkUrl,
-      amount,
       royaltiesPercentage,
       documentId
     );
@@ -228,7 +235,7 @@ export class VWBLERC1155 extends VWBLBase {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.opts.web3.eth.getChainId();
+    const chainId = await this.opts.ethersSigner.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
     subscriber?.kickStep(StepStatus.SET_KEY);
 
@@ -236,52 +243,80 @@ export class VWBLERC1155 extends VWBLBase {
   };
 
   /**
-   * Mint new ERC1155 NFT
+   * Set key to VWBL Network
    *
-   * @param amount - The amount of erc1155 tokens to be minted
+   * @param tokenId - The ID of NFT
+   * @param key - The key generated by {@link VWBL.createKey}
+   * @param hasNonce
+   * @param autoMigration
+   *
+   */
+  setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
+    const { documentId } = await this.nft.getTokenInfo(tokenId);
+    const chainId = await this.opts.ethersSigner.getChainId();
+    return await this._setKey(documentId, chainId, key, hasNonce, autoMigration);
+  };
+
+  /**
+   * Mint new NFT
+   *
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @returns The ID of minted NFT
    */
-  mintToken = async (amount: number, royaltiesPercentage: number): Promise<number> => {
+  mintToken = async (royaltiesPercentage: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = this.opts.web3.utils.randomHex(32);
-    return await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId);
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+  };
+
+  /**
+   * Approves `operator` to transfer the given `tokenId`
+   *
+   * @param operator - The wallet address
+   * @param tokenId - The ID of NFT
+   */
+  approve = async (operator: string, tokenId: number): Promise<void> => {
+    await this.nft.approve(operator, tokenId);
+  };
+
+  /**
+   * Get the approved address for a `tokenId`
+   *
+   * @param tokenId - The ID of NFT
+   * @return The Wallet address that was approved
+   */
+  getApproved = async (tokenId: number): Promise<string> => {
+    return await this.nft.getApproved(tokenId);
+  };
+
+  /**
+   * Allows `operator` to transfer all tokens that a person who calls this function
+   *
+   * @param operator - The wallet address
+   */
+  setApprovalForAll = async (operator: string): Promise<void> => {
+    await this.nft.setApprovalForAll(operator);
+  };
+
+  /**
+   * Tells whether an `operator` is approved by a given `owner`
+   *
+   * @param owner - The wallet address of a NFT owner
+   * @param operator - The wallet address of an operator
+   * @returns
+   */
+  isApprovedForAll = async (owner: string, operator: string): Promise<boolean> => {
+    return await this.nft.isApprovedForAll(owner, operator);
   };
 
   /**
    * Transfer NFT
    *
-   * @param to - The address that NFT will be transferred
-   * @param tokenId - The ID of NFT
-   * @param amount - The amount of erc1155 tokens to be transferred
-   */
-  safeTransfer = async (to: string, tokenId: number, amount: number, data = "0x00"): Promise<void> => {
-    return await this.nft.safeTransfer(to, tokenId, amount, data);
-  };
-
-  /**
-   * Burn NFT
-   *
-   * @param owner - The address of nft owner
-   * @param tokenId - The ID of NFT
-   * @param amount - The amount of erc1155 tokens to be burnt
-   */
-  burn = async (owner: string, tokenId: number, amount: number): Promise<void> => {
-    return await this.nft.burn(owner, tokenId, amount);
-  };
-
-  /**
-   * Get balance of nft
-   *
-   * @param owner - The address of nft owner
+   * @param to - The address that NFT will be transfered
    * @param tokenId - The ID of NFT
    */
-  balanceOf = async (owner: string, tokenId: number): Promise<number> => {
-    return await this.nft.balanceOf(owner, tokenId);
-  };
-
-  getOwner = async (tokenId: number) => {
-    return await this.nft.getOwner(tokenId);
+  safeTransfer = async (to: string, tokenId: number): Promise<void> => {
+    await this.nft.safeTransfer(to, tokenId);
   };
 
   /**
@@ -359,21 +394,6 @@ export class VWBLERC1155 extends VWBLBase {
       encryptLogic
     );
     return metadataUrl as string;
-  };
-
-  /**
-   * Set key to VWBL Network
-   *
-   * @param tokenId - The ID of NFT
-   * @param key - The key generated by {@link VWBL.createKey}
-   * @param hasNonce
-   * @param autoMigration
-   *
-   */
-  setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
-    const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await this.opts.web3.eth.getChainId();
-    return await this._setKey(documentId, chainId, key, hasNonce, autoMigration);
   };
 
   /**
@@ -471,7 +491,7 @@ export class VWBLERC1155 extends VWBLBase {
       return undefined;
     }
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await this.opts.web3.eth.getChainId();
+    const chainId = await this.opts.ethersSigner.getChainId();
     const decryptKey = await this.api.getKey(documentId, chainId, this.signature);
     const encryptedDataUrls = metadata.encrypted_data;
     const isRunningOnBrowser = typeof window !== "undefined";

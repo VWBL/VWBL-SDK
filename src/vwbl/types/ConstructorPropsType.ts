@@ -23,6 +23,15 @@ export type ConstructorProps = BaseConstructorProps & {
 
 export type VWBLOption = ConstructorProps;
 
+export type EthersConstructorProps = BaseConstructorProps & {
+  ethersProvider: ethers.providers.BaseProvider;
+  ethersSigner: ethers.providers.JsonRpcSigner | ethers.Wallet;
+  contractAddress: string;
+  manageKeyType?: ManageKeyType;
+};
+
+export type VWBLEthersOption = EthersConstructorProps;
+
 export type MetaTxConstructorProps = BaseConstructorProps & {
   bcProvider: ethers.providers.ExternalProvider | ethers.providers.JsonRpcFetchFunc;
   contractAddress: string;
