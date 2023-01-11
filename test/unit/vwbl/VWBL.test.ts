@@ -13,7 +13,7 @@ import {
   VWBL,
   VWBLApi,
   VWBLERC1155,
-  VWBLERC1155NFT,
+  VWBLERC1155Contract,
   VWBLNFT,
 } from "../../../src/vwbl";
 
@@ -97,7 +97,7 @@ describe("VWBL", () => {
 
 describe("VWBLERC1155", () => {
   const vwblProtocolStub = {
-    mintToken: sinon.stub(VWBLERC1155NFT.prototype, "mintToken"),
+    mintToken: sinon.stub(VWBLERC1155Contract.prototype, "mintToken"),
   };
 
   const vwbl = new VWBLERC1155({
