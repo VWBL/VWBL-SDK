@@ -65,7 +65,7 @@ export class VWBLNFTEthers {
   }
 
   async getMinter(tokenId: number) {
-    return await this.contract.methods.getMinter(tokenId).call();
+    return await this.contract.callStatic.getMinter(tokenId);
   }
 
   async isOwnerOf(tokenId: number) {
