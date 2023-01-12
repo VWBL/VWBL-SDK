@@ -68,6 +68,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
+   * @param subscriber - Optional: the subscriber for seeing progress
    * @returns
    */
   managedCreateToken = async (
@@ -170,6 +171,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
    * @param thumbnailImage - The NFT image
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
+   * @param subscriber - Optional: the subscriber for seeing progress
    * @returns
    */
   managedCreateTokenForIPFS = async (
