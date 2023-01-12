@@ -5,7 +5,7 @@ import { AbiItem } from "web3-utils";
 import vwbl1155 from "../../../contract/VWBLERC1155.json";
 import vwbl1155IPFS from "../../../contract/VWBLERC1155SupportIPFS.json";
 
-export class VWBLERC1155NFT {
+export class VWBLERC1155Contract {
   private contract: Contract;
   private web3: Web3;
 
@@ -108,7 +108,7 @@ export class VWBLERC1155NFT {
   }
 
   async getMetadataUrl(tokenId: number) {
-    return await this.contract.methods.tokenURI(tokenId).call();
+    return await this.contract.methods.uri(tokenId).call();
   }
 
   async getOwner(tokenId: number) {
