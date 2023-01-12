@@ -16,7 +16,7 @@
     "url": "git://github.com/VWBL/VWBL-SDK.git"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && webpack --mode=production",
     "format": "eslint --fix --quiet './src/**/*.ts*'",
     "lint": "eslint './src/**/*.ts*'",
     "test": "mocha-parallel-tests -r ts-node/register test/unit/**/*.test.ts --exit"
