@@ -30,6 +30,6 @@ export class VWBLApi {
 
   async getSignatureString(contractAddress: string): Promise<string> {
     const response = await this.instance.get(`/sign?contract=${contractAddress}`);
-    return response.data.signature
+    return response.data.signature;
   }
 }

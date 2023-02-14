@@ -27,7 +27,8 @@ export class VWBLBase {
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(props: BaseConstructorProps) {
-    const { contractAddress, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl, ipfsNftStorageKey } = props;
+    const { contractAddress, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl, ipfsNftStorageKey } =
+      props;
     this.contractAddress = contractAddress;
     this.api = new VWBLApi(vwblNetworkUrl);
     if (uploadContentType === UploadContentType.S3 || uploadMetadataType === UploadMetadataType.S3) {
@@ -55,7 +56,7 @@ export class VWBLBase {
    * You need to call this method before you send a transaction（eg. mint NFT）
    */
   protected _sign = async (signer: Web3 | ethers.providers.JsonRpcSigner | ethers.Wallet) => {
-    const signatureString = await this.api.getSignatureString(this.contractAddress).catch(()=> MESSAGE_TO_BE_SIGNED);
+    const signatureString = await this.api.getSignatureString(this.contractAddress).catch(() => MESSAGE_TO_BE_SIGNED);
     this.signature = await signToProtocol(signer, signatureString);
     console.log("signed");
   };
