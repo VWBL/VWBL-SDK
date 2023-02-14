@@ -22,8 +22,14 @@ export class VWBLApi {
       auto_migration: autoMigration,
     });
   }
+
   async getKey(documentId: string, chainId: number, signature: string): Promise<string> {
     const response = await this.instance.get(`/keys/${documentId}/${chainId}?signature=${signature}`);
     return response.data.documentKey.key;
+  }
+
+  async getSignatureString(contractAddress: string): Promise<string> {
+    const response = await this.instance.get(`/sign?contract=${contractAddress}`);
+    return response.data.signature
   }
 }

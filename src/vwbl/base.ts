@@ -17,14 +17,18 @@ import { VWBLApi } from "./api";
 import { signToProtocol } from "./blockchain";
 import { BaseConstructorProps, UploadContentType, UploadMetadataType } from "./types";
 
+const MESSAGE_TO_BE_SIGNED = "Hello VWBL";
+
 export class VWBLBase {
   protected api: VWBLApi;
   public signature?: string;
   protected uploadToIpfs?: UploadToIPFS;
+  public contractAddress: string;
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(props: BaseConstructorProps) {
-    const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl, ipfsNftStorageKey } = props;
+    const { contractAddress, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl, ipfsNftStorageKey } = props;
+    this.contractAddress = contractAddress;
     this.api = new VWBLApi(vwblNetworkUrl);
     if (uploadContentType === UploadContentType.S3 || uploadMetadataType === UploadMetadataType.S3) {
       if (!awsConfig) {
@@ -51,7 +55,8 @@ export class VWBLBase {
    * You need to call this method before you send a transaction（eg. mint NFT）
    */
   protected _sign = async (signer: Web3 | ethers.providers.JsonRpcSigner | ethers.Wallet) => {
-    this.signature = await signToProtocol(signer);
+    const signatureString = await this.api.getSignatureString(this.contractAddress).catch(()=> MESSAGE_TO_BE_SIGNED);
+    this.signature = await signToProtocol(signer, signatureString);
     console.log("signed");
   };
 
