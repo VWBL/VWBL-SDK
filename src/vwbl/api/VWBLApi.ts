@@ -28,8 +28,8 @@ export class VWBLApi {
     return response.data.documentKey.key;
   }
 
-  async getSignatureString(contractAddress: string): Promise<string> {
-    const response = await this.instance.get(`/sign?contract=${contractAddress}`);
+  async getSignatureString(contractAddress: string, chainId: number): Promise<string> {
+    const response = await this.instance.get(`/signature/${contractAddress}/${chainId}`);
     return response.data.signature;
   }
 }
