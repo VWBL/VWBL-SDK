@@ -243,7 +243,13 @@ export class VWBLERC1155Ethers extends VWBLBase {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.ethersSigner.getChainId();
-    await this.api.setKey(documentId, chainId, key, this.signature, await this._getAddressBySigner(this.opts.ethersSigner));
+    await this.api.setKey(
+      documentId,
+      chainId,
+      key,
+      this.signature,
+      await this._getAddressBySigner(this.opts.ethersSigner)
+    );
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
