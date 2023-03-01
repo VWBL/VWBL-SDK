@@ -57,7 +57,10 @@ export class VWBLBase {
    */
   protected _sign = async (signer: Web3 | ethers.providers.JsonRpcSigner | ethers.Wallet) => {
     const castedSigner = signer as any;
-    const chainId = castedSigner.hasOwnProperty("eth") ? await castedSigner.eth.getChainId() : await castedSigner.getChainId();
+    // eslint-disable-next-line
+    const chainId = castedSigner.hasOwnProperty("eth")
+      ? await castedSigner.eth.getChainId()
+      : await castedSigner.getChainId();
     const signatureString = await this.api
       .getSignatureString(this.contractAddress, chainId)
       .catch(() => MESSAGE_TO_BE_SIGNED);
