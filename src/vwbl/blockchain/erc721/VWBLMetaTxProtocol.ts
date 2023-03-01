@@ -209,17 +209,19 @@ export class VWBLNFTMetaTx {
   }
 
   private async constructMetaTx(myAddress: string, data: string, chainId: number) {
+    console.log("estimate gas start");
     const gasLimit = await this.walletProvider.estimateGas({
       to: this.nftAddress,
       from: myAddress,
       data,
     });
-
+    console.log("estimate gas end");
     const forwarderContract = new ethers.Contract(
       this.forwarderAddress,
       forwarder.abi,
       this.walletProvider.getSigner()
     );
+    console.log("for");
     const batchNonce = await forwarderContract.getNonce(myAddress, 0);
     const txParam: TxParam = buildForwardTxRequest(
       myAddress,
@@ -228,10 +230,11 @@ export class VWBLNFTMetaTx {
       batchNonce,
       data
     );
+    console.log("se");
     const domainSeparator = getDomainSeparator(this.forwarderAddress, chainId);
     const dataToSign = getDataToSignForEIP712(txParam, this.forwarderAddress, chainId);
     const sig = await this.walletProvider.send("eth_signTypedData_v3", [myAddress, dataToSign]);
-
+    console.log("re");
     return { txParam, sig, domainSeparator };
   }
 

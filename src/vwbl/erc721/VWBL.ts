@@ -148,7 +148,7 @@ export class VWBL extends VWBLBase {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.web3.eth.getChainId();
-    await this.api.setKey(documentId, chainId, key, this.signature);
+    await this.api.setKey(documentId, chainId, key, this.signature, await this._getAddressBySigner(this.opts.web3));
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
@@ -232,7 +232,7 @@ export class VWBL extends VWBLBase {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.web3.eth.getChainId();
-    await this.api.setKey(documentId, chainId, key, this.signature);
+    await this.api.setKey(documentId, chainId, key, this.signature, await this._getAddressBySigner(this.opts.web3));
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
@@ -250,7 +250,14 @@ export class VWBL extends VWBLBase {
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
     const chainId = await this.opts.web3.eth.getChainId();
-    return await this._setKey(documentId, chainId, key, hasNonce, autoMigration);
+    return await this._setKey(
+      documentId,
+      chainId,
+      key,
+      await this._getAddressBySigner(this.opts.web3),
+      hasNonce,
+      autoMigration
+    );
   };
 
   /**
@@ -488,7 +495,12 @@ export class VWBL extends VWBLBase {
     }
     const { documentId } = await this.nft.getTokenInfo(tokenId);
     const chainId = await this.opts.web3.eth.getChainId();
-    const decryptKey = await this.api.getKey(documentId, chainId, this.signature);
+    const decryptKey = await this.api.getKey(
+      documentId,
+      chainId,
+      this.signature,
+      await this._getAddressBySigner(this.opts.web3)
+    );
     const encryptedDataUrls = metadata.encrypted_data;
     const isRunningOnBrowser = typeof window !== "undefined";
     const encryptLogic = metadata.encrypt_logic ?? "base64";

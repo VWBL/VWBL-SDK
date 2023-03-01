@@ -10,6 +10,7 @@ export class VWBLApi {
     chainId: number,
     key: string,
     signature: string,
+    address?: string,
     hasNonce?: boolean,
     autoMigration?: boolean
   ) {
@@ -18,18 +19,21 @@ export class VWBLApi {
       chain_id: chainId,
       key,
       signature,
+      address,
       has_nonce: hasNonce,
       auto_migration: autoMigration,
     });
   }
 
-  async getKey(documentId: string, chainId: number, signature: string): Promise<string> {
-    const response = await this.instance.get(`/keys/${documentId}/${chainId}?signature=${signature}`);
+  async getKey(documentId: string, chainId: number, signature: string, address?: string): Promise<string> {
+    const response = await this.instance.get(
+      `/keys/${documentId}/${chainId}?signature=${signature}&address=${address}`
+    );
     return response.data.documentKey.key;
   }
 
-  async getSignatureString(contractAddress: string, chainId: number): Promise<string> {
-    const response = await this.instance.get(`/signature/${contractAddress}/${chainId}`);
+  async getSignatureString(contractAddress: string, chainId: number, address?: string): Promise<string> {
+    const response = await this.instance.get(`/signature/${contractAddress}/${chainId}?address=${address}`);
     return response.data.signatureString;
   }
 }
