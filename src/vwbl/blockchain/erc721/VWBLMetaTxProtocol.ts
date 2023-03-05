@@ -221,7 +221,6 @@ export class VWBLNFTMetaTx {
       forwarder.abi,
       this.walletProvider.getSigner()
     );
-    console.log("for");
     const batchNonce = await forwarderContract.getNonce(myAddress, 0);
     const txParam: TxParam = buildForwardTxRequest(
       myAddress,
@@ -230,11 +229,9 @@ export class VWBLNFTMetaTx {
       batchNonce,
       data
     );
-    console.log("se");
     const domainSeparator = getDomainSeparator(this.forwarderAddress, chainId);
     const dataToSign = getDataToSignForEIP712(txParam, this.forwarderAddress, chainId);
     const sig = await this.walletProvider.send("eth_signTypedData_v3", [myAddress, dataToSign]);
-    console.log("re");
     return { txParam, sig, domainSeparator };
   }
 
