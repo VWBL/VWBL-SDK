@@ -1,4 +1,5 @@
 import axios from "axios";
+import { hexlify, randomBytes } from "ethers/utils";
 import * as fs from "fs";
 
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload";
@@ -13,11 +14,12 @@ import {
 } from "../../util/cryptoHelper";
 import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
 import { VWBLBase } from "../base";
-import { VWBLNFT } from "../blockchain";
+import { VWBLNFT, VWBLNFTEthers } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
   ConstructorProps,
   EncryptLogic,
+  EthersConstructorProps,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -25,19 +27,29 @@ import {
   UploadMetadata,
   UploadMetadataType,
   UploadThumbnail,
+  VWBLEthersOption,
   VWBLOption,
 } from "../types";
 
 export class VWBL extends VWBLBase {
-  public opts: VWBLOption;
-  public nft: VWBLNFT;
+  public opts: VWBLOption | VWBLEthersOption;
+  public nft: VWBLNFT | VWBLNFTEthers | undefined;
 
-  constructor(props: ConstructorProps) {
+  constructor(props: ConstructorProps | EthersConstructorProps) {
     super(props);
-
     this.opts = props;
-    const { web3, contractAddress, uploadMetadataType } = props;
-    this.nft = new VWBLNFT(web3, contractAddress, uploadMetadataType === UploadMetadataType.IPFS);
+    if ("web3" in props) {
+      const { web3, contractAddress, uploadMetadataType } = props;
+      this.nft = new VWBLNFT(web3, contractAddress, uploadMetadataType === UploadMetadataType.IPFS);
+    } else if ("ethersProvider" in props && "ethersSigner" in props) {
+      const { contractAddress, ethersProvider, ethersSigner, uploadMetadataType } = props;
+      this.nft = new VWBLNFTEthers(
+        contractAddress,
+        uploadMetadataType === UploadMetadataType.IPFS,
+        ethersProvider,
+        ethersSigner
+      );
+    }
   }
 
   /**
@@ -47,7 +59,7 @@ export class VWBL extends VWBLBase {
    * You need to call this method before you send a transaction（eg. mint NFT）
    */
   sign = async () => {
-    await this._sign(this.opts.web3);
+    "web3" in this.opts ? await this._sign(this.opts.web3) : await this._sign(this.opts.ethersSigner);
   };
 
   /**
@@ -84,10 +96,12 @@ export class VWBL extends VWBLBase {
   ) => {
     if (!this.signature) {
       throw "please sign first";
+    } else if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
     }
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
-    const documentId = this.opts.web3.utils.randomHex(32);
+    const documentId = hexlify(randomBytes(32));
     const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
@@ -147,7 +161,8 @@ export class VWBL extends VWBLBase {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.opts.web3.eth.getChainId();
+    const chainId =
+      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
     subscriber?.kickStep(StepStatus.SET_KEY);
 
@@ -182,6 +197,8 @@ export class VWBL extends VWBLBase {
   ) => {
     if (!this.signature) {
       throw "please sign first";
+    } else if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
     }
     const { vwblNetworkUrl } = this.opts;
     // 1. create key in frontend
@@ -220,7 +237,7 @@ export class VWBL extends VWBLBase {
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
     // 5. mint token
-    const documentId = this.opts.web3.utils.randomHex(32);
+    const documentId = hexlify(randomBytes(32));
     const tokenId = await this.nft.mintTokenForIPFS(
       metadataUrl as string,
       vwblNetworkUrl,
@@ -231,7 +248,8 @@ export class VWBL extends VWBLBase {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.opts.web3.eth.getChainId();
+    const chainId =
+      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
     await this.api.setKey(documentId, chainId, key, this.signature);
     subscriber?.kickStep(StepStatus.SET_KEY);
 
@@ -248,8 +266,12 @@ export class VWBL extends VWBLBase {
    *
    */
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
+    if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
+    }
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await this.opts.web3.eth.getChainId();
+    const chainId =
+      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
     return await this._setKey(documentId, chainId, key, hasNonce, autoMigration);
   };
 
@@ -260,8 +282,11 @@ export class VWBL extends VWBLBase {
    * @returns The ID of minted NFT
    */
   mintToken = async (royaltiesPercentage: number): Promise<number> => {
+    if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
+    }
     const { vwblNetworkUrl } = this.opts;
-    const documentId = this.opts.web3.utils.randomHex(32);
+    const documentId = hexlify(randomBytes(32));
     return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
   };
 
@@ -272,6 +297,9 @@ export class VWBL extends VWBLBase {
    * @param tokenId - The ID of NFT
    */
   approve = async (operator: string, tokenId: number): Promise<void> => {
+    if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
+    }
     await this.nft.approve(operator, tokenId);
   };
 
@@ -282,6 +310,9 @@ export class VWBL extends VWBLBase {
    * @return The Wallet address that was approved
    */
   getApproved = async (tokenId: number): Promise<string> => {
+    if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
+    }
     return await this.nft.getApproved(tokenId);
   };
 
@@ -291,6 +322,9 @@ export class VWBL extends VWBLBase {
    * @param operator - The wallet address
    */
   setApprovalForAll = async (operator: string): Promise<void> => {
+    if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
+    }
     await this.nft.setApprovalForAll(operator);
   };
 
@@ -302,6 +336,9 @@ export class VWBL extends VWBLBase {
    * @returns
    */
   isApprovedForAll = async (owner: string, operator: string): Promise<boolean> => {
+    if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
+    }
     return await this.nft.isApprovedForAll(owner, operator);
   };
 
@@ -312,6 +349,9 @@ export class VWBL extends VWBLBase {
    * @param tokenId - The ID of NFT
    */
   safeTransfer = async (to: string, tokenId: number): Promise<void> => {
+    if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
+    }
     await this.nft.safeTransfer(to, tokenId);
   };
 
@@ -400,6 +440,8 @@ export class VWBL extends VWBLBase {
   getOwnTokens = async (): Promise<Metadata[]> => {
     if (!this.signature) {
       throw "please sign first";
+    } else if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
     }
     const ownTokenIds = await this.nft.getOwnTokenIds();
     return (await Promise.all(ownTokenIds.map(this.getMetadata.bind(this)))).filter(
@@ -413,6 +455,9 @@ export class VWBL extends VWBLBase {
    * @returns Array of token IDs
    */
   getOwnTokenIds = async (): Promise<number[]> => {
+    if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
+    }
     return await this.nft.getOwnTokenIds();
   };
 
@@ -426,6 +471,9 @@ export class VWBL extends VWBLBase {
    * @returns Token metadata and an address of NFT owner
    */
   getTokenById = async (tokenId: number): Promise<(ExtractMetadata | Metadata) & { owner: string }> => {
+    if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
+    }
     const isOwnerOrMinter = (await this.nft.isOwnerOf(tokenId)) || (await this.nft.isMinterOf(tokenId));
     const owner = await this.nft.getOwner(tokenId);
     const metadata = isOwnerOrMinter ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
@@ -441,6 +489,9 @@ export class VWBL extends VWBLBase {
    * @returns Token ids
    */
   getTokenByMinter = async (address: string): Promise<number[]> => {
+    if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
+    }
     return await this.nft.getTokenByMinter(address);
   };
 
@@ -451,6 +502,9 @@ export class VWBL extends VWBLBase {
    * @returns Token metadata
    */
   getMetadata = async (tokenId: number): Promise<Metadata | undefined> => {
+    if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
+    }
     const metadataUrl = await this.nft.getMetadataUrl(tokenId);
     const metadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
     // delete token if metadata is not found
@@ -479,6 +533,8 @@ export class VWBL extends VWBLBase {
   extractMetadata = async (tokenId: number): Promise<ExtractMetadata | undefined> => {
     if (!this.signature) {
       throw "please sign first";
+    } else if (!this.nft) {
+      throw "something wrong, please check if constructor props are correct.";
     }
     const metadataUrl = await this.nft.getMetadataUrl(tokenId);
     const metadata: PlainMetadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
@@ -487,7 +543,8 @@ export class VWBL extends VWBLBase {
       return undefined;
     }
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await this.opts.web3.eth.getChainId();
+    const chainId =
+      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
     const decryptKey = await this.api.getKey(documentId, chainId, this.signature);
     const encryptedDataUrls = metadata.encrypted_data;
     const isRunningOnBrowser = typeof window !== "undefined";
