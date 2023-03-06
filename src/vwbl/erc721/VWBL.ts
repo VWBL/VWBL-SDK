@@ -33,23 +33,20 @@ import {
 
 export class VWBL extends VWBLBase {
   public opts: VWBLOption | VWBLEthersOption;
-  public nft: VWBLNFT | VWBLNFTEthers | undefined;
+  public nft: VWBLNFT | VWBLNFTEthers;
 
   constructor(props: ConstructorProps | EthersConstructorProps) {
     super(props);
     this.opts = props;
-    if ("web3" in props) {
-      const { web3, contractAddress, uploadMetadataType } = props;
-      this.nft = new VWBLNFT(web3, contractAddress, uploadMetadataType === UploadMetadataType.IPFS);
-    } else if ("ethersProvider" in props && "ethersSigner" in props) {
-      const { contractAddress, ethersProvider, ethersSigner, uploadMetadataType } = props;
-      this.nft = new VWBLNFTEthers(
-        contractAddress,
-        uploadMetadataType === UploadMetadataType.IPFS,
-        ethersProvider,
-        ethersSigner
-      );
-    }
+    this.nft =
+      "web3" in props
+        ? new VWBLNFT(props.web3, props.contractAddress, props.uploadMetadataType === UploadMetadataType.IPFS)
+        : new VWBLNFTEthers(
+            props.contractAddress,
+            props.uploadMetadataType === UploadMetadataType.IPFS,
+            props.ethersProvider,
+            props.ethersSigner
+          );
   }
 
   /**
@@ -96,8 +93,6 @@ export class VWBL extends VWBLBase {
   ) => {
     if (!this.signature) {
       throw "please sign first";
-    } else if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
     }
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
@@ -197,8 +192,6 @@ export class VWBL extends VWBLBase {
   ) => {
     if (!this.signature) {
       throw "please sign first";
-    } else if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
     }
     const { vwblNetworkUrl } = this.opts;
     // 1. create key in frontend
@@ -266,9 +259,6 @@ export class VWBL extends VWBLBase {
    *
    */
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
-    if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
-    }
     const { documentId } = await this.nft.getTokenInfo(tokenId);
     const chainId =
       "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
@@ -282,9 +272,6 @@ export class VWBL extends VWBLBase {
    * @returns The ID of minted NFT
    */
   mintToken = async (royaltiesPercentage: number): Promise<number> => {
-    if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
-    }
     const { vwblNetworkUrl } = this.opts;
     const documentId = hexlify(randomBytes(32));
     return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
@@ -297,9 +284,6 @@ export class VWBL extends VWBLBase {
    * @param tokenId - The ID of NFT
    */
   approve = async (operator: string, tokenId: number): Promise<void> => {
-    if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
-    }
     await this.nft.approve(operator, tokenId);
   };
 
@@ -310,9 +294,6 @@ export class VWBL extends VWBLBase {
    * @return The Wallet address that was approved
    */
   getApproved = async (tokenId: number): Promise<string> => {
-    if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
-    }
     return await this.nft.getApproved(tokenId);
   };
 
@@ -322,9 +303,6 @@ export class VWBL extends VWBLBase {
    * @param operator - The wallet address
    */
   setApprovalForAll = async (operator: string): Promise<void> => {
-    if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
-    }
     await this.nft.setApprovalForAll(operator);
   };
 
@@ -336,9 +314,6 @@ export class VWBL extends VWBLBase {
    * @returns
    */
   isApprovedForAll = async (owner: string, operator: string): Promise<boolean> => {
-    if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
-    }
     return await this.nft.isApprovedForAll(owner, operator);
   };
 
@@ -349,9 +324,6 @@ export class VWBL extends VWBLBase {
    * @param tokenId - The ID of NFT
    */
   safeTransfer = async (to: string, tokenId: number): Promise<void> => {
-    if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
-    }
     await this.nft.safeTransfer(to, tokenId);
   };
 
@@ -440,8 +412,6 @@ export class VWBL extends VWBLBase {
   getOwnTokens = async (): Promise<Metadata[]> => {
     if (!this.signature) {
       throw "please sign first";
-    } else if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
     }
     const ownTokenIds = await this.nft.getOwnTokenIds();
     return (await Promise.all(ownTokenIds.map(this.getMetadata.bind(this)))).filter(
@@ -455,9 +425,6 @@ export class VWBL extends VWBLBase {
    * @returns Array of token IDs
    */
   getOwnTokenIds = async (): Promise<number[]> => {
-    if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
-    }
     return await this.nft.getOwnTokenIds();
   };
 
@@ -471,9 +438,6 @@ export class VWBL extends VWBLBase {
    * @returns Token metadata and an address of NFT owner
    */
   getTokenById = async (tokenId: number): Promise<(ExtractMetadata | Metadata) & { owner: string }> => {
-    if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
-    }
     const isOwnerOrMinter = (await this.nft.isOwnerOf(tokenId)) || (await this.nft.isMinterOf(tokenId));
     const owner = await this.nft.getOwner(tokenId);
     const metadata = isOwnerOrMinter ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
@@ -489,9 +453,6 @@ export class VWBL extends VWBLBase {
    * @returns Token ids
    */
   getTokenByMinter = async (address: string): Promise<number[]> => {
-    if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
-    }
     return await this.nft.getTokenByMinter(address);
   };
 
@@ -502,9 +463,6 @@ export class VWBL extends VWBLBase {
    * @returns Token metadata
    */
   getMetadata = async (tokenId: number): Promise<Metadata | undefined> => {
-    if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
-    }
     const metadataUrl = await this.nft.getMetadataUrl(tokenId);
     const metadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
     // delete token if metadata is not found
@@ -533,8 +491,6 @@ export class VWBL extends VWBLBase {
   extractMetadata = async (tokenId: number): Promise<ExtractMetadata | undefined> => {
     if (!this.signature) {
       throw "please sign first";
-    } else if (!this.nft) {
-      throw "something wrong, please check if constructor props are correct.";
     }
     const metadataUrl = await this.nft.getMetadataUrl(tokenId);
     const metadata: PlainMetadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
