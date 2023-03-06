@@ -29,6 +29,11 @@ import {
   VWBLEthersOption,
 } from "../types";
 
+/**
+ * @deprecated
+ * we recommend to use VWBL class, which can receive two types of constructor
+ * @see {@link <https://github.com/VWBL/VWBL-SDK/blob/master/src/vwbl/erc721/VWBL.ts>}
+ */
 export class VWBLEthers extends VWBLBase {
   public opts: VWBLEthersOption;
   public nft: VWBLNFTEthers;
