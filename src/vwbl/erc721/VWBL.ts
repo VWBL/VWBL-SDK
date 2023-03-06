@@ -1,5 +1,5 @@
 import axios from "axios";
-import { hexlify, randomBytes } from "ethers/utils";
+import { utils } from "ethers";
 import * as fs from "fs";
 
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload";
@@ -96,7 +96,7 @@ export class VWBL extends VWBLBase {
     }
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
-    const documentId = hexlify(randomBytes(32));
+    const documentId = utils.hexlify(utils.randomBytes(32));
     const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
@@ -230,7 +230,7 @@ export class VWBL extends VWBLBase {
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
     // 5. mint token
-    const documentId = hexlify(randomBytes(32));
+    const documentId = utils.hexlify(utils.randomBytes(32));
     const tokenId = await this.nft.mintTokenForIPFS(
       metadataUrl as string,
       vwblNetworkUrl,
@@ -273,7 +273,7 @@ export class VWBL extends VWBLBase {
    */
   mintToken = async (royaltiesPercentage: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = hexlify(randomBytes(32));
+    const documentId = utils.hexlify(utils.randomBytes(32));
     return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
   };
 
