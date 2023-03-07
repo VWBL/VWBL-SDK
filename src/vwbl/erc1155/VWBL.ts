@@ -1,4 +1,5 @@
 import axios from "axios";
+import { utils } from "ethers";
 import * as fs from "fs";
 
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload";
@@ -13,11 +14,12 @@ import {
 } from "../../util/cryptoHelper";
 import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
 import { VWBLBase } from "../base";
-import { VWBLERC1155Contract } from "../blockchain";
+import { VWBLERC1155Contract, VWBLERC1155EthersContract } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
   ConstructorProps,
   EncryptLogic,
+  EthersConstructorProps,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -25,23 +27,34 @@ import {
   UploadMetadata,
   UploadMetadataType,
   UploadThumbnail,
+  VWBLEthersOption,
   VWBLOption,
 } from "../types";
 
 export class VWBLERC1155 extends VWBLBase {
-  public opts: VWBLOption;
-  public nft: VWBLERC1155Contract;
+  public opts: VWBLOption | VWBLEthersOption;
+  public nft: VWBLERC1155Contract | VWBLERC1155EthersContract;
 
-  constructor(props: ConstructorProps) {
+  constructor(props: ConstructorProps | EthersConstructorProps) {
     super(props);
-
     this.opts = props;
-    const { web3, contractAddress, uploadMetadataType } = props;
-    this.nft = new VWBLERC1155Contract(web3, contractAddress, uploadMetadataType === UploadMetadataType.IPFS);
+    this.nft =
+      "web3" in props
+        ? new VWBLERC1155Contract(
+            props.web3,
+            props.contractAddress,
+            props.uploadMetadataType === UploadMetadataType.IPFS
+          )
+        : new VWBLERC1155EthersContract(
+            props.contractAddress,
+            props.uploadMetadataType === UploadMetadataType.IPFS,
+            props.ethersProvider,
+            props.ethersSigner
+          );
   }
 
   sign = async () => {
-    await this._sign(this.opts.web3);
+    "web3" in this.opts ? await this._sign(this.opts.web3) : await this._sign(this.opts.ethersSigner);
   };
 
   /**
@@ -83,7 +96,7 @@ export class VWBLERC1155 extends VWBLBase {
     }
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
-    const documentId = this.opts.web3.utils.randomHex(32);
+    const documentId = utils.hexlify(utils.randomBytes(32));
     const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
@@ -143,8 +156,13 @@ export class VWBLERC1155 extends VWBLBase {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.opts.web3.eth.getChainId();
-    await this.api.setKey(documentId, chainId, key, this.signature, await this._getAddressBySigner(this.opts.web3));
+    const chainId =
+      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
+    const signerAddress =
+      "web3" in this.opts
+        ? await this._getAddressBySigner(this.opts.web3)
+        : await this._getAddressBySigner(this.opts.ethersSigner);
+    await this.api.setKey(documentId, chainId, key, this.signature, signerAddress);
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
@@ -218,7 +236,7 @@ export class VWBLERC1155 extends VWBLBase {
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
     // 5. mint token
-    const documentId = this.opts.web3.utils.randomHex(32);
+    const documentId = utils.hexlify(utils.randomBytes(32));
     const tokenId = await this.nft.mintTokenForIPFS(
       metadataUrl as string,
       vwblNetworkUrl,
@@ -230,8 +248,13 @@ export class VWBLERC1155 extends VWBLBase {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.opts.web3.eth.getChainId();
-    await this.api.setKey(documentId, chainId, key, this.signature, await this._getAddressBySigner(this.opts.web3));
+    const chainId =
+      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
+    const signerAddress =
+      "web3" in this.opts
+        ? await this._getAddressBySigner(this.opts.web3)
+        : await this._getAddressBySigner(this.opts.ethersSigner);
+    await this.api.setKey(documentId, chainId, key, this.signature, signerAddress);
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
@@ -246,7 +269,7 @@ export class VWBLERC1155 extends VWBLBase {
    */
   mintToken = async (amount: number, royaltiesPercentage: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = this.opts.web3.utils.randomHex(32);
+    const documentId = utils.hexlify(utils.randomBytes(32));
     return await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId);
   };
 
@@ -374,15 +397,13 @@ export class VWBLERC1155 extends VWBLBase {
    */
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await this.opts.web3.eth.getChainId();
-    return await this._setKey(
-      documentId,
-      chainId,
-      key,
-      await this._getAddressBySigner(this.opts.web3),
-      hasNonce,
-      autoMigration
-    );
+    const chainId =
+      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
+    const signerAddress =
+      "web3" in this.opts
+        ? await this._getAddressBySigner(this.opts.web3)
+        : await this._getAddressBySigner(this.opts.ethersSigner);
+    return await this._setKey(documentId, chainId, key, signerAddress, hasNonce, autoMigration);
   };
 
   /**
@@ -480,13 +501,13 @@ export class VWBLERC1155 extends VWBLBase {
       return undefined;
     }
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await this.opts.web3.eth.getChainId();
-    const decryptKey = await this.api.getKey(
-      documentId,
-      chainId,
-      this.signature,
-      await this._getAddressBySigner(this.opts.web3)
-    );
+    const chainId =
+      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
+    const signerAddress =
+      "web3" in this.opts
+        ? await this._getAddressBySigner(this.opts.web3)
+        : await this._getAddressBySigner(this.opts.ethersSigner);
+    const decryptKey = await this.api.getKey(documentId, chainId, this.signature, signerAddress);
     const encryptedDataUrls = metadata.encrypted_data;
     const isRunningOnBrowser = typeof window !== "undefined";
     const encryptLogic = metadata.encrypt_logic ?? "base64";
