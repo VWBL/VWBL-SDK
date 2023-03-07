@@ -21,6 +21,7 @@ const MESSAGE_TO_BE_SIGNED = "Hello VWBL";
 
 export class VWBLBase {
   protected api: VWBLApi;
+  public signMsg?: string;
   public signature?: string;
   protected uploadToIpfs?: UploadToIPFS;
   public contractAddress: string;
@@ -66,6 +67,7 @@ export class VWBLBase {
     const signatureString = await this.api
       .getSignatureString(this.contractAddress, chainId, address)
       .catch(() => MESSAGE_TO_BE_SIGNED);
+    this.signMsg = signatureString;
     this.signature = await signToProtocol(signer, signatureString);
     console.log("signed");
   };
