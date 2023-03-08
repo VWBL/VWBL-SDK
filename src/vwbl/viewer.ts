@@ -1,11 +1,12 @@
+/* eslint-disable no-prototype-builtins */
 import axios from "axios";
+import { ethers } from "ethers";
+import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
 import { AbiItem } from "web3-utils";
 
 import vwblDataCollector from "../contract/VWBLDataCollector.json";
-import { decryptFile, decryptStream, decryptString } from "../util/cryptoHelper";
-import { VWBLBase } from "./base";
-import { ExtendedMetadeta, ExtractMetadata, PlainMetadata } from "./metadata";
+import { ExtendedMetadeta, PlainMetadata } from "./metadata";
 import { ViewerConstructorProps, ViewerOption } from "./types";
 
 type TokenInfo = {
@@ -14,25 +15,24 @@ type TokenInfo = {
   tokenURI: string;
 };
 
-export class VWBLViewer extends VWBLBase {
+export class VWBLViewer {
   public opts: ViewerOption;
-  private dataCollector?: Contract;
+  private dataCollector: Contract | ethers.Contract;
 
   constructor(props: ViewerConstructorProps) {
-    super(props);
-
     this.opts = props;
-    const { web3, dataCollectorAddress } = props;
-    this.dataCollector = new web3.eth.Contract(vwblDataCollector.abi as AbiItem[], dataCollectorAddress);
+    const { provider, dataCollectorAddress } = props;
+    this.dataCollector = provider.hasOwnProperty("eth")
+      ? new (provider as Web3).eth.Contract(vwblDataCollector.abi as AbiItem[], dataCollectorAddress)
+      : new ethers.Contract(dataCollectorAddress, vwblDataCollector.abi, provider as ethers.providers.BaseProvider);
   }
-
-  sign = async () => {
-    await this._sign(this.opts.web3);
-  };
 
   getMetadata = async (contractAddress: string, tokenId: number): Promise<ExtendedMetadeta | undefined> => {
     if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
-    const metadataUrl = await this.dataCollector.methods.getTokenURI(contractAddress, tokenId).call();
+    const metadataUrl =
+      this.dataCollector instanceof Contract
+        ? await this.dataCollector.methods.getTokenURI(contractAddress, tokenId).call()
+        : await this.dataCollector.callStatic.getTokenURI(contractAddress, tokenId);
     if (!metadataUrl) return undefined;
     const metadata: PlainMetadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
     if (!metadata) return undefined;
@@ -49,7 +49,10 @@ export class VWBLViewer extends VWBLBase {
 
   listMetadata = async (contractAddress: string): Promise<(ExtendedMetadeta | undefined)[]> => {
     if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
-    const tokens = await this.dataCollector.methods.getAllTokensFromOptionalContract(contractAddress).call();
+    const tokens =
+      this.dataCollector instanceof Contract
+        ? await this.dataCollector.methods.getAllTokensFromOptionalContract(contractAddress).call()
+        : await this.dataCollector.callStatic.getAllTokensFromOptionalContract(contractAddress);
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
         const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
@@ -80,7 +83,10 @@ export class VWBLViewer extends VWBLBase {
 
   listAllOwnedMetadata = async (userAddress: string): Promise<(ExtendedMetadeta | undefined)[]> => {
     if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
-    const tokens = await this.dataCollector.methods.getAllOwnedTokens(userAddress).call();
+    const tokens =
+      this.dataCollector instanceof Contract
+        ? await this.dataCollector.methods.getAllOwnedTokens(userAddress).call()
+        : await this.dataCollector.callStatic.getAllOwnedTokens(userAddress);
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
         const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
@@ -101,7 +107,10 @@ export class VWBLViewer extends VWBLBase {
 
   listOwnedNFTMetadata = async (userAddress: string): Promise<(ExtendedMetadeta | undefined)[]> => {
     if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
-    const tokens = await this.dataCollector.methods.getOwnedNFTs(userAddress).call();
+    const tokens =
+      this.dataCollector instanceof Contract
+        ? await this.dataCollector.methods.getOwnedNFTs(userAddress).call()
+        : await this.dataCollector.callStatic.getOwnedNFTs(userAddress);
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
         const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
@@ -122,7 +131,10 @@ export class VWBLViewer extends VWBLBase {
 
   listOwnedERC1155Metadata = async (userAddress: string): Promise<(ExtendedMetadeta | undefined)[]> => {
     if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
-    const tokens = await this.dataCollector.methods.getOwnedERC1155s(userAddress).call();
+    const tokens =
+      this.dataCollector instanceof Contract
+        ? await this.dataCollector.methods.getOwnedERC1155s(userAddress).call()
+        : await this.dataCollector.callStatic.getOwnedERC1155s(userAddress);
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
         const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
@@ -143,7 +155,10 @@ export class VWBLViewer extends VWBLBase {
 
   listAllMintedMetadata = async (userAddress: string): Promise<(ExtendedMetadeta | undefined)[]> => {
     if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
-    const tokens = await this.dataCollector.methods.getAllMintedTokens(userAddress).call();
+    const tokens =
+      this.dataCollector instanceof Contract
+        ? await this.dataCollector.methods.getAllMintedTokens(userAddress).call()
+        : await this.dataCollector.callStatic.getAllMintedTokens(userAddress);
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
         const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
@@ -164,7 +179,10 @@ export class VWBLViewer extends VWBLBase {
 
   listMintedNFTMetadata = async (userAddress: string): Promise<(ExtendedMetadeta | undefined)[]> => {
     if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
-    const tokens = await this.dataCollector.methods.getMintedNFTs(userAddress).call();
+    const tokens =
+      this.dataCollector instanceof Contract
+        ? await this.dataCollector.methods.getMintedNFTs(userAddress).call()
+        : await this.dataCollector.callStatic.getMintedNFTs(userAddress);
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
         const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
@@ -185,7 +203,10 @@ export class VWBLViewer extends VWBLBase {
 
   listMintedERC1155Metadata = async (userAddress: string): Promise<(ExtendedMetadeta | undefined)[]> => {
     if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
-    const tokens = await this.dataCollector.methods.getMintedERC1155s(userAddress).call();
+    const tokens =
+      this.dataCollector instanceof Contract
+        ? await this.dataCollector.methods.getMintedERC1155s(userAddress).call()
+        : await this.dataCollector.callStatic.getMintedERC1155s(userAddress);
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
         const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
@@ -204,55 +225,22 @@ export class VWBLViewer extends VWBLBase {
     return items;
   };
 
-  extractMetadata = async (
-    contractAddress: string,
-    tokenId: number,
-    signature?: string
-  ): Promise<ExtractMetadata | undefined> => {
-    const sig = this.signature || signature;
-    if (!sig) throw new Error("please sign or set signature param");
-    if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
-    const metadataUrl = await this.dataCollector.methods.getTokenURI(contractAddress, tokenId).call();
+  getMetadataUrl = async (contractAddress: string, tokenId: number): Promise<string | undefined> => {
+    const metadataUrl =
+      this.dataCollector instanceof Contract
+        ? await this.dataCollector.methods.getTokenURI(contractAddress, tokenId).call()
+        : await this.dataCollector.callStatic.getTokenURI(contractAddress, tokenId);
     if (!metadataUrl) return undefined;
-    const metadata: PlainMetadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
-    if (!metadata) return undefined;
-    const documentId = await this.dataCollector.methods.getDocumentId(contractAddress, tokenId).call();
-    const chainId = await this.opts.web3.eth.getChainId();
-    const decryptKey = await this.api.getKey(documentId, chainId, sig);
-    const encryptedDataUrls = metadata.encrypted_data;
-    const isRunningOnBrowser = typeof window !== "undefined";
-    const encryptLogic = metadata.encrypt_logic ?? "base64";
-    const ownDataArray = await Promise.all(
-      encryptedDataUrls.map(async (encryptedDataUrl) => {
-        const encryptedData = (
-          await axios.get(encryptedDataUrl, {
-            responseType: encryptLogic === "base64" ? "text" : isRunningOnBrowser ? "arraybuffer" : "stream",
-          })
-        ).data;
-        return encryptLogic === "base64"
-          ? decryptString(encryptedData, decryptKey)
-          : isRunningOnBrowser
-          ? await decryptFile(encryptedData, decryptKey)
-          : decryptStream(encryptedData, decryptKey);
-      })
-    );
-    const ownFiles = ownDataArray.filter((ownData): ownData is ArrayBuffer => typeof ownData !== "string");
-    const ownDataBase64 = ownDataArray.filter((ownData): ownData is string => typeof ownData === "string");
-    const fileName = encryptedDataUrls[0]
-      .split("/")
-      .slice(-1)[0]
-      .replace(/\.vwbl/, "");
-    return {
-      id: tokenId,
-      name: metadata.name,
-      description: metadata.description,
-      image: metadata.image,
-      mimeType: metadata.mime_type,
-      encryptLogic: metadata.encrypt_logic,
-      ownDataBase64,
-      ownFiles,
-      fileName,
-    };
+    return metadataUrl;
+  };
+
+  getDocumentId = async (contractAddress: string, tokenId: number): Promise<string | undefined> => {
+    const documentId =
+      this.dataCollector instanceof Contract
+        ? await this.dataCollector.methods.getDocumentId(contractAddress, tokenId).call()
+        : await this.dataCollector.callStatic.getDocumentId(contractAddress, tokenId);
+    if (!documentId) return undefined;
+    return documentId;
   };
 
   getNFTOwner = async (contractAddress: string, tokenId: number): Promise<string> => {
