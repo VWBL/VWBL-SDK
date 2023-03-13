@@ -17,7 +17,6 @@ import { VWBLBase } from "../base";
 import { VWBLNFTMetaTx } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
-  BaseConstructorProps,
   EncryptLogic,
   MetaTxConstructorProps,
   ProgressSubscriber,
@@ -29,17 +28,19 @@ import {
   UploadThumbnail,
   VWBLMetaTxOption,
 } from "../types";
+import { VWBLViewer } from "../viewer";
 
 export class VWBLMetaTx extends VWBLBase {
   public opts: VWBLMetaTxOption;
   public nft: VWBLNFTMetaTx;
   public signer: ethers.providers.JsonRpcSigner;
+  public viewer?: VWBLViewer;
 
   constructor(props: MetaTxConstructorProps) {
     super(props);
 
     this.opts = props;
-    const { bcProvider, contractAddress, biconomyConfig } = props;
+    const { bcProvider, contractAddress, biconomyConfig, dataCollectorAddress } = props;
     const walletProvider = new ethers.providers.Web3Provider(bcProvider);
     this.signer = walletProvider.getSigner();
     this.nft = new VWBLNFTMetaTx(
@@ -48,6 +49,12 @@ export class VWBLMetaTx extends VWBLBase {
       contractAddress,
       biconomyConfig.forwarderAddress
     );
+    if (dataCollectorAddress) {
+      this.viewer = new VWBLViewer({
+        provider: walletProvider,
+        dataCollectorAddress,
+      });
+    }
   }
 
   /**
@@ -500,19 +507,29 @@ export class VWBLMetaTx extends VWBLBase {
    * This method should be called by NFT owner.
    *
    * @param tokenId The ID of NFT
+   * @param contractAddress Optional: The contractAddress of any VWBL Token(ERC721 or ERC1155).
    * @returns Token metadata
    */
-  extractMetadata = async (tokenId: number): Promise<ExtractMetadata | undefined> => {
+  extractMetadata = async (tokenId: number, contractAddress?: string): Promise<ExtractMetadata | undefined> => {
     if (!this.signature) {
       throw "please sign first";
     }
-    const metadataUrl = await this.nft.getMetadataUrl(tokenId);
+    if (contractAddress && !this.viewer) {
+      throw "please set dataCollectorAddress to constructor";
+    }
+    const metadataUrl =
+      contractAddress && this.viewer
+        ? await this.viewer.getMetadataUrl(contractAddress, tokenId)
+        : await this.nft.getMetadataUrl(tokenId);
     const metadata: PlainMetadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
     // delete token if metadata is not found
     if (!metadata) {
       return undefined;
     }
-    const { documentId } = await this.nft.getTokenInfo(tokenId);
+    const { documentId } =
+      contractAddress && this.viewer
+        ? await this.viewer.getDocumentId(contractAddress, tokenId)
+        : await this.nft.getTokenInfo(tokenId);
     const chainId = await this.signer.getChainId();
     const decryptKey = await this.api.getKey(
       documentId,
