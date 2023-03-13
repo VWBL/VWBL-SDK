@@ -67,6 +67,7 @@ export class VWBLBase {
     const signatureString = await this.api
       .getSignatureString(this.contractAddress, chainId, address)
       .catch(() => MESSAGE_TO_BE_SIGNED);
+    if (this.signMsg === signatureString) return;
     this.signMsg = signatureString;
     this.signature = await signToProtocol(signer, signatureString);
     console.log("signed");
