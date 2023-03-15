@@ -526,10 +526,10 @@ export class VWBLMetaTx extends VWBLBase {
     if (!metadata) {
       return undefined;
     }
-    const { documentId } =
+    const documentId =
       contractAddress && this.viewer
         ? await this.viewer.getDocumentId(contractAddress, tokenId)
-        : await this.nft.getTokenInfo(tokenId);
+        : (await this.nft.getTokenInfo(tokenId)).documentId;
     const chainId = await this.signer.getChainId();
     const decryptKey = await this.api.getKey(
       documentId,
