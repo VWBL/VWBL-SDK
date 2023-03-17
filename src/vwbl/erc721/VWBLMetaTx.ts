@@ -61,10 +61,11 @@ export class VWBLMetaTx extends VWBLBase {
    * Sign to VWBL
    *
    * @remarks
-   * You need to call this method before you send a transaction（eg. mint NFT）
+   * You need to call this method before you send a transaction（eg. mint NFT, decrypt NFT Data）
+   * @param targetContract - Optional: the contract to operate on. (default: this.nft)
    */
-  sign = async () => {
-    await this._sign(this.signer);
+  sign = async (targetContract?: string) => {
+    await this._sign(this.signer, targetContract);
   };
 
   /**

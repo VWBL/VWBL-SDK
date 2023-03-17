@@ -67,10 +67,13 @@ export class VWBL extends VWBLBase {
    * Sign to VWBL
    *
    * @remarks
-   * You need to call this method before you send a transaction（eg. mint NFT）
+   * You need to call this method before you send a transaction（eg. mint NFT, decrypt NFT Data）
+   * @param targetContract - Optional: the contract to operate on. (default: this.nft)
    */
-  sign = async () => {
-    "web3" in this.opts ? await this._sign(this.opts.web3) : await this._sign(this.opts.ethersSigner);
+  sign = async (targetContract?: string) => {
+    "web3" in this.opts
+      ? await this._sign(this.opts.web3, targetContract)
+      : await this._sign(this.opts.ethersSigner, targetContract);
   };
 
   /**
