@@ -8,6 +8,7 @@ import { UploadContentType } from "./UploadContentType";
 import { UploadMetadataType } from "./UploadMetadataType";
 
 export type BaseConstructorProps = {
+  contractAddress: string;
   vwblNetworkUrl: string;
   uploadContentType?: UploadContentType;
   uploadMetadataType?: UploadMetadataType;
@@ -17,8 +18,8 @@ export type BaseConstructorProps = {
 
 export type ConstructorProps = BaseConstructorProps & {
   web3: Web3;
-  contractAddress: string;
   manageKeyType?: ManageKeyType;
+  dataCollectorAddress?: string;
 };
 
 export type VWBLOption = ConstructorProps;
@@ -26,23 +27,23 @@ export type VWBLOption = ConstructorProps;
 export type EthersConstructorProps = BaseConstructorProps & {
   ethersProvider: ethers.providers.BaseProvider;
   ethersSigner: ethers.providers.JsonRpcSigner | ethers.Wallet;
-  contractAddress: string;
   manageKeyType?: ManageKeyType;
+  dataCollectorAddress?: string;
 };
 
 export type VWBLEthersOption = EthersConstructorProps;
 
 export type MetaTxConstructorProps = BaseConstructorProps & {
   bcProvider: ethers.providers.ExternalProvider | ethers.providers.JsonRpcFetchFunc;
-  contractAddress: string;
   biconomyConfig: BiconomyConfig;
   manageKeyType?: ManageKeyType;
+  dataCollectorAddress?: string;
 };
 
 export type VWBLMetaTxOption = MetaTxConstructorProps;
 
-export type ViewerConstructorProps = BaseConstructorProps & {
-  web3: Web3;
+export type ViewerConstructorProps = {
+  provider: Web3 | ethers.providers.BaseProvider;
   dataCollectorAddress: string;
 };
 

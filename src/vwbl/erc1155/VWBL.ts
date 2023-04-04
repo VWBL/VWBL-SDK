@@ -30,10 +30,12 @@ import {
   VWBLEthersOption,
   VWBLOption,
 } from "../types";
+import { VWBLViewer } from "../viewer";
 
 export class VWBLERC1155 extends VWBLBase {
   public opts: VWBLOption | VWBLEthersOption;
   public nft: VWBLERC1155Contract | VWBLERC1155EthersContract;
+  public viewer?: VWBLViewer;
 
   constructor(props: ConstructorProps | EthersConstructorProps) {
     super(props);
@@ -51,10 +53,31 @@ export class VWBLERC1155 extends VWBLBase {
             props.ethersProvider,
             props.ethersSigner
           );
+    if (props.dataCollectorAddress) {
+      this.viewer =
+        "web3" in props
+          ? new VWBLViewer({
+              provider: props.web3,
+              dataCollectorAddress: props.dataCollectorAddress,
+            })
+          : new VWBLViewer({
+              provider: props.ethersProvider,
+              dataCollectorAddress: props.dataCollectorAddress,
+            });
+    }
   }
 
-  sign = async () => {
-    "web3" in this.opts ? await this._sign(this.opts.web3) : await this._sign(this.opts.ethersSigner);
+  /**
+   * Sign to VWBL
+   *
+   * @remarks
+   * You need to call this method before you send a transaction（eg. mint NFT, decrypt NFT Data）
+   * @param targetContract - Optional: the contract to operate on. (default: this.nft)
+   */
+  sign = async (targetContract?: string) => {
+    "web3" in this.opts
+      ? await this._sign(this.opts.web3, targetContract)
+      : await this._sign(this.opts.ethersSigner, targetContract);
   };
 
   /**
@@ -158,7 +181,11 @@ export class VWBLERC1155 extends VWBLBase {
     console.log("set key");
     const chainId =
       "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
-    await this.api.setKey(documentId, chainId, key, this.signature);
+    const signerAddress =
+      "web3" in this.opts
+        ? await this._getAddressBySigner(this.opts.web3)
+        : await this._getAddressBySigner(this.opts.ethersSigner);
+    await this.api.setKey(documentId, chainId, key, this.signature, signerAddress);
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
@@ -246,7 +273,11 @@ export class VWBLERC1155 extends VWBLBase {
     console.log("set key");
     const chainId =
       "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
-    await this.api.setKey(documentId, chainId, key, this.signature);
+    const signerAddress =
+      "web3" in this.opts
+        ? await this._getAddressBySigner(this.opts.web3)
+        : await this._getAddressBySigner(this.opts.ethersSigner);
+    await this.api.setKey(documentId, chainId, key, this.signature, signerAddress);
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
@@ -391,7 +422,11 @@ export class VWBLERC1155 extends VWBLBase {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
     const chainId =
       "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
-    return await this._setKey(documentId, chainId, key, hasNonce, autoMigration);
+    const signerAddress =
+      "web3" in this.opts
+        ? await this._getAddressBySigner(this.opts.web3)
+        : await this._getAddressBySigner(this.opts.ethersSigner);
+    return await this._setKey(documentId, chainId, key, signerAddress, hasNonce, autoMigration);
   };
 
   /**
@@ -476,22 +511,36 @@ export class VWBLERC1155 extends VWBLBase {
    * This method should be called by NFT owner.
    *
    * @param tokenId The ID of NFT
+   * @param contractAddress Optional: The contractAddress of any VWBL Token(ERC721 or ERC1155).
    * @returns Token metadata
    */
-  extractMetadata = async (tokenId: number): Promise<ExtractMetadata | undefined> => {
+  extractMetadata = async (tokenId: number, contractAddress?: string): Promise<ExtractMetadata | undefined> => {
     if (!this.signature) {
       throw "please sign first";
     }
-    const metadataUrl = await this.nft.getMetadataUrl(tokenId);
+    if (contractAddress && !this.viewer) {
+      throw "please set dataCollectorAddress to constructor";
+    }
+    const metadataUrl =
+      contractAddress && this.viewer
+        ? await this.viewer.getMetadataUrl(contractAddress, tokenId)
+        : await this.nft.getMetadataUrl(tokenId);
     const metadata: PlainMetadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
     // delete token if metadata is not found
     if (!metadata) {
       return undefined;
     }
-    const { documentId } = await this.nft.getTokenInfo(tokenId);
+    const documentId =
+      contractAddress && this.viewer
+        ? await this.viewer.getDocumentId(contractAddress, tokenId)
+        : (await this.nft.getTokenInfo(tokenId)).documentId;
     const chainId =
       "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
-    const decryptKey = await this.api.getKey(documentId, chainId, this.signature);
+    const signerAddress =
+      "web3" in this.opts
+        ? await this._getAddressBySigner(this.opts.web3)
+        : await this._getAddressBySigner(this.opts.ethersSigner);
+    const decryptKey = await this.api.getKey(documentId, chainId, this.signature, signerAddress);
     const encryptedDataUrls = metadata.encrypted_data;
     const isRunningOnBrowser = typeof window !== "undefined";
     const encryptLogic = metadata.encrypt_logic ?? "base64";
