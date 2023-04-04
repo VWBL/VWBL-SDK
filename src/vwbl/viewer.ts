@@ -227,6 +227,7 @@ export class VWBLViewer {
   };
 
   getMetadataUrl = async (contractAddress: string, tokenId: number): Promise<string | undefined> => {
+    if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
     const metadataUrl =
       "callStatic" in this.dataCollector
         ? await this.dataCollector.callStatic.getTokenURI(contractAddress, tokenId)
@@ -236,6 +237,7 @@ export class VWBLViewer {
   };
 
   getDocumentId = async (contractAddress: string, tokenId: number): Promise<string | undefined> => {
+    if (!this.dataCollector) throw new Error("please set dataCollectorAddress");
     const documentId =
       "callStatic" in this.dataCollector
         ? await this.dataCollector.callStatic.getDocumentId(contractAddress, tokenId)
