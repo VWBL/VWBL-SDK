@@ -65,12 +65,12 @@ export class VWBLBase {
       : await castedSigner.getChainId();
     const address = await this._getAddressBySigner(signer);
     const contractAddress = targetContract || this.contractAddress;
-    const signatureString = await this.api
-      .getSignatureString(contractAddress, chainId, address)
+    const signMessage = await this.api
+      .getSignMessage(contractAddress, chainId, address)
       .catch(() => MESSAGE_TO_BE_SIGNED);
-    if (this.signMsg === signatureString) return;
-    this.signMsg = signatureString;
-    this.signature = await signToProtocol(signer, signatureString);
+    if (this.signMsg === signMessage) return;
+    this.signMsg = signMessage;
+    this.signature = await signToProtocol(signer, signMessage);
     console.log("signed");
   };
 
