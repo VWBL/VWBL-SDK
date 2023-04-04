@@ -11,12 +11,12 @@ const isEthersSigner = (signer: IEthersSigner): signer is IEthersSigner => {
 
 export const signToProtocol = async (
   signer: Web3 | ethers.providers.JsonRpcSigner | ethers.Wallet,
-  signatureString: string
+  signMessage: string
 ) => {
   if (isEthersSigner(signer as IEthersSigner)) {
-    return await (signer as IEthersSigner).signMessage(signatureString);
+    return await (signer as IEthersSigner).signMessage(signMessage);
   } else {
     const myAddress = (await (signer as Web3).eth.getAccounts())[0];
-    return await (signer as Web3).eth.personal.sign(signatureString, myAddress, "");
+    return await (signer as Web3).eth.personal.sign(signMessage, myAddress, "");
   }
 };
