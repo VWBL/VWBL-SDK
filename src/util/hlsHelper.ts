@@ -27,7 +27,7 @@ export const makeEncryptedHls = (
     .on("end", (stdout) => {
       console.log(stdout);
       console.log("make hls end");
-      fs.unlinkSync(`${outFileName || "output.m3u8"}`);
+      fs.unlinkSync(`${outFileName || "output.m3u8"}.key`);
     })
     .run();
 };
