@@ -23,7 +23,7 @@ const vwblApiStub = {
   setKey: sinon.stub(VWBLApi.prototype, "setKey"),
 };
 
-const providerUrl = process.env.PROVIDER_URL;
+const providerUrl = "https://rpc-mumbai.maticvigil.com/";
 const web3 = new Web3(providerUrl as string);
 
 sinon.stub(web3.eth, "getAccounts").returns(Promise.resolve(["test address"]));
