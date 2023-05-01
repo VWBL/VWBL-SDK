@@ -24,6 +24,7 @@ const vwblApiStub = {
 };
 
 const providerUrl = "https://rpc-mumbai.maticvigil.com/";
+
 const web3 = new Web3(providerUrl as string);
 
 sinon.stub(web3.eth, "getAccounts").returns(Promise.resolve(["test address"]));
