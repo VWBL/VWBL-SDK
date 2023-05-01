@@ -16,25 +16,38 @@ export class VWBLNFT {
       : new web3.eth.Contract(vwbl.abi as AbiItem[], address);
   }
 
-  async mintToken(decryptUrl: string, royaltiesPercentage: number, documentId: string) {
+  async mintToken(
+    decryptUrl: string,
+    royaltiesPercentage: number,
+    documentId: string,
+    maxPriorityFeePerGas: number | undefined = undefined,
+    maxFeePerGas: number | undefined = undefined
+  ) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     console.log("transaction start");
     const receipt = await this.contract.methods
       .mint(decryptUrl, royaltiesPercentage, documentId)
-      .send({ from: myAddress, value: fee, maxPriorityFeePerGas: null, maxFeePerGas: null });
+      .send({ from: myAddress, value: fee, maxPriorityFeePerGas, maxFeePerGas });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
   }
 
-  async mintTokenForIPFS(metadataUrl: string, decryptUrl: string, royaltiesPercentage: number, documentId: string) {
+  async mintTokenForIPFS(
+    metadataUrl: string,
+    decryptUrl: string,
+    royaltiesPercentage: number,
+    documentId: string,
+    maxPriorityFeePerGas: number | undefined = undefined,
+    maxFeePerGas: number | undefined = undefined
+  ) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     console.log("transaction start");
     const receipt = await this.contract.methods
       .mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId)
-      .send({ from: myAddress, value: fee, maxPriorityFeePerGas: null, maxFeePerGas: null });
+      .send({ from: myAddress, value: fee, maxPriorityFeePerGas, maxFeePerGas });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
