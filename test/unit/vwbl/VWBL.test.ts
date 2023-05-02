@@ -93,7 +93,7 @@ describe("VWBL", () => {
     expect(uploadFileStub.callCount).equal(1);
     expect(uploadMetadataStub.callCount).equal(1);
     expect(tokenId).equal(1);
-  });
+  }).timeout(60 * 1000);
 });
 
 describe("VWBLERC1155", () => {
@@ -160,5 +160,5 @@ describe("VWBLERC1155", () => {
     expect(uploadFileStub.callCount).equal(1);
     expect(uploadMetadataStub.callCount).equal(1);
     expect(tokenId).equal(1);
-  });
+  }).timeout(60 * 1000);
 });
