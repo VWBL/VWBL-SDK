@@ -181,12 +181,18 @@ export class VWBLERC1155Contract {
     return await this.contract.methods.tokenIdToTokenInfo(tokenId).call();
   }
 
-  async setApprovalForAll(operator: string): Promise<void> {
+  async setApprovalForAll(operator: string, maxPriorityFeePerGas?: number, maxFeePerGas?: number): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
+    let _maxPriorityFeePerGas = null;
+    let _maxFeePerGas = null;
+    if (typeof window === "undefined") {
+      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
+      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
+    }
     await this.contract.methods.setApprovalForAll(operator, true).send({
       from: myAddress,
-      maxPriorityFeePerGas: null,
-      maxFeePerGas: null,
+      maxPriorityFeePerGas: _maxPriorityFeePerGas,
+      maxFeePerGas: _maxFeePerGas,
     });
   }
 
@@ -194,12 +200,25 @@ export class VWBLERC1155Contract {
     return await this.contract.methods.isApprovedForAll(owner, operator).call();
   }
 
-  async safeTransfer(to: string, tokenId: number, amount: number, data: string): Promise<void> {
+  async safeTransfer(
+    to: string,
+    tokenId: number,
+    amount: number,
+    data: string,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
+  ): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
+    let _maxPriorityFeePerGas = null;
+    let _maxFeePerGas = null;
+    if (typeof window === "undefined") {
+      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
+      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
+    }
     return await this.contract.methods.safeTransferFrom(myAddress, to, tokenId, amount, data).send({
       from: myAddress,
-      maxPriorityFeePerGas: null,
-      maxFeePerGas: null,
+      maxPriorityFeePerGas: _maxPriorityFeePerGas,
+      maxFeePerGas: _maxFeePerGas,
     });
   }
 
@@ -211,21 +230,39 @@ export class VWBLERC1155Contract {
     return await this.contract.methods.balanceOfBatch(owners, tokenIds).call();
   }
 
-  async burn(owner: string, tokenId: number, amount: number) {
+  async burn(owner: string, tokenId: number, amount: number, maxPriorityFeePerGas?: number, maxFeePerGas?: number) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
+    let _maxPriorityFeePerGas = null;
+    let _maxFeePerGas = null;
+    if (typeof window === "undefined") {
+      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
+      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
+    }
     return await this.contract.methods.burn(owner, tokenId, amount).send({
       from: myAddress,
-      maxPriorityFeePerGas: null,
-      maxFeePerGas: null,
+      maxPriorityFeePerGas: _maxPriorityFeePerGas,
+      maxFeePerGas: _maxFeePerGas,
     });
   }
 
-  async burnBatch(owner: string, tokenIds: number[], amount: number[]) {
+  async burnBatch(
+    owner: string,
+    tokenIds: number[],
+    amount: number[],
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
+  ) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
+    let _maxPriorityFeePerGas = null;
+    let _maxFeePerGas = null;
+    if (typeof window === "undefined") {
+      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
+      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
+    }
     return await this.contract.methods.burnBatch(owner, tokenIds, amount).send({
       from: myAddress,
-      maxPriorityFeePerGas: null,
-      maxFeePerGas: null,
+      maxPriorityFeePerGas: _maxPriorityFeePerGas,
+      maxFeePerGas: _maxFeePerGas,
     });
   }
 }
