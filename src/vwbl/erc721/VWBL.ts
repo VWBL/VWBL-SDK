@@ -94,6 +94,8 @@ export class VWBL extends VWBLBase {
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
    * @param subscriber - Optional: the subscriber for seeing progress
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns
    */
   managedCreateToken = async (
@@ -208,6 +210,8 @@ export class VWBL extends VWBLBase {
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param subscriber - Optional: the subscriber for seeing progress
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns
    */
   managedCreateTokenForIPFS = async (
@@ -310,6 +314,8 @@ export class VWBL extends VWBLBase {
    * Mint new NFT
    *
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns The ID of minted NFT
    */
   mintToken = async (
@@ -332,6 +338,8 @@ export class VWBL extends VWBLBase {
    * Approves `operator` to transfer the given `tokenId`
    *
    * @param operator - The wallet address
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @param tokenId - The ID of NFT
    */
   approve = async (
@@ -357,6 +365,8 @@ export class VWBL extends VWBLBase {
    * Allows `operator` to transfer all tokens that a person who calls this function
    *
    * @param operator - The wallet address
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    */
   setApprovalForAll = async (operator: string, maxPriorityFeePerGas?: number, maxFeePerGas?: number): Promise<void> => {
     await this.nft.setApprovalForAll(operator, maxPriorityFeePerGas, maxFeePerGas);

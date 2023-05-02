@@ -99,6 +99,8 @@ export class VWBLERC1155 extends VWBLBase {
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
    * @param subscriber - Optional: the subscriber for seeing progress
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns
    */
   managedCreateToken = async (
@@ -216,6 +218,8 @@ export class VWBLERC1155 extends VWBLBase {
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param subscriber - Optional: the subscriber for seeing progress
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns
    */
   managedCreateTokenForIPFS = async (
@@ -301,6 +305,8 @@ export class VWBLERC1155 extends VWBLBase {
    *
    * @param amount - The amount of erc1155 tokens to be minted
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns The ID of minted NFT
    */
   mintToken = async (
@@ -326,6 +332,8 @@ export class VWBLERC1155 extends VWBLBase {
    *
    * @param to - The address that NFT will be transferred
    * @param tokenId - The ID of NFT
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @param amount - The amount of erc1155 tokens to be transferred
    */
   safeTransfer = async (
@@ -345,6 +353,8 @@ export class VWBLERC1155 extends VWBLBase {
    * @param owner - The address of nft owner
    * @param tokenId - The ID of NFT
    * @param amount - The amount of erc1155 tokens to be burnt
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    */
   burn = async (
     owner: string,
