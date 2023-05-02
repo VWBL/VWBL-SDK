@@ -29,6 +29,11 @@ import {
   VWBLEthersOption,
 } from "../types";
 
+/**
+ * @deprecated
+ * we recommend to use VWBL class, which can receive two types of constructor
+ * @see {@link <https://github.com/VWBL/VWBL-SDK/blob/master/src/vwbl/erc1155/VWBL.ts>}
+ */
 export class VWBLERC1155Ethers extends VWBLBase {
   public opts: VWBLEthersOption;
   public nft: VWBLERC1155EthersContract;
@@ -150,7 +155,13 @@ export class VWBLERC1155Ethers extends VWBLBase {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.ethersSigner.getChainId();
-    await this.api.setKey(documentId, chainId, key, this.signature);
+    await this.api.setKey(
+      documentId,
+      chainId,
+      key,
+      this.signature,
+      await this._getAddressBySigner(this.opts.ethersSigner)
+    );
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
@@ -237,7 +248,13 @@ export class VWBLERC1155Ethers extends VWBLBase {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId = await this.opts.ethersSigner.getChainId();
-    await this.api.setKey(documentId, chainId, key, this.signature);
+    await this.api.setKey(
+      documentId,
+      chainId,
+      key,
+      this.signature,
+      await this._getAddressBySigner(this.opts.ethersSigner)
+    );
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
@@ -381,7 +398,14 @@ export class VWBLERC1155Ethers extends VWBLBase {
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
     const chainId = await this.opts.ethersSigner.getChainId();
-    return await this._setKey(documentId, chainId, key, hasNonce, autoMigration);
+    return await this._setKey(
+      documentId,
+      chainId,
+      key,
+      await this._getAddressBySigner(this.opts.ethersSigner),
+      hasNonce,
+      autoMigration
+    );
   };
 
   /**
@@ -480,7 +504,12 @@ export class VWBLERC1155Ethers extends VWBLBase {
     }
     const { documentId } = await this.nft.getTokenInfo(tokenId);
     const chainId = await this.opts.ethersSigner.getChainId();
-    const decryptKey = await this.api.getKey(documentId, chainId, this.signature);
+    const decryptKey = await this.api.getKey(
+      documentId,
+      chainId,
+      this.signature,
+      await this._getAddressBySigner(this.opts.ethersSigner)
+    );
     const encryptedDataUrls = metadata.encrypted_data;
     const isRunningOnBrowser = typeof window !== "undefined";
     const encryptLogic = metadata.encrypt_logic ?? "base64";
