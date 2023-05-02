@@ -40,13 +40,26 @@ export class VWBLNFT {
     return tokenId;
   }
 
-  async mintTokenForIPFS(metadataUrl: string, decryptUrl: string, royaltiesPercentage: number, documentId: string) {
+  async mintTokenForIPFS(
+    metadataUrl: string,
+    decryptUrl: string,
+    royaltiesPercentage: number,
+    documentId: string,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
+  ) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     console.log("transaction start");
+    let _maxPriorityFeePerGas = null;
+    let _maxFeePerGas = null;
+    if (typeof window === "undefined") {
+      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
+      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
+    }
     const receipt = await this.contract.methods
       .mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId)
-      .send({ from: myAddress, value: fee, maxPriorityFeePerGas: null, maxFeePerGas: null });
+      .send({ from: myAddress, value: fee, maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
