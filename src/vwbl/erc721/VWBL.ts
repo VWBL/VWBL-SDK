@@ -312,10 +312,20 @@ export class VWBL extends VWBLBase {
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @returns The ID of minted NFT
    */
-  mintToken = async (royaltiesPercentage: number): Promise<number> => {
+  mintToken = async (
+    royaltiesPercentage: number,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
+  ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    return await this.nft.mintToken(
+      vwblNetworkUrl,
+      royaltiesPercentage,
+      documentId,
+      maxPriorityFeePerGas,
+      maxFeePerGas
+    );
   };
 
   /**
@@ -324,8 +334,13 @@ export class VWBL extends VWBLBase {
    * @param operator - The wallet address
    * @param tokenId - The ID of NFT
    */
-  approve = async (operator: string, tokenId: number): Promise<void> => {
-    await this.nft.approve(operator, tokenId);
+  approve = async (
+    operator: string,
+    tokenId: number,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
+  ): Promise<void> => {
+    await this.nft.approve(operator, tokenId, maxPriorityFeePerGas, maxFeePerGas);
   };
 
   /**
@@ -343,8 +358,8 @@ export class VWBL extends VWBLBase {
    *
    * @param operator - The wallet address
    */
-  setApprovalForAll = async (operator: string): Promise<void> => {
-    await this.nft.setApprovalForAll(operator);
+  setApprovalForAll = async (operator: string, maxPriorityFeePerGas?: number, maxFeePerGas?: number): Promise<void> => {
+    await this.nft.setApprovalForAll(operator, maxPriorityFeePerGas, maxFeePerGas);
   };
 
   /**
@@ -364,8 +379,13 @@ export class VWBL extends VWBLBase {
    * @param to - The address that NFT will be transfered
    * @param tokenId - The ID of NFT
    */
-  safeTransfer = async (to: string, tokenId: number): Promise<void> => {
-    await this.nft.safeTransfer(to, tokenId);
+  safeTransfer = async (
+    to: string,
+    tokenId: number,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
+  ): Promise<void> => {
+    await this.nft.safeTransfer(to, tokenId, maxPriorityFeePerGas, maxFeePerGas);
   };
 
   /**

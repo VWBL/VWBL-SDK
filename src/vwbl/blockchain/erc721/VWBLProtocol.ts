@@ -112,33 +112,56 @@ export class VWBLNFT {
     return await this.contract.methods.tokenIdToTokenInfo(tokenId).call();
   }
 
-  async approve(operator: string, tokenId: number): Promise<void> {
+  async approve(
+    operator: string,
+    tokenId: number,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
+  ): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
+    let _maxPriorityFeePerGas = null;
+    let _maxFeePerGas = null;
+    if (typeof window === "undefined") {
+      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
+      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
+    }
     await this.contract.methods
       .approve(operator, tokenId)
-      .send({ from: myAddress, maxPriorityFeePerGas: null, maxFeePerGas: null });
+      .send({ from: myAddress, maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas });
   }
 
   async getApproved(tokenId: number): Promise<string> {
     return await this.contract.methods.getApproved(tokenId).call();
   }
 
-  async setApprovalForAll(operator: string): Promise<void> {
+  async setApprovalForAll(operator: string, maxPriorityFeePerGas?: number, maxFeePerGas?: number): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
+    let _maxPriorityFeePerGas = null;
+    let _maxFeePerGas = null;
+    if (typeof window === "undefined") {
+      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
+      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
+    }
     await this.contract.methods
       .setApprovalForAll(operator, true)
-      .send({ from: myAddress, maxPriorityFeePerGas: null, maxFeePerGas: null });
+      .send({ from: myAddress, maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas });
   }
 
   async isApprovedForAll(owner: string, operator: string): Promise<boolean> {
     return await this.contract.methods.isApprovedForAll(owner, operator).call();
   }
 
-  async safeTransfer(to: string, tokenId: number): Promise<void> {
+  async safeTransfer(to: string, tokenId: number, maxPriorityFeePerGas?: number, maxFeePerGas?: number): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
+    let _maxPriorityFeePerGas = null;
+    let _maxFeePerGas = null;
+    if (typeof window === "undefined") {
+      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
+      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
+    }
     await this.contract.methods
       .safeTransferFrom(myAddress, to, tokenId)
-      .send({ from: myAddress, maxPriorityFeePerGas: null, maxFeePerGas: null });
+      .send({ from: myAddress, maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas });
   }
 }
 
