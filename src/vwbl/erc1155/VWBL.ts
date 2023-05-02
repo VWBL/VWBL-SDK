@@ -112,7 +112,9 @@ export class VWBLERC1155 extends VWBLBase {
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata,
-    subscriber?: ProgressSubscriber
+    subscriber?: ProgressSubscriber,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -120,7 +122,14 @@ export class VWBLERC1155 extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId);
+    const tokenId = await this.nft.mintToken(
+      vwblNetworkUrl,
+      amount,
+      royaltiesPercentage,
+      documentId,
+      maxPriorityFeePerGas,
+      maxFeePerGas
+    );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -217,7 +226,9 @@ export class VWBLERC1155 extends VWBLBase {
     thumbnailImage: File,
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
-    subscriber?: ProgressSubscriber
+    subscriber?: ProgressSubscriber,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -265,7 +276,9 @@ export class VWBLERC1155 extends VWBLBase {
       vwblNetworkUrl,
       amount,
       royaltiesPercentage,
-      documentId
+      documentId,
+      maxPriorityFeePerGas,
+      maxFeePerGas
     );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
@@ -290,10 +303,22 @@ export class VWBLERC1155 extends VWBLBase {
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @returns The ID of minted NFT
    */
-  mintToken = async (amount: number, royaltiesPercentage: number): Promise<number> => {
+  mintToken = async (
+    amount: number,
+    royaltiesPercentage: number,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
+  ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId);
+    return await this.nft.mintToken(
+      vwblNetworkUrl,
+      amount,
+      royaltiesPercentage,
+      documentId,
+      maxPriorityFeePerGas,
+      maxFeePerGas
+    );
   };
 
   /**
