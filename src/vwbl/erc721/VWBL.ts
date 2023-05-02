@@ -80,7 +80,9 @@ export class VWBL extends VWBLBase {
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata,
-    subscriber?: ProgressSubscriber
+    subscriber?: ProgressSubscriber,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -88,7 +90,13 @@ export class VWBL extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = this.opts.web3.utils.randomHex(32);
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    const tokenId = await this.nft.mintToken(
+      vwblNetworkUrl,
+      royaltiesPercentage,
+      documentId,
+      maxPriorityFeePerGas,
+      maxFeePerGas
+    );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -178,7 +186,9 @@ export class VWBL extends VWBLBase {
     thumbnailImage: File,
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
-    subscriber?: ProgressSubscriber
+    subscriber?: ProgressSubscriber,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -225,7 +235,9 @@ export class VWBL extends VWBLBase {
       metadataUrl as string,
       vwblNetworkUrl,
       royaltiesPercentage,
-      documentId
+      documentId,
+      maxPriorityFeePerGas,
+      maxFeePerGas
     );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
