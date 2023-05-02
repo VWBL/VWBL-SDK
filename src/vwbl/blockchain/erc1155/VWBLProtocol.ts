@@ -16,30 +16,56 @@ export class VWBLERC1155Contract {
       : new web3.eth.Contract(vwbl1155.abi as AbiItem[], address);
   }
 
-  async mintToken(decryptUrl: string, amount: number, royaltiesPercentage: number, documentId: string) {
+  async mintToken(
+    decryptUrl: string,
+    amount: number,
+    royaltiesPercentage: number,
+    documentId: string,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
+  ) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     console.log("transaction start");
+    let _maxPriorityFeePerGas = null;
+    let _maxFeePerGas = null;
+    if (typeof window === "undefined") {
+      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
+      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
+    }
     const receipt = await this.contract.methods.mint(decryptUrl, amount, royaltiesPercentage, documentId).send({
       from: myAddress,
       value: fee,
-      maxPriorityFeePerGas: null,
-      maxFeePerGas: null,
+      maxPriorityFeePerGas: _maxPriorityFeePerGas,
+      maxFeePerGas: _maxFeePerGas,
     });
     console.log("transaction end");
     const tokenId: number = receipt.events.TransferSingle.returnValues.id;
     return tokenId;
   }
 
-  async batchMintToken(decryptUrl: string, amount: number[], royaltiesPercentage: number[], documentId: string[]) {
+  async batchMintToken(
+    decryptUrl: string,
+    amount: number[],
+    royaltiesPercentage: number[],
+    documentId: string[],
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
+  ) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     console.log("transaction start");
+    let _maxPriorityFeePerGas = null;
+    let _maxFeePerGas = null;
+    if (typeof window === "undefined") {
+      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
+      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
+    }
     const receipt = await this.contract.methods.mintBatch(decryptUrl, amount, royaltiesPercentage, documentId).send({
       from: myAddress,
       value: fee,
-      maxPriorityFeePerGas: null,
-      maxFeePerGas: null,
+      maxPriorityFeePerGas: _maxPriorityFeePerGas,
+      maxFeePerGas: _maxFeePerGas,
     });
     console.log("transaction end");
     const tokenIds: number[] = receipt.events.TransferBatch.returnValues.ids;
@@ -51,18 +77,26 @@ export class VWBLERC1155Contract {
     decryptUrl: string,
     amount: number,
     royaltiesPercentage: number,
-    documentId: string
+    documentId: string,
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
   ) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     console.log("transaction start");
+    let _maxPriorityFeePerGas = null;
+    let _maxFeePerGas = null;
+    if (typeof window === "undefined") {
+      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
+      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
+    }
     const receipt = await this.contract.methods
       .mint(metadataUrl, decryptUrl, amount, royaltiesPercentage, documentId)
       .send({
         from: myAddress,
         value: fee,
-        maxPriorityFeePerGas: null,
-        maxFeePerGas: null,
+        maxPriorityFeePerGas: _maxPriorityFeePerGas,
+        maxFeePerGas: _maxFeePerGas,
       });
     console.log("transaction end");
     const tokenId: number = receipt.events.TransferSingle.returnValues.id;
@@ -74,18 +108,26 @@ export class VWBLERC1155Contract {
     decryptUrl: string,
     amount: number[],
     royaltiesPercentage: number[],
-    documentId: string[]
+    documentId: string[],
+    maxPriorityFeePerGas?: number,
+    maxFeePerGas?: number
   ) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     console.log("transaction start");
+    let _maxPriorityFeePerGas = null;
+    let _maxFeePerGas = null;
+    if (typeof window === "undefined") {
+      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
+      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
+    }
     const receipt = await this.contract.methods
       .mintBatch(metadataUrl, decryptUrl, amount, royaltiesPercentage, documentId)
       .send({
         from: myAddress,
         value: fee,
-        maxPriorityFeePerGas: null,
-        maxFeePerGas: null,
+        maxPriorityFeePerGas: _maxPriorityFeePerGas,
+        maxFeePerGas: _maxFeePerGas,
       });
     console.log("transaction end");
     const tokenIds: number[] = receipt.events.TransferBatch.returnValues.ids;
