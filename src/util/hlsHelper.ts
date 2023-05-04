@@ -4,8 +4,8 @@ import * as util from "util";
 
 export const makeEncryptedHls = (
   filePath: string,
-  duration: number,
   key: string,
+  duration?: number,
   iv?: string,
   outFileName?: string
 ) => {
@@ -19,7 +19,7 @@ export const makeEncryptedHls = (
       `-profile:v baseline`,
       `-level 3.0`,
       `-start_number 0`,
-      `-hls_time ${duration}`,
+      `-hls_time ${duration || 2}`,
       `-hls_list_size 0`,
       `-f hls`,
     ])
