@@ -46,27 +46,28 @@ describe("VWBL", () => {
     web3,
   });
 
+  const testFunctions = {
+    uploadEncryptedFile: () => {
+      return Promise.resolve("https://example.com");
+    },
+    uploadThumbnail: () => {
+      return Promise.resolve("https://example.com");
+    },
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    uploadMetadata: async () => {},
+  };
+  const uploadEncryptedFileStub = sinon
+    .stub(testFunctions, "uploadEncryptedFile")
+    .returns(Promise.resolve("https://example.com"));
+  const uploadFileStub = sinon.stub(testFunctions, "uploadThumbnail").returns(Promise.resolve("https://example.com"));
+  const uploadMetadataStub = sinon.stub(testFunctions, "uploadMetadata");
+
   before(async () => {
     await vwbl.sign();
   });
 
-  it("mint token", async () => {
+  it("mint token without gas settings", async () => {
     vwblProtocolStub.mintToken.returns(Promise.resolve(1));
-    const testFunctions = {
-      uploadEncryptedFile: () => {
-        return Promise.resolve("https://example.com");
-      },
-      uploadThumbnail: () => {
-        return Promise.resolve("https://example.com");
-      },
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      uploadMetadata: async () => {},
-    };
-    const uploadEncryptedFileStub = sinon
-      .stub(testFunctions, "uploadEncryptedFile")
-      .returns(Promise.resolve("https://example.com"));
-    const uploadFileStub = sinon.stub(testFunctions, "uploadThumbnail").returns(Promise.resolve("https://example.com"));
-    const uploadMetadataStub = sinon.stub(testFunctions, "uploadMetadata");
     const tokenId = await vwbl.managedCreateToken(
       "test token",
       "test",
@@ -88,12 +89,52 @@ describe("VWBL", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(1);
+    expect(vwblProtocolStub.mintToken.getCall(0).args[3]).equal(undefined);
+    expect(vwblProtocolStub.mintToken.getCall(0).args[4]).equal(undefined);
     expect(vwblApiStub.setKey.callCount).equal(1);
     expect(uploadEncryptedFileStub.callCount).equal(1);
     expect(uploadFileStub.callCount).equal(1);
     expect(uploadMetadataStub.callCount).equal(1);
     expect(tokenId).equal(1);
-  }).timeout(60 * 1000);
+  });
+
+  it("mint token with gas settings", async () => {
+    vwblProtocolStub.mintToken.returns(Promise.resolve(2));
+    const testSubscriber = {
+      kickStep: () => {}
+    }
+    const tokenId = await vwbl.managedCreateToken(
+      "test token",
+      "test",
+      new File({
+        name: "thumbnail image",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      new File({
+        name: "plain data",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      10,
+      "base64",
+      testFunctions.uploadEncryptedFile,
+      testFunctions.uploadThumbnail,
+      testFunctions.uploadMetadata,
+      testSubscriber,
+      40000000000,
+      41000000000,
+    );
+
+    expect(vwblProtocolStub.mintToken.callCount).equal(2);
+    expect(vwblProtocolStub.mintToken.getCall(1).args[3]).equal(40000000000);
+    expect(vwblProtocolStub.mintToken.getCall(1).args[4]).equal(41000000000);
+    expect(vwblApiStub.setKey.callCount).equal(2);
+    expect(uploadEncryptedFileStub.callCount).equal(2);
+    expect(uploadFileStub.callCount).equal(2);
+    expect(uploadMetadataStub.callCount).equal(2);
+    expect(tokenId).equal(2);
+  });
 });
 
 describe("VWBLERC1155", () => {
@@ -155,10 +196,10 @@ describe("VWBLERC1155", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(1);
-    expect(vwblApiStub.setKey.callCount).equal(2);
+    expect(vwblApiStub.setKey.callCount).equal(3);
     expect(uploadEncryptedFileStub.callCount).equal(1);
     expect(uploadFileStub.callCount).equal(1);
     expect(uploadMetadataStub.callCount).equal(1);
     expect(tokenId).equal(1);
-  }).timeout(60 * 1000);
+  });
 });
