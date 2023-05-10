@@ -16,12 +16,17 @@ import {
   VWBLERC1155Contract,
   VWBLNFT,
 } from "../../../src/vwbl";
+import HDWalletProvider from "@truffle/hdwallet-provider";
+import {provider} from "web3-core";
 
 dotenv.config();
 
-const providerUrl = "https://rpc-mumbai.maticvigil.com/";
+const hdWalletProvider = new HDWalletProvider({
+  privateKeys: [process.env.PRIVATE_KEY as string],
+  providerOrUrl: "https://rpc-mumbai.maticvigil.com/"
+})
 
-const web3 = new Web3(providerUrl as string);
+const web3 = new Web3(hdWalletProvider as provider);
 
 describe("VWBL", () => {
   const vwbl = new VWBL({
@@ -35,16 +40,6 @@ describe("VWBL", () => {
     web3,
   });
 
-  const testFunctions = {
-    uploadEncryptedFile: () => {
-      return Promise.resolve("https://example.com");
-    },
-    uploadThumbnail: () => {
-      return Promise.resolve("https://example.com");
-    },
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    uploadMetadata: async () => {},
-  };
   const testSubscriber = {
     kickStep: () => {},
   };
