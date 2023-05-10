@@ -21,6 +21,15 @@ import {provider} from "web3-core";
 
 dotenv.config();
 
+type GasInfo = {
+  safeLow: { maxPriorityFee: number, maxFee: number },
+  standard: { maxPriorityFee: number, maxFee: number },
+  fast: { maxPriorityFee: number, maxFee: number },
+  estimatedBaseFee: number,
+  blockTime: number,
+  blockNumber: number
+}
+
 const hdWalletProvider = new HDWalletProvider({
   privateKeys: [process.env.PRIVATE_KEY as string],
   providerOrUrl: "https://rpc-mumbai.maticvigil.com/"
@@ -44,6 +53,40 @@ describe("VWBL", () => {
     kickStep: () => {},
   };
 
+  it("mint token with gas settings", async () => {
+    await vwbl.sign();
+
+    const gasInfo = await fetchGasInfo();
+    if(!gasInfo){
+      throw Error('failed to fetch gas information about polygon')
+    }
+    console.log(gasInfo.standard);
+    const maxPriorityFee_wei = Number(web3.utils.toWei(String(gasInfo.standard.maxPriorityFee.toFixed(9)), 'gwei'));
+    const maxFee_wei = Number(web3.utils.toWei(String(gasInfo.standard.maxFee.toFixed(9)), 'gwei'));
+
+    const tokenId = await vwbl.managedCreateTokenForIPFS(
+      "test token",
+      "test",
+      new File({
+        name: "thumbnail image",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      new File({
+        name: "plain data",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      10,
+      "base64",
+      testSubscriber,
+      maxPriorityFee_wei,
+      maxFee_wei
+    );
+    console.log(tokenId, typeof tokenId);
+    expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
+  });
+
   it("mint token without gas settings", async () => {
     await vwbl.sign();
 
@@ -62,45 +105,21 @@ describe("VWBL", () => {
       }),
       10,
       "base64",
-      testSubscriber
     );
-    expect(typeof tokenId).equal("number");
+    console.log(tokenId, typeof tokenId);
+    expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
   });
-
-  //   it("mint token with gas settings", async () => {
-  //     const testSubscriber = {
-  //       kickStep: () => {}
-  //     }
-  //     const tokenId = await vwbl.managedCreateToken(
-  //       "test token",
-  //       "test",
-  //       new File({
-  //         name: "thumbnail image",
-  //         type: "image/png",
-  //         buffer: Buffer.alloc(100),
-  //       }),
-  //       new File({
-  //         name: "plain data",
-  //         type: "image/png",
-  //         buffer: Buffer.alloc(100),
-  //       }),
-  //       10,
-  //       "base64",
-  //       testFunctions.uploadEncryptedFile,
-  //       testFunctions.uploadThumbnail,
-  //       testFunctions.uploadMetadata,
-  //       testSubscriber,
-  //       40000000000,
-  //       41000000000,
-  //     );
-
-  //     expect(vwblProtocolStub.mintToken.callCount).equal(2);
-  //     expect(vwblProtocolStub.mintToken.getCall(1).args[3]).equal(40000000000);
-  //     expect(vwblProtocolStub.mintToken.getCall(1).args[4]).equal(41000000000);
-  //     expect(vwblApiStub.setKey.callCount).equal(2);
-  //     expect(uploadEncryptedFileStub.callCount).equal(2);
-  //     expect(uploadFileStub.callCount).equal(2);
-  //     expect(uploadMetadataStub.callCount).equal(2);
-  //     expect(tokenId).equal(2);
-  //   });
 });
+
+async function fetchGasInfo():Promise<GasInfo | undefined>{
+  try{
+    const response = await fetch('https://gasstation-mainnet.matic.network/v2')
+    const gasInfo = await response.json();
+    console.log(gasInfo);
+    
+    return gasInfo;
+  }catch(error){
+    console.log(error);
+    throw Error('failed to execute fetchGasInfo()')
+  }
+}
