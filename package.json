@@ -19,7 +19,8 @@
     "build": "tsc",
     "format": "eslint --fix --quiet './src/**/*.ts*'",
     "lint": "eslint './src/**/*.ts*'",
-    "test": "mocha-parallel-tests -r ts-node/register test/unit/**/*.test.ts --exit"
+    "test": "mocha-parallel-tests -r ts-node/register test/unit/**/*.test.ts --exit",
+    "mocha": "mocha-parallel-tests -r ts-node/register"
   },
   "devDependencies": {
     "@types/chai": "^4.3.0",

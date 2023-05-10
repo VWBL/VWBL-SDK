@@ -42,7 +42,7 @@ describe("VWBL", () => {
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
     uploadContentType: UploadContentType.CUSTOM,
     uploadMetadataType: UploadMetadataType.CUSTOM,
-    vwblNetworkUrl: "https://dev.vwbl.network/",
+    vwblNetworkUrl: "http://example.com",
     web3,
   });
 
