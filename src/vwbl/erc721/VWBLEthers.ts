@@ -289,10 +289,11 @@ export class VWBLEthers extends VWBLBase {
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @returns The ID of minted NFT
    */
-  mintToken = async (royaltiesPercentage: number): Promise<number> => {
+  mintToken = async (royaltiesPercentage: number): Promise<{ tokenId: number; documentId: string }> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    return {tokenId, documentId};
   };
 
   /**

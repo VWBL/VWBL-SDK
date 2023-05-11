@@ -7,7 +7,8 @@ export const makeEncryptedHls = (
   key: string,
   duration?: number,
   iv?: string,
-  outFileName?: string
+  outFileName?: string,
+  callback?: (err?: Error) => void
 ) => {
   const command = ffmpeg(filePath);
   console.log("make hls start");
@@ -28,9 +29,12 @@ export const makeEncryptedHls = (
       console.log(stdout);
       console.log("make hls end");
       fs.unlinkSync(`${outFileName || "output.m3u8"}.key`);
+      callback?.();
     })
     .run();
 };
+
+export const asyncMakeEncryptedHls = util.promisify(makeEncryptedHls);
 
 export const calcSplitNumber = async (path: string, duration: number): Promise<number> => {
   const promise = util.promisify(ffmpeg.ffprobe);

@@ -11,8 +11,8 @@ import {
   encryptFile,
   encryptStream,
   encryptString,
-} from "../util/cryptoHelper";
-import { toBase64FromBlob } from "../util/fileHelper";
+  toBase64FromBlob
+} from "../util";
 import { VWBLApi } from "./api";
 import { signToProtocol } from "./blockchain";
 import { BaseConstructorProps, UploadContentType, UploadMetadataType } from "./types";
@@ -20,7 +20,7 @@ import { BaseConstructorProps, UploadContentType, UploadMetadataType } from "./t
 const MESSAGE_TO_BE_SIGNED = "Hello VWBL";
 
 export class VWBLBase {
-  protected api: VWBLApi;
+  public api: VWBLApi;
   public signMsg?: string;
   public signature?: string;
   protected uploadToIpfs?: UploadToIPFS;

@@ -290,10 +290,11 @@ export class VWBLMetaTx extends VWBLBase {
    * @param mintApiId - The mint method api id of biconomy
    * @returns The ID of minted NFT
    */
-  mintToken = async (royaltiesPercentage: number, mintApiId: string): Promise<number> => {
+  mintToken = async (royaltiesPercentage: number, mintApiId: string): Promise<{ tokenId: number; documentId: string }> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId, mintApiId);
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId, mintApiId);
+    return {tokenId, documentId}
   };
 
   /**
