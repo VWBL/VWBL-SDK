@@ -20,7 +20,7 @@ import { BaseConstructorProps, UploadContentType, UploadMetadataType } from "./t
 const MESSAGE_TO_BE_SIGNED = "Hello VWBL";
 
 export class VWBLBase {
-  public api: VWBLApi;
+  protected api: VWBLApi;
   public signMsg?: string;
   public signature?: string;
   protected uploadToIpfs?: UploadToIPFS;
