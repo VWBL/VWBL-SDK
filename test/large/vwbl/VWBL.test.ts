@@ -31,7 +31,12 @@ type GasInfo = {
   blockNumber: number
 }
 
-const providerUrl = "https://rpc-mumbai.maticvigil.com/"
+// const providerUrl = "https://rpc-mumbai.maticvigil.com/"
+const providerUrl = process.env.POLYGON_PROVIDER_URL;
+// const nftContractAddr = "0x5af2D607242f604C8f5e04e8B648741EE59ac847"; //mumbai
+const nftContractAddr = "0xdE8Ac10E93698F6805E2B69599854408d1386417"; //polygon
+// const networkUrl = "https://dev.vwbl.network/";
+const networkUrl = "https://vwbl.network";
 // preparation for web3.js
 const hdWalletProvider = new HDWalletProvider({
   privateKeys: [process.env.PRIVATE_KEY as string],
@@ -47,11 +52,11 @@ describe("VWBL with web3.js", () => {
   const vwbl = new VWBL({
     ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,
     awsConfig: undefined,
-    contractAddress: "0x5af2D607242f604C8f5e04e8B648741EE59ac847",
+    contractAddress: nftContractAddr,
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
     uploadContentType: UploadContentType.IPFS,
     uploadMetadataType: UploadMetadataType.IPFS,
-    vwblNetworkUrl: "https://dev.vwbl.network/",
+    vwblNetworkUrl: networkUrl,
     web3,
   });
 
@@ -121,11 +126,11 @@ describe("VWBL with ethers.js", () => {
   const vwbl = new VWBL({
     ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,
     awsConfig: undefined,
-    contractAddress: "0x5af2D607242f604C8f5e04e8B648741EE59ac847",
+    contractAddress: nftContractAddr,
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
     uploadContentType: UploadContentType.IPFS,
     uploadMetadataType: UploadMetadataType.IPFS,
-    vwblNetworkUrl: "https://dev.vwbl.network/",
+    vwblNetworkUrl: networkUrl,
     ethersProvider: ethProvider,
     ethersSigner: ethSigner,
   });
