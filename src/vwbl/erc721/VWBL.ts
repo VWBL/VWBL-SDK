@@ -524,11 +524,9 @@ export class VWBL extends VWBLBase {
     }
     return {
       id: tokenId,
-      name: metadata.name,
-      description: metadata.description,
-      image: metadata.image,
       mimeType: metadata.mime_type,
       encryptLogic: metadata.encrypt_logic,
+      ...metadata
     };
   };
 
@@ -594,11 +592,9 @@ export class VWBL extends VWBLBase {
       .replace(/\.vwbl/, "");
     return {
       id: tokenId,
-      name: metadata.name,
-      description: metadata.description,
-      image: metadata.image,
       mimeType: metadata.mime_type,
       encryptLogic: metadata.encrypt_logic,
+      ...metadata,
       ownDataBase64,
       ownFiles,
       fileName,
