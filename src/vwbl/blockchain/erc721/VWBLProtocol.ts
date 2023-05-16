@@ -32,9 +32,12 @@ export class VWBLNFT {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     console.log("transaction start");
+    const gasPrice = await this.web3.eth.getGasPrice();
+    const gas = await this.contract.methods.mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId).estimateGas({from: myAddress, value: fee});
+    console.log(gas, gasPrice)
     const receipt = await this.contract.methods
       .mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId)
-      .send({ from: myAddress, value: fee, maxPriorityFeePerGas: null, maxFeePerGas: null });
+      .send({ from: myAddress, value: fee, gas, gasPrice });
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
