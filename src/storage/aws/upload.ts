@@ -55,7 +55,7 @@ export const uploadMetadata = async (
   mimeType: string,
   encryptLogic: EncryptLogic,
   awsConfig?: AWSConfig
-): Promise<void> => {
+): Promise<string> => {
   if (!awsConfig || !awsConfig.bucketName.metadata) {
     throw new Error("bucket is not specified.");
   }
@@ -76,5 +76,6 @@ export const uploadMetadata = async (
       ACL: "public-read",
     },
   });
-  await upload.promise();
+  const uploadMetadata = await upload.promise();
+  return `${awsConfig.cloudFrontUrl.replace(/\/$/, "")}/${uploadMetadata.Key}`
 };
