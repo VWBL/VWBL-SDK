@@ -11,7 +11,7 @@ import {
   encryptFile,
   encryptStream,
   encryptString,
-  toBase64FromBlob
+  toBase64FromBlob,
 } from "../util";
 import { VWBLApi } from "./api";
 import { signToProtocol } from "./blockchain";
