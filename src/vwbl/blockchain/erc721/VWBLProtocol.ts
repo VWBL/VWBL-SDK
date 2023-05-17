@@ -4,6 +4,7 @@ import { AbiItem } from "web3-utils";
 
 import vwbl from "../../../contract/VWBL.json";
 import vwblIPFS from "../../../contract/VWBLSupportIPFS.json";
+import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelper";
 
 export class VWBLNFT {
   private contract: Contract;
@@ -25,13 +26,9 @@ export class VWBLNFT {
   ) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
+    const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+      getFeeSettingsBasedOnEnvironment(maxPriorityFeePerGas, maxFeePerGas);
     console.log("transaction start");
-    let _maxPriorityFeePerGas = null;
-    let _maxFeePerGas = null;
-    if (typeof window === "undefined") {
-      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
-      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
-    }
     const receipt = await this.contract.methods
       .mint(decryptUrl, royaltiesPercentage, documentId)
       .send({ from: myAddress, value: fee, maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas });
@@ -50,13 +47,9 @@ export class VWBLNFT {
   ) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
+    const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+      getFeeSettingsBasedOnEnvironment(maxPriorityFeePerGas, maxFeePerGas);
     console.log("transaction start");
-    let _maxPriorityFeePerGas = null;
-    let _maxFeePerGas = null;
-    if (typeof window === "undefined") {
-      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
-      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
-    }
     const receipt = await this.contract.methods
       .mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId)
       .send({ from: myAddress, value: fee, maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas });
@@ -119,12 +112,8 @@ export class VWBLNFT {
     maxFeePerGas?: number
   ): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
-    let _maxPriorityFeePerGas = null;
-    let _maxFeePerGas = null;
-    if (typeof window === "undefined") {
-      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
-      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
-    }
+    const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+      getFeeSettingsBasedOnEnvironment(maxPriorityFeePerGas, maxFeePerGas);
     await this.contract.methods
       .approve(operator, tokenId)
       .send({ from: myAddress, maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas });
@@ -136,12 +125,8 @@ export class VWBLNFT {
 
   async setApprovalForAll(operator: string, maxPriorityFeePerGas?: number, maxFeePerGas?: number): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
-    let _maxPriorityFeePerGas = null;
-    let _maxFeePerGas = null;
-    if (typeof window === "undefined") {
-      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
-      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
-    }
+    const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+      getFeeSettingsBasedOnEnvironment(maxPriorityFeePerGas, maxFeePerGas);
     await this.contract.methods
       .setApprovalForAll(operator, true)
       .send({ from: myAddress, maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas });
@@ -153,12 +138,8 @@ export class VWBLNFT {
 
   async safeTransfer(to: string, tokenId: number, maxPriorityFeePerGas?: number, maxFeePerGas?: number): Promise<void> {
     const myAddress = (await this.web3.eth.getAccounts())[0];
-    let _maxPriorityFeePerGas = null;
-    let _maxFeePerGas = null;
-    if (typeof window === "undefined") {
-      _maxPriorityFeePerGas = maxPriorityFeePerGas ? maxPriorityFeePerGas : undefined;
-      _maxFeePerGas = maxFeePerGas ? maxFeePerGas : undefined;
-    }
+    const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+      getFeeSettingsBasedOnEnvironment(maxPriorityFeePerGas, maxFeePerGas);
     await this.contract.methods
       .safeTransferFrom(myAddress, to, tokenId)
       .send({ from: myAddress, maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas });
