@@ -20,6 +20,7 @@ import {
   ConstructorProps,
   EncryptLogic,
   EthersConstructorProps,
+  GasSettings,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -109,8 +110,7 @@ export class VWBL extends VWBLBase {
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata,
     subscriber?: ProgressSubscriber,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
+    gasSettings?: GasSettings
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -122,8 +122,8 @@ export class VWBL extends VWBLBase {
       vwblNetworkUrl,
       royaltiesPercentage,
       documentId,
-      maxPriorityFeePerGas,
-      maxFeePerGas
+      gasSettings?.maxPriorityFeePerGas,
+      gasSettings?.maxFeePerGas
     );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
@@ -318,19 +318,15 @@ export class VWBL extends VWBLBase {
    * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns The ID of minted NFT
    */
-  mintToken = async (
-    royaltiesPercentage: number,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
-  ): Promise<number> => {
+  mintToken = async (royaltiesPercentage: number, gasSettings?: GasSettings): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
     return await this.nft.mintToken(
       vwblNetworkUrl,
       royaltiesPercentage,
       documentId,
-      maxPriorityFeePerGas,
-      maxFeePerGas
+      gasSettings?.maxPriorityFeePerGas,
+      gasSettings?.maxFeePerGas
     );
   };
 

@@ -99,7 +99,6 @@ describe("VWBL with web3.js", () => {
 
     expect(vwblProtocolStub.mintToken.callCount).equal(1);
     expect(vwblProtocolStub.mintToken.getCall(0).args[3]).equal(undefined);
-    expect(vwblProtocolStub.mintToken.getCall(0).args[4]).equal(undefined);
     expect(vwblApiStub.setKey.callCount).equal(1);
     expect(uploadEncryptedFileStub.callCount).equal(1);
     expect(uploadFileStub.callCount).equal(1);
@@ -131,13 +130,11 @@ describe("VWBL with web3.js", () => {
       testFunctions.uploadThumbnail,
       testFunctions.uploadMetadata,
       testSubscriber,
-      40000000000,
-      41000000000,
+      {maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000}
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
     expect(vwblProtocolStub.mintToken.getCall(1).args[3]).equal(40000000000);
-    expect(vwblProtocolStub.mintToken.getCall(1).args[4]).equal(41000000000);
     expect(vwblApiStub.setKey.callCount).equal(2);
     expect(uploadEncryptedFileStub.callCount).equal(2);
     expect(uploadFileStub.callCount).equal(2);
@@ -317,7 +314,6 @@ describe("VWBL with ethers.js", () => {
 
     expect(vwblProtocolStub.mintToken.callCount).equal(1);
     expect(vwblProtocolStub.mintToken.getCall(0).args[3]).equal(undefined);
-    expect(vwblProtocolStub.mintToken.getCall(0).args[4]).equal(undefined);
     expect(vwblApiStub.setKey.callCount).equal(5);
     expect(uploadEncryptedFileStub.callCount).equal(1);
     expect(uploadFileStub.callCount).equal(1);
@@ -349,13 +345,11 @@ describe("VWBL with ethers.js", () => {
       testFunctions.uploadThumbnail,
       testFunctions.uploadMetadata,
       testSubscriber,
-      40000000000,
-      41000000000,
+      {maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000}
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
     expect(vwblProtocolStub.mintToken.getCall(1).args[3]).equal(40000000000);
-    expect(vwblProtocolStub.mintToken.getCall(1).args[4]).equal(41000000000);
     expect(vwblApiStub.setKey.callCount).equal(6);
     expect(uploadEncryptedFileStub.callCount).equal(2);
     expect(uploadFileStub.callCount).equal(2);
