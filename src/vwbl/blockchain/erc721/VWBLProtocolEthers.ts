@@ -26,12 +26,11 @@ export class VWBLNFTEthers {
     decryptUrl: string,
     royaltiesPercentage: number,
     documentId: string,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
+    gasSettings?: { maxPriorityFeePerGas?: number; maxFeePerGas?: number }
   ) {
     const fee = await this.getFee();
     const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
-      getFeeSettingsBasedOnEnvironment(maxPriorityFeePerGas, maxFeePerGas);
+      getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
     console.log("transaction start");
     const tx = await this.contract.mint(decryptUrl, royaltiesPercentage, documentId, {
       value: fee,

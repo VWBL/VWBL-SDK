@@ -134,7 +134,7 @@ describe("VWBL with web3.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
-    expect(vwblProtocolStub.mintToken.getCall(1).args[3]).equal(40000000000);
+    expect(vwblProtocolStub.mintToken.getCall(1).args[3]).deep.equal({maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000});
     expect(vwblApiStub.setKey.callCount).equal(2);
     expect(uploadEncryptedFileStub.callCount).equal(2);
     expect(uploadFileStub.callCount).equal(2);
@@ -349,7 +349,7 @@ describe("VWBL with ethers.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
-    expect(vwblProtocolStub.mintToken.getCall(1).args[3]).equal(40000000000);
+    expect(vwblProtocolStub.mintToken.getCall(1).args[3]).deep.equal({maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000});
     expect(vwblApiStub.setKey.callCount).equal(6);
     expect(uploadEncryptedFileStub.callCount).equal(2);
     expect(uploadFileStub.callCount).equal(2);

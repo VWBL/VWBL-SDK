@@ -79,8 +79,6 @@ export class VWBLEthers extends VWBLBase {
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
    * @param subscriber - Optional: the subscriber for seeing progress
-   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
-   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns
    */
   managedCreateToken = async (
@@ -93,9 +91,7 @@ export class VWBLEthers extends VWBLBase {
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata,
-    subscriber?: ProgressSubscriber,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
+    subscriber?: ProgressSubscriber
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -103,13 +99,7 @@ export class VWBLEthers extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(
-      vwblNetworkUrl,
-      royaltiesPercentage,
-      documentId,
-      maxPriorityFeePerGas,
-      maxFeePerGas
-    );
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -196,8 +186,6 @@ export class VWBLEthers extends VWBLBase {
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param subscriber - Optional: the subscriber for seeing progress
-   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
-   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns
    */
   managedCreateTokenForIPFS = async (
@@ -207,9 +195,7 @@ export class VWBLEthers extends VWBLBase {
     thumbnailImage: File,
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
-    subscriber?: ProgressSubscriber,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
+    subscriber?: ProgressSubscriber
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -256,9 +242,7 @@ export class VWBLEthers extends VWBLBase {
       metadataUrl as string,
       vwblNetworkUrl,
       royaltiesPercentage,
-      documentId,
-      maxPriorityFeePerGas,
-      maxFeePerGas
+      documentId
     );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
@@ -303,24 +287,12 @@ export class VWBLEthers extends VWBLBase {
    * Mint new NFT
    *
    * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
-   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
-   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns The ID of minted NFT
    */
-  mintToken = async (
-    royaltiesPercentage: number,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
-  ): Promise<number> => {
+  mintToken = async (royaltiesPercentage: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(
-      vwblNetworkUrl,
-      royaltiesPercentage,
-      documentId,
-      maxPriorityFeePerGas,
-      maxFeePerGas
-    );
+    return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
   };
 
   /**
@@ -328,16 +300,9 @@ export class VWBLEthers extends VWBLBase {
    *
    * @param operator - The wallet address
    * @param tokenId - The ID of NFT
-   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
-   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    */
-  approve = async (
-    operator: string,
-    tokenId: number,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
-  ): Promise<void> => {
-    await this.nft.approve(operator, tokenId, maxPriorityFeePerGas, maxFeePerGas);
+  approve = async (operator: string, tokenId: number): Promise<void> => {
+    await this.nft.approve(operator, tokenId);
   };
 
   /**
@@ -354,11 +319,9 @@ export class VWBLEthers extends VWBLBase {
    * Allows `operator` to transfer all tokens that a person who calls this function
    *
    * @param operator - The wallet address
-   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
-   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    */
-  setApprovalForAll = async (operator: string, maxPriorityFeePerGas?: number, maxFeePerGas?: number): Promise<void> => {
-    await this.nft.setApprovalForAll(operator, maxPriorityFeePerGas, maxFeePerGas);
+  setApprovalForAll = async (operator: string): Promise<void> => {
+    await this.nft.setApprovalForAll(operator);
   };
 
   /**
@@ -377,16 +340,9 @@ export class VWBLEthers extends VWBLBase {
    *
    * @param to - The address that NFT will be transfered
    * @param tokenId - The ID of NFT
-   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
-   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    */
-  safeTransfer = async (
-    to: string,
-    tokenId: number,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
-  ): Promise<void> => {
-    await this.nft.safeTransfer(to, tokenId, maxPriorityFeePerGas, maxFeePerGas);
+  safeTransfer = async (to: string, tokenId: number): Promise<void> => {
+    await this.nft.safeTransfer(to, tokenId);
   };
 
   /**

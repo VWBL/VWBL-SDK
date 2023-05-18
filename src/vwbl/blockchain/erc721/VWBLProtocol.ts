@@ -21,13 +21,12 @@ export class VWBLNFT {
     decryptUrl: string,
     royaltiesPercentage: number,
     documentId: string,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
+    gasSettings?: { maxPriorityFeePerGas?: number; maxFeePerGas?: number }
   ) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
-      getFeeSettingsBasedOnEnvironment(maxPriorityFeePerGas, maxFeePerGas);
+      getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
     console.log("transaction start");
     const receipt = await this.contract.methods
       .mint(decryptUrl, royaltiesPercentage, documentId)
