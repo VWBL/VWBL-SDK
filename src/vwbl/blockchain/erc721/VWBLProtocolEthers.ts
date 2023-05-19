@@ -2,6 +2,8 @@ import { ethers } from "ethers";
 
 import vwbl from "../../../contract/VWBL.json";
 import vwblIPFS from "../../../contract/VWBLSupportIPFS.json";
+import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelper";
+import { GasSettings } from "../../types";
 
 export class VWBLNFTEthers {
   private ethersProvider: ethers.providers.BaseProvider;
@@ -21,20 +23,58 @@ export class VWBLNFTEthers {
       : new ethers.Contract(address, vwbl.abi, ethersSigner);
   }
 
-  async mintToken(decryptUrl: string, royaltiesPercentage: number, documentId: string) {
+  async mintToken(decryptUrl: string, royaltiesPercentage: number, documentId: string, gasSettings?: GasSettings) {
     const fee = await this.getFee();
     console.log("transaction start");
-    const tx = await this.contract.mint(decryptUrl, royaltiesPercentage, documentId, { value: fee });
+    if (gasSettings?.gasPrice) {
+      const tx = await this.contract.mint(decryptUrl, royaltiesPercentage, documentId, {
+        value: fee,
+        gasPrice: gasSettings?.gasPrice,
+      });
+      const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
+      console.log("transaction end");
+      const tokenId = parseToTokenId(receipt);
+      return tokenId;
+    }
+    const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+      getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+    const tx = await this.contract.mint(decryptUrl, royaltiesPercentage, documentId, {
+      value: fee,
+      maxPriorityFeePerGas: _maxPriorityFeePerGas,
+      maxFeePerGas: _maxFeePerGas,
+    });
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);
     return tokenId;
   }
 
-  async mintTokenForIPFS(metadataUrl: string, decryptUrl: string, royaltiesPercentage: number, documentId: string) {
+  async mintTokenForIPFS(
+    metadataUrl: string,
+    decryptUrl: string,
+    royaltiesPercentage: number,
+    documentId: string,
+    gasSettings?: GasSettings
+  ) {
     const fee = await this.getFee();
     console.log("transaction start");
-    const tx = await this.contract.mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId, { value: fee });
+    if (gasSettings?.gasPrice) {
+      const tx = await this.contract.mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId, {
+        value: fee,
+        gasPrice: gasSettings?.gasPrice,
+      });
+      const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
+      console.log("transaction end");
+      const tokenId = parseToTokenId(receipt);
+      return tokenId;
+    }
+    const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+      getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+    const tx = await this.contract.mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId, {
+      value: fee,
+      maxPriorityFeePerGas: _maxPriorityFeePerGas,
+      maxFeePerGas: _maxFeePerGas,
+    });
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);
@@ -88,8 +128,20 @@ export class VWBLNFTEthers {
     return await this.contract.callStatic.tokenIdToTokenInfo(tokenId);
   }
 
-  async approve(operator: string, tokenId: number): Promise<void> {
-    const tx = await this.contract.approve(operator, tokenId);
+  async approve(operator: string, tokenId: number, gasSettings?: GasSettings): Promise<void> {
+    if (gasSettings?.gasPrice) {
+      const gas = await this.contract.estimateGas.approve(operator, tokenId);
+      const tx = await this.contract.approve(operator, tokenId, {
+        gas,
+        gasPrice: gasSettings?.gasPrice,
+      });
+    }
+    const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+      getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+    const tx = await this.contract.approve(operator, tokenId, {
+      maxPriorityFeePerGas: _maxPriorityFeePerGas,
+      maxFeePerGas: _maxFeePerGas,
+    });
     await this.ethersProvider.waitForTransaction(tx.hash);
   }
 
@@ -97,8 +149,20 @@ export class VWBLNFTEthers {
     return await this.contract.callStatic.getApproved(tokenId);
   }
 
-  async setApprovalForAll(operator: string): Promise<void> {
-    const tx = await this.contract.setApprovalForAll(operator, true);
+  async setApprovalForAll(operator: string, gasSettings?: GasSettings): Promise<void> {
+    if (gasSettings?.gasPrice) {
+      const gas = await this.contract.estimateGas.setApprovalForAll(operator, true);
+      const tx = await this.contract.setApprovalForAll(operator, true, {
+        gas,
+        gasPrice: gasSettings?.gasPrice,
+      });
+    }
+    const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+      getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+    const tx = await this.contract.setApprovalForAll(operator, true, {
+      maxPriorityFeePerGas: _maxPriorityFeePerGas,
+      maxFeePerGas: _maxFeePerGas,
+    });
     await this.ethersProvider.waitForTransaction(tx.hash);
   }
 
@@ -106,9 +170,21 @@ export class VWBLNFTEthers {
     return await this.contract.callStatic.isApprovedForAll(owner, operator);
   }
 
-  async safeTransfer(to: string, tokenId: number): Promise<void> {
+  async safeTransfer(to: string, tokenId: number, gasSettings?: GasSettings): Promise<void> {
     const myAddress = await this.ethersSigner.getAddress();
-    const tx = await this.contract.safeTransferFrom(myAddress, to, tokenId);
+    if (gasSettings?.gasPrice) {
+      const gas = await this.contract.estimateGas.safeTransferFrom(myAddress, to, tokenId);
+      const tx = await this.contract.safeTransferFrom(myAddress, to, tokenId, {
+        gas,
+        gasPrice: gasSettings?.gasPrice,
+      });
+    }
+    const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+      getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+    const tx = await this.contract.safeTransferFrom(myAddress, to, tokenId, {
+      maxPriorityFeePerGas: _maxPriorityFeePerGas,
+      maxFeePerGas: _maxFeePerGas,
+    });
     await this.ethersProvider.waitForTransaction(tx.hash);
   }
 }
