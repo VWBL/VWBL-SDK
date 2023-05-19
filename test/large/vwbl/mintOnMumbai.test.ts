@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import * as dotenv from "dotenv";
-import sinon from "sinon";
 import Web3 from "web3";
 import { ethers } from "ethers";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -12,10 +11,6 @@ import {
   UploadContentType,
   UploadMetadataType,
   VWBL,
-  VWBLApi,
-  VWBLERC1155,
-  VWBLERC1155Contract,
-  VWBLNFT,
 } from "../../../src/vwbl";
 import HDWalletProvider from "@truffle/hdwallet-provider";
 import {provider} from "web3-core";
@@ -32,11 +27,9 @@ type GasInfo = {
 }
 
 const providerUrl = "https://rpc-mumbai.maticvigil.com/"
-// const providerUrl = process.env.POLYGON_PROVIDER_URL;
 const nftContractAddr = "0x5af2D607242f604C8f5e04e8B648741EE59ac847"; //mumbai
 // const nftContractAddr = "0xdE8Ac10E93698F6805E2B69599854408d1386417"; //polygon
 const networkUrl = "https://dev.vwbl.network/";
-// const networkUrl = "https://vwbl.network";
 // preparation for web3.js
 const hdWalletProvider = new HDWalletProvider({
   privateKeys: [process.env.PRIVATE_KEY as string],

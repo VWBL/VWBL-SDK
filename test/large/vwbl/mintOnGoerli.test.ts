@@ -10,25 +10,16 @@ import {
   ManageKeyType,
   UploadContentType,
   UploadMetadataType,
-  VWBL,
+  VWBL
 } from "../../../src/vwbl";
 import HDWalletProvider from "@truffle/hdwallet-provider";
 import {provider} from "web3-core";
 
 dotenv.config();
 
-type GasInfo = {
-  safeLow: { maxPriorityFee: number, maxFee: number },
-  standard: { maxPriorityFee: number, maxFee: number },
-  fast: { maxPriorityFee: number, maxFee: number },
-  estimatedBaseFee: number,
-  blockTime: number,
-  blockNumber: number
-}
-
-const providerUrl = process.env.POLYGON_PROVIDER_URL;
-const nftContractAddr = "0xdE8Ac10E93698F6805E2B69599854408d1386417"; //polygon
-const networkUrl = "https://vwbl.network";
+const providerUrl = process.env.GOERLI_PROVIDER_URL;
+const nftContractAddr = process.env.GOERLI_NFT_CONTRACT as string;
+const networkUrl = "https://dev.vwbl.network/";
 // preparation for web3.js
 const hdWalletProvider = new HDWalletProvider({
   privateKeys: [process.env.PRIVATE_KEY as string],
@@ -39,6 +30,8 @@ const web3 = new Web3(hdWalletProvider as provider);
 const privateKey = process.env.PRIVATE_KEY as string;
 const ethProvider = new ethers.providers.JsonRpcProvider(providerUrl);
 const ethSigner = new ethers.Wallet(privateKey, ethProvider);
+const maxPriorityFee_gwei = '1.5';
+const maxFee_gwei = '47.329387804';
 
 describe("VWBL with web3.js", () => {
   const vwbl = new VWBL({
@@ -56,16 +49,11 @@ describe("VWBL with web3.js", () => {
     kickStep: () => {},
   };
 
-  it("mint token with gas settings", async () => {
+  it.skip("mint token with maxPriorityFee and maxFee", async () => {
     await vwbl.sign();
 
-    const gasInfo = await fetchGasInfo();
-    if(!gasInfo){
-      throw Error('failed to fetch gas information about polygon')
-    }
-    console.log(gasInfo.standard);
-    const maxPriorityFee_wei = Number(web3.utils.toWei(String(gasInfo.standard.maxPriorityFee.toFixed(9)), 'gwei'));
-    const maxFee_wei = Number(web3.utils.toWei(String(gasInfo.standard.maxFee.toFixed(9)), 'gwei'));
+    const maxPriorityFee_wei = Number(web3.utils.toWei(maxPriorityFee_gwei, 'gwei'));
+    const maxFee_wei = Number(web3.utils.toWei(maxFee_gwei, 'gwei'));
 
     const tokenId = await vwbl.managedCreateTokenForIPFS(
       "test token",
@@ -90,7 +78,34 @@ describe("VWBL with web3.js", () => {
     expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
   });
 
-  it("mint token without gas settings", async () => {
+  it("mint token with gasPrice", async () => {
+    await vwbl.sign();
+
+    const gasPrice = Number(await web3.eth.getGasPrice());
+
+    const tokenId = await vwbl.managedCreateTokenForIPFS(
+      "test token",
+      "test",
+      new File({
+        name: "thumbnail image",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      new File({
+        name: "plain data",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      10,
+      "base64",
+      testSubscriber,
+      {gasPrice}
+    );
+    console.log(tokenId, typeof tokenId);
+    expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
+  });
+
+  it.skip("mint token without gas settings", async () => {
     await vwbl.sign();
 
     const tokenId = await vwbl.managedCreateTokenForIPFS(
@@ -131,16 +146,11 @@ describe("VWBL with ethers.js", () => {
     kickStep: () => {},
   };
 
-  it("mint token with gas settings", async () => {
+  it.skip("mint token with maxPriorityFee and maxFee", async () => {
     await vwbl.sign();
 
-    const gasInfo = await fetchGasInfo();
-    if(!gasInfo){
-      throw Error('failed to fetch gas information about polygon')
-    }
-    console.log(gasInfo.standard);
-    const maxPriorityFee_wei = Number(web3.utils.toWei(String(gasInfo.standard.maxPriorityFee.toFixed(9)), 'gwei'));
-    const maxFee_wei = Number(web3.utils.toWei(String(gasInfo.standard.maxFee.toFixed(9)), 'gwei'));
+    const maxPriorityFee_wei = Number(web3.utils.toWei(maxPriorityFee_gwei, 'gwei'));
+    const maxFee_wei = Number(web3.utils.toWei(maxFee_gwei, 'gwei'));
 
     const tokenId = await vwbl.managedCreateTokenForIPFS(
       "test token",
@@ -165,7 +175,34 @@ describe("VWBL with ethers.js", () => {
     expect(typeof tokenId).equal("number");
   });
 
-  it("mint token without gas settings", async () => {
+  it("mint token with gasPrice", async () => {
+    await vwbl.sign();
+
+    const gasPrice = Number(await web3.eth.getGasPrice());
+
+    const tokenId = await vwbl.managedCreateTokenForIPFS(
+      "test token",
+      "test",
+      new File({
+        name: "thumbnail image",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      new File({
+        name: "plain data",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      10,
+      "base64",
+      testSubscriber,
+      {gasPrice}
+    );
+    console.log(tokenId, typeof tokenId);
+    expect(typeof tokenId).equal("number");
+  });
+
+  it.skip("mint token without gas settings", async () => {
     await vwbl.sign();
 
     const tokenId = await vwbl.managedCreateTokenForIPFS(
@@ -188,16 +225,3 @@ describe("VWBL with ethers.js", () => {
     expect(typeof tokenId).equal("number");
   });
 });
-
-async function fetchGasInfo():Promise<GasInfo | undefined>{
-  try{
-    const response = await fetch('https://gasstation-mainnet.matic.network/v2')
-    const gasInfo = await response.json();
-    console.log(gasInfo);
-    
-    return gasInfo;
-  }catch(error){
-    console.log(error);
-    throw Error('failed to execute fetchGasInfo()')
-  }
-}

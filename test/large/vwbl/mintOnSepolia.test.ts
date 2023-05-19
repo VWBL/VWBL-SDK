@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import * as dotenv from "dotenv";
-import sinon from "sinon";
 import Web3 from "web3";
 import { ethers } from "ethers";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -11,11 +10,7 @@ import {
   ManageKeyType,
   UploadContentType,
   UploadMetadataType,
-  VWBL,
-  VWBLApi,
-  VWBLERC1155,
-  VWBLERC1155Contract,
-  VWBLNFT,
+  VWBL
 } from "../../../src/vwbl";
 import HDWalletProvider from "@truffle/hdwallet-provider";
 import {provider} from "web3-core";
