@@ -76,8 +76,8 @@ describe("VWBL with web3.js", () => {
       10,
       "base64",
       testSubscriber,
-      maxPriorityFee_wei,
-      maxFee_wei
+      {maxPriorityFeePerGas: maxPriorityFee_wei,
+        maxFeePerGas: maxFee_wei}
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
@@ -146,8 +146,8 @@ describe("VWBL with ethers.js", () => {
       10,
       "base64",
       testSubscriber,
-      maxPriorityFee_wei,
-      maxFee_wei
+      {maxPriorityFeePerGas: maxPriorityFee_wei,
+        maxFeePerGas: maxFee_wei}
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("number");

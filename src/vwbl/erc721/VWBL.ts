@@ -216,8 +216,7 @@ export class VWBL extends VWBLBase {
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
     subscriber?: ProgressSubscriber,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
+    gasSettings?: GasSettings
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -265,8 +264,7 @@ export class VWBL extends VWBLBase {
       vwblNetworkUrl,
       royaltiesPercentage,
       documentId,
-      maxPriorityFeePerGas,
-      maxFeePerGas
+      gasSettings
     );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
@@ -312,17 +310,14 @@ export class VWBL extends VWBLBase {
    * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns The ID of minted NFT
    */
-  // mintToken = async (royaltiesPercentage: number, gasSettings?: GasSettings): Promise<number> => {
-  //   const { vwblNetworkUrl } = this.opts;
-  //   const documentId = utils.hexlify(utils.randomBytes(32));
-  //   return await this.nft.mintToken(
-  //     vwblNetworkUrl,
-  //     royaltiesPercentage,
-  //     documentId,
-  //     gasSettings?.maxPriorityFeePerGas,
-  //     gasSettings?.maxFeePerGas
-  //   );
-  // };
+  mintToken = async (royaltiesPercentage: number, gasSettings?: GasSettings): Promise<number> => {
+    const { vwblNetworkUrl } = this.opts;
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId, {
+      maxPriorityFeePerGas: gasSettings?.maxPriorityFeePerGas,
+      maxFeePerGas: gasSettings?.maxFeePerGas,
+    });
+  };
 
   /**
    * Approves `operator` to transfer the given `tokenId`
@@ -332,13 +327,8 @@ export class VWBL extends VWBLBase {
    * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @param tokenId - The ID of NFT
    */
-  approve = async (
-    operator: string,
-    tokenId: number,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
-  ): Promise<void> => {
-    await this.nft.approve(operator, tokenId, maxPriorityFeePerGas, maxFeePerGas);
+  approve = async (operator: string, tokenId: number, gasSettings?: GasSettings): Promise<void> => {
+    await this.nft.approve(operator, tokenId, gasSettings);
   };
 
   /**
@@ -358,8 +348,8 @@ export class VWBL extends VWBLBase {
    * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
    * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    */
-  setApprovalForAll = async (operator: string, maxPriorityFeePerGas?: number, maxFeePerGas?: number): Promise<void> => {
-    await this.nft.setApprovalForAll(operator, maxPriorityFeePerGas, maxFeePerGas);
+  setApprovalForAll = async (operator: string, gasSettings?: GasSettings): Promise<void> => {
+    await this.nft.setApprovalForAll(operator, gasSettings);
   };
 
   /**
@@ -379,13 +369,8 @@ export class VWBL extends VWBLBase {
    * @param to - The address that NFT will be transfered
    * @param tokenId - The ID of NFT
    */
-  safeTransfer = async (
-    to: string,
-    tokenId: number,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
-  ): Promise<void> => {
-    await this.nft.safeTransfer(to, tokenId, maxPriorityFeePerGas, maxFeePerGas);
+  safeTransfer = async (to: string, tokenId: number, gasSettings?: GasSettings): Promise<void> => {
+    await this.nft.safeTransfer(to, tokenId, gasSettings);
   };
 
   /**
