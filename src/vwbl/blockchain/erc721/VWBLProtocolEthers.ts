@@ -27,10 +27,8 @@ export class VWBLNFTEthers {
     const fee = await this.getFee();
     console.log("transaction start");
     if (gasSettings?.gasPrice) {
-      const gas = await this.contract.estimateGas.mint(decryptUrl, royaltiesPercentage, documentId);
       const tx = await this.contract.mint(decryptUrl, royaltiesPercentage, documentId, {
         value: fee,
-        gas,
         gasPrice: gasSettings?.gasPrice,
       });
       const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
@@ -61,10 +59,8 @@ export class VWBLNFTEthers {
     const fee = await this.getFee();
     console.log("transaction start");
     if (gasSettings?.gasPrice) {
-      const gas = await this.contract.estimateGas.mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId);
       const tx = await this.contract.mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId, {
         value: fee,
-        gas,
         gasPrice: gasSettings?.gasPrice,
       });
       const receipt = await this.ethersProvider.waitForTransaction(tx.hash);

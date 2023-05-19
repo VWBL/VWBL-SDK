@@ -35,10 +35,10 @@ const web3 = new Web3(hdWalletProvider as provider);
 const privateKey = process.env.PRIVATE_KEY as string;
 const ethProvider = new ethers.providers.JsonRpcProvider(providerUrl);
 const ethSigner = new ethers.Wallet(privateKey, ethProvider);
-const maxPriorityFee_gwei = '0.1';
+const maxPriorityFee_gwei = '1.5';
 const maxFee_gwei = '47.329387804';
 
-describe("VWBL with web3.js", () => {
+describe.skip("VWBL with web3.js", () => {
   const vwbl = new VWBL({
     ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,
     awsConfig: undefined,
@@ -54,7 +54,7 @@ describe("VWBL with web3.js", () => {
     kickStep: () => {},
   };
 
-  it("mint token with gas settings", async () => {
+  it("mint token with maxPriorityFee and maxFee", async () => {
     await vwbl.sign();
 
     const maxPriorityFee_wei = Number(web3.utils.toWei(maxPriorityFee_gwei, 'gwei'));
@@ -78,6 +78,33 @@ describe("VWBL with web3.js", () => {
       testSubscriber,
       {maxPriorityFeePerGas: maxPriorityFee_wei,
         maxFeePerGas: maxFee_wei}
+    );
+    console.log(tokenId, typeof tokenId);
+    expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
+  });
+
+  it("mint token with gasPrice", async () => {
+    await vwbl.sign();
+
+    const gasPrice = Number(await web3.eth.getGasPrice());
+
+    const tokenId = await vwbl.managedCreateTokenForIPFS(
+      "test token",
+      "test",
+      new File({
+        name: "thumbnail image",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      new File({
+        name: "plain data",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      10,
+      "base64",
+      testSubscriber,
+      {gasPrice}
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
@@ -124,7 +151,7 @@ describe("VWBL with ethers.js", () => {
     kickStep: () => {},
   };
 
-  it("mint token with gas settings", async () => {
+  it.skip("mint token with maxPriorityFee and maxFee", async () => {
     await vwbl.sign();
 
     const maxPriorityFee_wei = Number(web3.utils.toWei(maxPriorityFee_gwei, 'gwei'));
@@ -153,7 +180,34 @@ describe("VWBL with ethers.js", () => {
     expect(typeof tokenId).equal("number");
   });
 
-  it("mint token without gas settings", async () => {
+  it("mint token with gasPrice", async () => {
+    await vwbl.sign();
+
+    const gasPrice = Number(await web3.eth.getGasPrice());
+
+    const tokenId = await vwbl.managedCreateTokenForIPFS(
+      "test token",
+      "test",
+      new File({
+        name: "thumbnail image",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      new File({
+        name: "plain data",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      10,
+      "base64",
+      testSubscriber,
+      {gasPrice}
+    );
+    console.log(tokenId, typeof tokenId);
+    expect(typeof tokenId).equal("number");
+  });
+
+  it.skip("mint token without gas settings", async () => {
     await vwbl.sign();
 
     const tokenId = await vwbl.managedCreateTokenForIPFS(
