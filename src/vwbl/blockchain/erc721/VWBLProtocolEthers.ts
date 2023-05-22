@@ -130,9 +130,7 @@ export class VWBLNFTEthers {
 
   async approve(operator: string, tokenId: number, gasSettings?: GasSettings): Promise<void> {
     if (gasSettings?.gasPrice) {
-      const gas = await this.contract.estimateGas.approve(operator, tokenId);
       const tx = await this.contract.approve(operator, tokenId, {
-        gas,
         gasPrice: gasSettings?.gasPrice,
       });
     }
@@ -151,9 +149,7 @@ export class VWBLNFTEthers {
 
   async setApprovalForAll(operator: string, gasSettings?: GasSettings): Promise<void> {
     if (gasSettings?.gasPrice) {
-      const gas = await this.contract.estimateGas.setApprovalForAll(operator, true);
       const tx = await this.contract.setApprovalForAll(operator, true, {
-        gas,
         gasPrice: gasSettings?.gasPrice,
       });
     }
@@ -173,9 +169,7 @@ export class VWBLNFTEthers {
   async safeTransfer(to: string, tokenId: number, gasSettings?: GasSettings): Promise<void> {
     const myAddress = await this.ethersSigner.getAddress();
     if (gasSettings?.gasPrice) {
-      const gas = await this.contract.estimateGas.safeTransferFrom(myAddress, to, tokenId);
       const tx = await this.contract.safeTransferFrom(myAddress, to, tokenId, {
-        gas,
         gasPrice: gasSettings?.gasPrice,
       });
     }
