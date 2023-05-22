@@ -20,6 +20,7 @@ import {
   ConstructorProps,
   EncryptLogic,
   EthersConstructorProps,
+  GasSettings,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -115,8 +116,7 @@ export class VWBLERC1155 extends VWBLBase {
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata,
     subscriber?: ProgressSubscriber,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
+    gasSettings?: GasSettings
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -129,8 +129,8 @@ export class VWBLERC1155 extends VWBLBase {
       amount,
       royaltiesPercentage,
       documentId,
-      maxPriorityFeePerGas,
-      maxFeePerGas
+      gasSettings?.maxPriorityFeePerGas,
+      gasSettings?.maxFeePerGas
     );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
@@ -231,8 +231,7 @@ export class VWBLERC1155 extends VWBLBase {
     royaltiesPercentage: number,
     encryptLogic: EncryptLogic = "base64",
     subscriber?: ProgressSubscriber,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
+    gasSettings?: GasSettings
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -281,8 +280,8 @@ export class VWBLERC1155 extends VWBLBase {
       amount,
       royaltiesPercentage,
       documentId,
-      maxPriorityFeePerGas,
-      maxFeePerGas
+      gasSettings?.maxPriorityFeePerGas,
+      gasSettings?.maxFeePerGas
     );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
@@ -309,12 +308,7 @@ export class VWBLERC1155 extends VWBLBase {
    * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns The ID of minted NFT
    */
-  mintToken = async (
-    amount: number,
-    royaltiesPercentage: number,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
-  ): Promise<number> => {
+  mintToken = async (amount: number, royaltiesPercentage: number, gasSettings?: GasSettings): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
     return await this.nft.mintToken(
@@ -322,8 +316,8 @@ export class VWBLERC1155 extends VWBLBase {
       amount,
       royaltiesPercentage,
       documentId,
-      maxPriorityFeePerGas,
-      maxFeePerGas
+      gasSettings?.maxPriorityFeePerGas,
+      gasSettings?.maxFeePerGas
     );
   };
 
@@ -341,10 +335,16 @@ export class VWBLERC1155 extends VWBLBase {
     tokenId: number,
     amount: number,
     data = "0x00",
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
+    gasSettings?: GasSettings
   ): Promise<void> => {
-    return await this.nft.safeTransfer(to, tokenId, amount, data, maxPriorityFeePerGas, maxFeePerGas);
+    return await this.nft.safeTransfer(
+      to,
+      tokenId,
+      amount,
+      data,
+      gasSettings?.maxPriorityFeePerGas,
+      gasSettings?.maxFeePerGas
+    );
   };
 
   /**
@@ -356,14 +356,8 @@ export class VWBLERC1155 extends VWBLBase {
    * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
    * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    */
-  burn = async (
-    owner: string,
-    tokenId: number,
-    amount: number,
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
-  ): Promise<void> => {
-    return await this.nft.burn(owner, tokenId, amount, maxPriorityFeePerGas, maxFeePerGas);
+  burn = async (owner: string, tokenId: number, amount: number, gasSettings?: GasSettings): Promise<void> => {
+    return await this.nft.burn(owner, tokenId, amount, gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
   };
 
   /**

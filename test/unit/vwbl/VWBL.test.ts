@@ -249,7 +249,7 @@ describe("VWBLERC1155 with web3.js", () => {
     expect(tokenId).equal(1);
   });
 
-  it("mint erc1155 token with gas settings", async () => {
+  it("mint erc1155 token with maxPriorityFee and maxFee", async () => {
     vwblProtocolStub.mintToken.returns(Promise.resolve(2));
     const testSubscriber = {
       kickStep: () => {}
@@ -274,8 +274,7 @@ describe("VWBLERC1155 with web3.js", () => {
       testFunctions.uploadThumbnail,
       testFunctions.uploadMetadata,
       testSubscriber,
-      40000000000,
-      41000000000,
+      {maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000}
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
@@ -501,7 +500,7 @@ describe("VWBLERC1155 with ethers.js", () => {
     expect(tokenId).equal(1);
   });
 
-  it("mint erc1155 token with gas settings", async () => {
+  it("mint erc1155 token with maxPriorityFee and maxFee", async () => {
     vwblProtocolStub.mintToken.returns(Promise.resolve(2));
     const testSubscriber = {
       kickStep: () => {}
@@ -526,8 +525,7 @@ describe("VWBLERC1155 with ethers.js", () => {
       testFunctions.uploadThumbnail,
       testFunctions.uploadMetadata,
       testSubscriber,
-      40000000000,
-      41000000000,
+      {maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000}
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
