@@ -31,9 +31,19 @@ export class VWBLERC1155EthersContract {
     gasSettings?: GasSettings
   ) {
     const fee = await this.getFee();
+    console.log("transaction start");
+    if (gasSettings?.gasPrice) {
+      const tx = await this.contract.mint(decryptUrl, amount, royaltiesPercentage, documentId, {
+        value: fee,
+        gasPrice: gasSettings?.gasPrice,
+      });
+      const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
+      console.log("transaction end");
+      const tokenId = parseToTokenId(receipt);
+      return tokenId;
+    }
     const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
       getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
-    console.log("transaction start");
     const tx = await this.contract.mint(decryptUrl, amount, royaltiesPercentage, documentId, {
       value: fee,
       maxPriorityFeePerGas: _maxPriorityFeePerGas,
@@ -53,10 +63,19 @@ export class VWBLERC1155EthersContract {
     gasSettings?: GasSettings
   ) {
     const fee = await this.getFee();
+    console.log("transaction start");
+    if (gasSettings?.gasPrice) {
+      const tx = await this.contract.mintBatch(decryptUrl, amount, royaltiesPercentage, documentId, {
+        value: fee,
+        gasPrice: gasSettings?.gasPrice,
+      });
+      const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
+      console.log("transaction end");
+      const tokenId = parseToTokenId(receipt);
+      return tokenId;
+    }
     const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
       getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
-
-    console.log("transaction start");
     const tx = await this.contract.mintBatch(decryptUrl, amount, royaltiesPercentage, documentId, {
       value: fee,
       maxPriorityFeePerGas: _maxPriorityFeePerGas,
@@ -77,10 +96,19 @@ export class VWBLERC1155EthersContract {
     gasSettings?: GasSettings
   ) {
     const fee = await this.getFee();
+    console.log("transaction start");
+    if (gasSettings?.gasPrice) {
+      const tx = await this.contract.mint(metadataUrl, decryptUrl, amount, royaltiesPercentage, documentId, {
+        value: fee,
+        gasPrice: gasSettings?.gasPrice,
+      });
+      const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
+      console.log("transaction end");
+      const tokenId = parseToTokenId(receipt);
+      return tokenId;
+    }
     const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
       getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
-
-    console.log("transaction start");
     const tx = await this.contract.mint(metadataUrl, decryptUrl, amount, royaltiesPercentage, documentId, {
       value: fee,
       maxPriorityFeePerGas: _maxPriorityFeePerGas,
@@ -101,9 +129,19 @@ export class VWBLERC1155EthersContract {
     gasSettings?: GasSettings
   ) {
     const fee = await this.getFee();
+    console.log("transaction start");
+    if (gasSettings?.gasPrice) {
+      const tx = await this.contract.mintBatch(metadataUrl, decryptUrl, amount, royaltiesPercentage, documentId, {
+        value: fee,
+        gasPrice: gasSettings?.gasPrice,
+      });
+      const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
+      console.log("transaction end");
+      const tokenId = parseToTokenId(receipt);
+      return tokenId;
+    }
     const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
       getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
-    console.log("transaction start");
     const tx = await this.contract.mintBatch(metadataUrl, decryptUrl, amount, royaltiesPercentage, documentId, {
       value: fee,
       maxPriorityFeePerGas: _maxPriorityFeePerGas,
@@ -163,9 +201,14 @@ export class VWBLERC1155EthersContract {
   }
 
   async setApprovalForAll(operator: string, gasSettings?: GasSettings): Promise<void> {
+    if (gasSettings?.gasPrice) {
+      const tx = await this.contract.setApprovalForAll(operator, true, {
+        gasPrice: gasSettings?.gasPrice,
+      });
+      await this.ethersProvider.waitForTransaction(tx.hash);
+    }
     const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
       getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
-
     const tx = await this.contract.setApprovalForAll(operator, true, {
       maxPriorityFeePerGas: _maxPriorityFeePerGas,
       maxFeePerGas: _maxFeePerGas,
@@ -184,10 +227,15 @@ export class VWBLERC1155EthersContract {
     data: string,
     gasSettings?: GasSettings
   ): Promise<void> {
+    const myAddress = await this.ethersSigner.getAddress();
+    if (gasSettings?.gasPrice) {
+      const tx = await this.contract.safeTransferFrom(myAddress, to, tokenId, amount, data, {
+        gasPrice: gasSettings?.gasPrice,
+      });
+      await this.ethersProvider.waitForTransaction(tx.hash);
+    }
     const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
       getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
-
-    const myAddress = await this.ethersSigner.getAddress();
     const tx = await this.contract.safeTransferFrom(myAddress, to, tokenId, amount, data, {
       maxPriorityFeePerGas: _maxPriorityFeePerGas,
       maxFeePerGas: _maxFeePerGas,
@@ -204,9 +252,14 @@ export class VWBLERC1155EthersContract {
   }
 
   async burn(owner: string, tokenId: number, amount: number, gasSettings?: GasSettings) {
+    if (gasSettings?.gasPrice) {
+      const tx = await this.contract.burn(owner, tokenId, amount, {
+        gasPrice: gasSettings?.gasPrice,
+      });
+      await this.ethersProvider.waitForTransaction(tx.hash);
+    }
     const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
       getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
-
     const tx = await this.contract.burn(owner, tokenId, amount, {
       maxPriorityFeePerGas: _maxPriorityFeePerGas,
       maxFeePerGas: _maxFeePerGas,
@@ -214,16 +267,15 @@ export class VWBLERC1155EthersContract {
     await this.ethersProvider.waitForTransaction(tx.hash);
   }
 
-  async burnBatch(
-    owner: string,
-    tokenIds: number[],
-    amount: number[],
-    maxPriorityFeePerGas?: number,
-    maxFeePerGas?: number
-  ) {
+  async burnBatch(owner: string, tokenIds: number[], amount: number[], gasSettings?: GasSettings) {
+    if (gasSettings?.gasPrice) {
+      const tx = await this.contract.burnBatch(owner, tokenIds, amount, {
+        gasPrice: gasSettings?.gasPrice,
+      });
+      await this.ethersProvider.waitForTransaction(tx.hash);
+    }
     const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
-      getFeeSettingsBasedOnEnvironment(maxPriorityFeePerGas, maxFeePerGas);
-
+      getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
     const tx = await this.contract.burnBatch(owner, tokenIds, amount, {
       maxPriorityFeePerGas: _maxPriorityFeePerGas,
       maxFeePerGas: _maxFeePerGas,

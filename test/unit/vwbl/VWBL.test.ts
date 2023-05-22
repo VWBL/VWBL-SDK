@@ -284,6 +284,43 @@ describe("VWBLERC1155 with web3.js", () => {
     expect(uploadMetadataStub.callCount).equal(2);
     expect(tokenId).equal(2);
   });
+
+  it("mint erc1155 token with gasPrice", async () => {
+    vwblProtocolStub.mintToken.returns(Promise.resolve(3));
+    const testSubscriber = {
+      kickStep: () => {}
+    }
+    const tokenId = await vwbl.managedCreateToken(
+      "test token",
+      "test",
+      100,
+      new File({
+        name: "thumbnail image",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      new File({
+        name: "plain data",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      10,
+      "base64",
+      testFunctions.uploadEncryptedFile,
+      testFunctions.uploadThumbnail,
+      testFunctions.uploadMetadata,
+      testSubscriber,
+      {gasPrice: 1000}
+    );
+
+    expect(vwblProtocolStub.mintToken.callCount).equal(3);
+    expect(vwblProtocolStub.mintToken.getCall(2).args[4]).deep.equal({gasPrice: 1000});
+    expect(vwblApiStub.setKey.callCount).equal(6);
+    expect(uploadEncryptedFileStub.callCount).equal(3);
+    expect(uploadFileStub.callCount).equal(3);
+    expect(uploadMetadataStub.callCount).equal(3);
+    expect(tokenId).equal(3);
+  });
 });
 
 describe("VWBL with ethers.js", () => {
@@ -347,7 +384,7 @@ describe("VWBL with ethers.js", () => {
 
     expect(vwblProtocolStub.mintToken.callCount).equal(1);
     expect(vwblProtocolStub.mintToken.getCall(0).args[3]).equal(undefined);
-    expect(vwblApiStub.setKey.callCount).equal(6);
+    expect(vwblApiStub.setKey.callCount).equal(7);
     expect(uploadEncryptedFileStub.callCount).equal(1);
     expect(uploadFileStub.callCount).equal(1);
     expect(uploadMetadataStub.callCount).equal(1);
@@ -383,7 +420,7 @@ describe("VWBL with ethers.js", () => {
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
     expect(vwblProtocolStub.mintToken.getCall(1).args[3]).deep.equal({maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000});
-    expect(vwblApiStub.setKey.callCount).equal(7);
+    expect(vwblApiStub.setKey.callCount).equal(8);
     expect(uploadEncryptedFileStub.callCount).equal(2);
     expect(uploadFileStub.callCount).equal(2);
     expect(uploadMetadataStub.callCount).equal(2);
@@ -419,7 +456,7 @@ describe("VWBL with ethers.js", () => {
 
     expect(vwblProtocolStub.mintToken.callCount).equal(3);
     expect(vwblProtocolStub.mintToken.getCall(2).args[3]).deep.equal({gasPrice: 1000});
-    expect(vwblApiStub.setKey.callCount).equal(8);
+    expect(vwblApiStub.setKey.callCount).equal(9);
     expect(uploadEncryptedFileStub.callCount).equal(3);
     expect(uploadFileStub.callCount).equal(3);
     expect(uploadMetadataStub.callCount).equal(3);
@@ -490,7 +527,7 @@ describe("VWBLERC1155 with ethers.js", () => {
 
     expect(vwblProtocolStub.mintToken.callCount).equal(1);
     expect(vwblProtocolStub.mintToken.getCall(0).args[4]).equal(undefined);
-    expect(vwblApiStub.setKey.callCount).equal(9);
+    expect(vwblApiStub.setKey.callCount).equal(10);
     expect(uploadEncryptedFileStub.callCount).equal(1);
     expect(uploadFileStub.callCount).equal(1);
     expect(uploadMetadataStub.callCount).equal(1);
@@ -527,10 +564,47 @@ describe("VWBLERC1155 with ethers.js", () => {
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
     expect(vwblProtocolStub.mintToken.getCall(1).args[4]).deep.equal({maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000});
-    expect(vwblApiStub.setKey.callCount).equal(10);
+    expect(vwblApiStub.setKey.callCount).equal(11);
     expect(uploadEncryptedFileStub.callCount).equal(2);
     expect(uploadFileStub.callCount).equal(2);
     expect(uploadMetadataStub.callCount).equal(2);
     expect(tokenId).equal(2);
+  });
+
+  it("mint erc1155 token with gasPrice", async () => {
+    vwblProtocolStub.mintToken.returns(Promise.resolve(3));
+    const testSubscriber = {
+      kickStep: () => {}
+    }
+    const tokenId = await vwbl.managedCreateToken(
+      "test token",
+      "test",
+      100,
+      new File({
+        name: "thumbnail image",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      new File({
+        name: "plain data",
+        type: "image/png",
+        buffer: Buffer.alloc(100),
+      }),
+      10,
+      "base64",
+      testFunctions.uploadEncryptedFile,
+      testFunctions.uploadThumbnail,
+      testFunctions.uploadMetadata,
+      testSubscriber,
+      {gasPrice: 1000}
+    );
+
+    expect(vwblProtocolStub.mintToken.callCount).equal(3);
+    expect(vwblProtocolStub.mintToken.getCall(2).args[4]).deep.equal({gasPrice: 1000});
+    expect(vwblApiStub.setKey.callCount).equal(12);
+    expect(uploadEncryptedFileStub.callCount).equal(3);
+    expect(uploadFileStub.callCount).equal(3);
+    expect(uploadMetadataStub.callCount).equal(3);
+    expect(tokenId).equal(3);
   });
 });
