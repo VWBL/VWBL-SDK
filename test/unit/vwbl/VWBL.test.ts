@@ -241,7 +241,6 @@ describe("VWBLERC1155 with web3.js", () => {
 
     expect(vwblProtocolStub.mintToken.callCount).equal(1);
     expect(vwblProtocolStub.mintToken.getCall(0).args[4]).equal(undefined);
-    expect(vwblProtocolStub.mintToken.getCall(0).args[5]).equal(undefined);
     expect(vwblApiStub.setKey.callCount).equal(4);
     expect(uploadEncryptedFileStub.callCount).equal(1);
     expect(uploadFileStub.callCount).equal(1);
@@ -278,8 +277,7 @@ describe("VWBLERC1155 with web3.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
-    expect(vwblProtocolStub.mintToken.getCall(1).args[4]).equal(40000000000);
-    expect(vwblProtocolStub.mintToken.getCall(1).args[5]).equal(41000000000);
+    expect(vwblProtocolStub.mintToken.getCall(1).args[4]).deep.equal({maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000});
     expect(vwblApiStub.setKey.callCount).equal(5);
     expect(uploadEncryptedFileStub.callCount).equal(2);
     expect(uploadFileStub.callCount).equal(2);
@@ -492,7 +490,6 @@ describe("VWBLERC1155 with ethers.js", () => {
 
     expect(vwblProtocolStub.mintToken.callCount).equal(1);
     expect(vwblProtocolStub.mintToken.getCall(0).args[4]).equal(undefined);
-    expect(vwblProtocolStub.mintToken.getCall(0).args[5]).equal(undefined);
     expect(vwblApiStub.setKey.callCount).equal(9);
     expect(uploadEncryptedFileStub.callCount).equal(1);
     expect(uploadFileStub.callCount).equal(1);
@@ -529,8 +526,7 @@ describe("VWBLERC1155 with ethers.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
-    expect(vwblProtocolStub.mintToken.getCall(1).args[4]).equal(40000000000);
-    expect(vwblProtocolStub.mintToken.getCall(1).args[5]).equal(41000000000);
+    expect(vwblProtocolStub.mintToken.getCall(1).args[4]).deep.equal({maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000});
     expect(vwblApiStub.setKey.callCount).equal(10);
     expect(uploadEncryptedFileStub.callCount).equal(2);
     expect(uploadFileStub.callCount).equal(2);

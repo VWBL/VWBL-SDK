@@ -124,14 +124,7 @@ export class VWBLERC1155 extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(
-      vwblNetworkUrl,
-      amount,
-      royaltiesPercentage,
-      documentId,
-      gasSettings?.maxPriorityFeePerGas,
-      gasSettings?.maxFeePerGas
-    );
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId, gasSettings);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -280,8 +273,7 @@ export class VWBLERC1155 extends VWBLBase {
       amount,
       royaltiesPercentage,
       documentId,
-      gasSettings?.maxPriorityFeePerGas,
-      gasSettings?.maxFeePerGas
+      gasSettings
     );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
@@ -311,14 +303,7 @@ export class VWBLERC1155 extends VWBLBase {
   mintToken = async (amount: number, royaltiesPercentage: number, gasSettings?: GasSettings): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(
-      vwblNetworkUrl,
-      amount,
-      royaltiesPercentage,
-      documentId,
-      gasSettings?.maxPriorityFeePerGas,
-      gasSettings?.maxFeePerGas
-    );
+    return await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId, gasSettings);
   };
 
   /**
@@ -337,14 +322,7 @@ export class VWBLERC1155 extends VWBLBase {
     data = "0x00",
     gasSettings?: GasSettings
   ): Promise<void> => {
-    return await this.nft.safeTransfer(
-      to,
-      tokenId,
-      amount,
-      data,
-      gasSettings?.maxPriorityFeePerGas,
-      gasSettings?.maxFeePerGas
-    );
+    return await this.nft.safeTransfer(to, tokenId, amount, data, gasSettings);
   };
 
   /**
@@ -357,7 +335,7 @@ export class VWBLERC1155 extends VWBLBase {
    * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    */
   burn = async (owner: string, tokenId: number, amount: number, gasSettings?: GasSettings): Promise<void> => {
-    return await this.nft.burn(owner, tokenId, amount, gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+    return await this.nft.burn(owner, tokenId, amount, gasSettings);
   };
 
   /**
