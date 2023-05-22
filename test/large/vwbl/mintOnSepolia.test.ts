@@ -33,7 +33,7 @@ const ethSigner = new ethers.Wallet(privateKey, ethProvider);
 const maxPriorityFee_gwei = '1.5';
 const maxFee_gwei = '47.329387804';
 
-describe.skip("VWBL with web3.js", () => {
+describe("VWBL with web3.js", () => {
   const vwbl = new VWBL({
     ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,
     awsConfig: undefined,
@@ -146,7 +146,7 @@ describe("VWBL with ethers.js", () => {
     kickStep: () => {},
   };
 
-  it.skip("mint token with maxPriorityFee and maxFee", async () => {
+  it("mint token with maxPriorityFee and maxFee", async () => {
     await vwbl.sign();
 
     const maxPriorityFee_wei = Number(web3.utils.toWei(maxPriorityFee_gwei, 'gwei'));
@@ -202,7 +202,7 @@ describe("VWBL with ethers.js", () => {
     expect(typeof tokenId).equal("number");
   });
 
-  it.skip("mint token without gas settings", async () => {
+  it("mint token without gas settings", async () => {
     await vwbl.sign();
 
     const tokenId = await vwbl.managedCreateTokenForIPFS(
