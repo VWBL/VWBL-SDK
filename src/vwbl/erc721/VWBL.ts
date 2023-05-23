@@ -294,7 +294,7 @@ export class VWBL extends VWBLBase {
     return await this._setKey(documentId, chainId, key, signerAddress, hasNonce, autoMigration);
   };
 
-  getKey = async (tokenId:number ): Promise<string> => {
+  getKey = async (tokenId: number): Promise<string> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
     const chainId =
       "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
@@ -302,7 +302,7 @@ export class VWBL extends VWBLBase {
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
         : await this._getAddressBySigner(this.opts.ethersSigner);
-    return  await this._getKey(documentId, chainId, signerAddress);
+    return await this._getKey(documentId, chainId, signerAddress);
   };
 
   /**
@@ -526,7 +526,7 @@ export class VWBL extends VWBLBase {
       id: tokenId,
       mimeType: metadata.mime_type,
       encryptLogic: metadata.encrypt_logic,
-      ...metadata
+      ...metadata,
     };
   };
 

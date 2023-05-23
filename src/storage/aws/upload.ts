@@ -77,5 +77,5 @@ export const uploadMetadata = async (
     },
   });
   const uploadMetadata = await upload.promise();
-  return `${awsConfig.cloudFrontUrl.replace(/\/$/, "")}/${uploadMetadata.Key}`
+  return `${awsConfig.cloudFrontUrl.replace(/\/$/, "")}/${uploadMetadata.Key}`;
 };
