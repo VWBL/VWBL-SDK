@@ -28,7 +28,6 @@ type GasInfo = {
 
 const providerUrl = "https://rpc-mumbai.maticvigil.com/"
 const nftContractAddr = "0x5af2D607242f604C8f5e04e8B648741EE59ac847"; //mumbai
-// const nftContractAddr = "0xdE8Ac10E93698F6805E2B69599854408d1386417"; //polygon
 const networkUrl = "https://dev.vwbl.network/";
 // preparation for web3.js
 const hdWalletProvider = new HDWalletProvider({

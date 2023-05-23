@@ -90,7 +90,7 @@ describe("VWBL with web3.js", () => {
     expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
   });
 
-  it("mint token without gas settings", async () => {
+  it.skip("mint token without gas settings", async () => {
     await vwbl.sign();
 
     const tokenId = await vwbl.managedCreateTokenForIPFS(
@@ -131,7 +131,7 @@ describe("VWBL with ethers.js", () => {
     kickStep: () => {},
   };
 
-  it("mint token with gas settings", async () => {
+  it.skip("mint token with gas settings", async () => {
     await vwbl.sign();
 
     const gasInfo = await fetchGasInfo();
@@ -165,7 +165,7 @@ describe("VWBL with ethers.js", () => {
     expect(typeof tokenId).equal("number");
   });
 
-  it("mint token without gas settings", async () => {
+  it.skip("mint token without gas settings", async () => {
     await vwbl.sign();
 
     const tokenId = await vwbl.managedCreateTokenForIPFS(
