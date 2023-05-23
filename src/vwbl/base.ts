@@ -127,11 +127,7 @@ export class VWBLBase {
    * @param address address
    *
    */
-  protected _getKey = async (
-    documentId: string,
-    chainId: number,
-    address?: string,
-  ): Promise<string> => {
+  protected _getKey = async (documentId: string, chainId: number, address?: string): Promise<string> => {
     if (!this.signature) {
       throw "please sign first";
     }
