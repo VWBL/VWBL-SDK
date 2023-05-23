@@ -131,7 +131,7 @@ describe("VWBL with ethers.js", () => {
     kickStep: () => {},
   };
 
-  it.skip("mint token with gas settings", async () => {
+  it("mint token with gas settings", async () => {
     await vwbl.sign();
 
     const gasInfo = await fetchGasInfo();
