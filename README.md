@@ -61,9 +61,7 @@ AWSConfig
 Signing is necessary before creating token or viewing contents.
 
 ```typescript
-if (!vwbl.signature) {
-  await vwbl.sign();
-}
+await vwbl.sign();
 ```
 
 ### create token
