@@ -61,7 +61,9 @@ AWSConfig
 Signing is necessary before creating token or viewing contents.
 
 ```typescript
-await vwbl.sign();
+if (!vwbl.signature) {
+  await vwbl.sign();
+}
 ```
 
 ### create token
@@ -86,11 +88,10 @@ Arguments
 | thumbnailImage              | true                                 | File                | [ERC721](https://eips.ethereum.org/EIPS/eip-721) metadata image                                                                              |
 | royaltiesPercentage         | true                                 | number              | If the marketplace supports EIP2981, this percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold |
 | encryptLogic                | false (default="base64")             | EncryptLogic        | "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.                            |
-| hasNonce                    | false (default=false)                | boolean             | whether to contain account's nonce in signature                                                                                              |
-| autoMigration               | false (default=false)                | boolean             | whether to deligate to destribute key fragments of a split key when new one was created                                                      |
 | uploadEncryptedFileCallback | true if uploadContentType is CUSTOM  | UploadEncryptedFile | you can custom upload function                                                                                                               |
 | uploadThumbnailCallback     | true if uploadContentType is CUSTOM  | UploadThumbnail     | you can custom upload function                                                                                                               |
 | uploadMetadataCallback      | true if uploadMetadataType is CUSTOM | UploadMetadata      | you can custom upload function                                                                                                               |
+| gasSettings                 | false                                | GasSettings         | you can custom gas settings                                                                                                               |
 
 ### view contents ( get NFT metadata from given tokenId)
 
