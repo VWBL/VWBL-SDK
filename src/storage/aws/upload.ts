@@ -27,7 +27,6 @@ export const uploadEncryptedFile = async (
       identityPoolId: awsConfig.idPoolId
     }) 
     : fromIni({ profile: awsConfig.profile });
-  
   const s3Client = new S3Client({ credentials });
   
   const key = `data/${uuid}-${fileName}.vwbl`;
