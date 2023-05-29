@@ -1,4 +1,5 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { fromCognitoIdentityPool, fromIni } from "@aws-sdk/credential-providers";
 import { Upload } from "@aws-sdk/lib-storage";
 import * as Stream from "stream";
 
@@ -6,7 +7,6 @@ import { getMimeType, toArrayBuffer } from "../../util/fileHelper";
 import { PlainMetadata } from "../../vwbl/metadata";
 import { EncryptLogic } from "../../vwbl/types";
 import { AWSConfig } from "./types";
-import { fromCognitoIdentityPool, fromIni } from "@aws-sdk/credential-providers";
 
 export const uploadEncryptedFile = async (
   fileName: string,
@@ -18,17 +18,17 @@ export const uploadEncryptedFile = async (
     throw new Error("bucket is not specified.");
   }
   if (!awsConfig.idPoolId && !awsConfig.profile) {
-    throw new Error("aws credential environment variable is not specified.")
+    throw new Error("aws credential environment variable is not specified.");
   }
 
-  const credentials = awsConfig.idPoolId ? 
-    fromCognitoIdentityPool({
-      clientConfig: { region: awsConfig.region },
-      identityPoolId: awsConfig.idPoolId
-    }) 
+  const credentials = awsConfig.idPoolId
+    ? fromCognitoIdentityPool({
+        clientConfig: { region: awsConfig.region },
+        identityPoolId: awsConfig.idPoolId,
+      })
     : fromIni({ profile: awsConfig.profile });
   const s3Client = new S3Client({ credentials });
-  
+
   const key = `data/${uuid}-${fileName}.vwbl`;
   const upload = new Upload({
     client: s3Client,
@@ -36,12 +36,12 @@ export const uploadEncryptedFile = async (
       Bucket: awsConfig.bucketName.content,
       Key: key,
       Body: encryptedContent,
-      ACL:"public-read",
-    }
+      ACL: "public-read",
+    },
   });
 
   await upload.done();
-  return `${awsConfig.cloudFrontUrl.replace(/\/$/, "")}/${key}`
+  return `${awsConfig.cloudFrontUrl.replace(/\/$/, "")}/${key}`;
 };
 
 export const uploadThumbnail = async (thumbnailImage: File, uuid: string, awsConfig?: AWSConfig): Promise<string> => {
@@ -49,17 +49,17 @@ export const uploadThumbnail = async (thumbnailImage: File, uuid: string, awsCon
     throw new Error("bucket is not specified.");
   }
   if (!awsConfig.idPoolId && !awsConfig.profile) {
-    throw new Error("aws credential environment variable is not specified.")
+    throw new Error("aws credential environment variable is not specified.");
   }
 
-  const credentials = awsConfig.idPoolId ? 
-    fromCognitoIdentityPool({
-      clientConfig: { region: awsConfig.region },
-      identityPoolId: awsConfig.idPoolId
-    }) 
+  const credentials = awsConfig.idPoolId
+    ? fromCognitoIdentityPool({
+        clientConfig: { region: awsConfig.region },
+        identityPoolId: awsConfig.idPoolId,
+      })
     : fromIni({ profile: awsConfig.profile });
   const s3Client = new S3Client({ credentials });
-  
+
   const key = `data/${uuid}-${thumbnailImage.name}`;
   const type = getMimeType(thumbnailImage);
   const isRunningOnBrowser = typeof window !== "undefined";
@@ -68,9 +68,9 @@ export const uploadThumbnail = async (thumbnailImage: File, uuid: string, awsCon
     Key: key,
     Body: isRunningOnBrowser ? thumbnailImage : new Uint8Array(await toArrayBuffer(thumbnailImage)),
     ContentType: type,
-    ACL:"public-read",
+    ACL: "public-read",
   });
-  
+
   await s3Client.send(uploadCommand);
   return `${awsConfig.cloudFrontUrl.replace(/\/$/, "")}/${key}`;
 };
@@ -89,14 +89,14 @@ export const uploadMetadata = async (
     throw new Error("bucket is not specified.");
   }
   if (!awsConfig.idPoolId && !awsConfig.profile) {
-    throw new Error("aws credential environment variable is not specified.")
+    throw new Error("aws credential environment variable is not specified.");
   }
 
-  const credentials = awsConfig.idPoolId ? 
-    fromCognitoIdentityPool({
-      clientConfig: { region: awsConfig.region },
-      identityPoolId: awsConfig.idPoolId
-    }) 
+  const credentials = awsConfig.idPoolId
+    ? fromCognitoIdentityPool({
+        clientConfig: { region: awsConfig.region },
+        identityPoolId: awsConfig.idPoolId,
+      })
     : fromIni({ profile: awsConfig.profile });
   const s3Client = new S3Client({ credentials });
 
@@ -117,6 +117,6 @@ export const uploadMetadata = async (
     ACL: "public-read",
   });
   await s3Client.send(uploadCommand);
-  
+
   return `${awsConfig.cloudFrontUrl.replace(/\/$/, "")}/${key}`;
-}; 
+};
