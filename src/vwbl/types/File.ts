@@ -1,10 +1,10 @@
-import { Stream } from "aws-sdk/clients/ivs";
+import * as Stream from "stream";
 
 import { EncryptLogic } from "./EncryptLogic";
 
 type UploadEncryptedFile = (
   fileName: string,
-  encryptedContent: string | ArrayBuffer | Stream,
+  encryptedContent: string | Uint8Array | Stream.Readable,
   uuid: string
 ) => Promise<string>;
 

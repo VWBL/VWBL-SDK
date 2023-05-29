@@ -5,7 +5,7 @@ import Web3 from "web3";
 import { ethers } from "ethers";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const FileAPI = require("file-api"),
-  File = FileAPI.File;
+File = FileAPI.File;
 
 import {
   ManageKeyType,
