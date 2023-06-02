@@ -15,14 +15,7 @@ export class VWBLApi {
     address?: string,
     autoMigration?: boolean
   ) {
-    const validatorInfo = (await this.instance.get("/api/v1/validator_info").catch(() => undefined))?.data;
-    const shares = secrets.share(secrets.str2hex(key), validatorInfo.m, validatorInfo.n)
-    const keyMapping: { [key: string]: string } = {};
-    for (let i = 0; i < validatorInfo.m; i++) {
-      const pubKey = new PublicKey(Buffer.from(validatorInfo.publicKeys[i], 'hex'));
-      const encryptedShare = encrypt(pubKey.toHex(), Buffer.from(shares[i]));
-      keyMapping[validatorInfo.publicKeys[i]] = encryptedShare.toString('hex');
-    }
+    const keyMapping = await this.constractKeyMapping(key);
     await this.instance.post("/api/v1/keys", {
       userSig: signature,
       documentId,
@@ -31,6 +24,23 @@ export class VWBLApi {
       keyMapping
     })
   }
+
+  async migrateKey(
+    documentId: string,
+    chainId: number,
+    key: string,
+    signature: string,
+    address?: string,
+  ) {
+    const keyMapping = await this.constractKeyMapping(key);
+    await this.instance.post("api/v1/migrate", {
+      userSig: signature,
+      documentId,
+      chainId,
+      keyMapping
+    })
+  }
+
 
   async getKey(documentId: string, chainId: number, signature: string, address?: string): Promise<string> {
     const privKey = new PrivateKey();
@@ -45,5 +55,17 @@ export class VWBLApi {
   async getSignMessage(contractAddress: string, chainId: number, address?: string): Promise<string> {
     const response = await this.instance.get(`/signature/${contractAddress}/${chainId}?address=${address}`);
     return response.data.signMessage;
+  }
+
+  private async constractKeyMapping(key: string) {
+    const validatorInfo = (await this.instance.get("/api/v1/validator_info").catch(() => undefined))?.data;
+    const shares = secrets.share(secrets.str2hex(key), validatorInfo.m, validatorInfo.n)
+    const keyMapping: { [key: string]: string } = {};
+    for (let i = 0; i < validatorInfo.m; i++) {
+      const pubKey = new PublicKey(Buffer.from(validatorInfo.publicKeys[i], 'hex'));
+      const encryptedShare = encrypt(pubKey.toHex(), Buffer.from(shares[i]));
+      keyMapping[validatorInfo.publicKeys[i]] = encryptedShare.toString('hex');
+    }
+    return keyMapping;
   }
 }
