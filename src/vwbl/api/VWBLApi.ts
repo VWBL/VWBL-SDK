@@ -28,10 +28,10 @@ export class VWBLApi {
   async migrateKey(
     documentId: string,
     chainId: number,
-    key: string,
     signature: string,
     address?: string,
   ) {
+    const key = await this.getKey(documentId, chainId, signature);
     const keyMapping = await this.constractKeyMapping(key);
     await this.instance.post("api/v1/migrate", {
       userSig: signature,
