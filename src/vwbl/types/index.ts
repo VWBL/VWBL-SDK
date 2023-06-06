@@ -6,3 +6,4 @@ export * from "./EncryptLogic";
 export * from "./ProgressSubscriber";
 export * from "./BiconomyConfigType";
 export * from "./ConstructorPropsType";
+export * from "./GasSettings";
