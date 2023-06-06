@@ -300,6 +300,17 @@ export class VWBL extends VWBLBase {
     return await this._setKey(documentId, chainId, key, signerAddress, hasNonce, autoMigration);
   };
 
+  getKey = async (tokenId: number): Promise<string> => {
+    const { documentId } = await this.nft.getTokenInfo(tokenId);
+    const chainId =
+      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
+    const signerAddress =
+      "web3" in this.opts
+        ? await this._getAddressBySigner(this.opts.web3)
+        : await this._getAddressBySigner(this.opts.ethersSigner);
+    return await this._getKey(documentId, chainId, signerAddress);
+  };
+
   /**
    * Mint new NFT
    *
@@ -315,6 +326,19 @@ export class VWBL extends VWBLBase {
       maxPriorityFeePerGas: gasSettings?.maxPriorityFeePerGas,
       maxFeePerGas: gasSettings?.maxFeePerGas,
     });
+  };
+
+  /**
+   * Mint new NFT
+   *
+   * @param metadataUrl metadata url
+   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @returns The ID of minted NFT
+   */
+  mintTokenForIPFS = async (metadataUrl: string, royaltiesPercentage: number): Promise<number> => {
+    const { vwblNetworkUrl } = this.opts;
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, royaltiesPercentage, documentId);
   };
 
   /**
@@ -514,11 +538,9 @@ export class VWBL extends VWBLBase {
     }
     return {
       id: tokenId,
-      name: metadata.name,
-      description: metadata.description,
-      image: metadata.image,
       mimeType: metadata.mime_type,
       encryptLogic: metadata.encrypt_logic,
+      ...metadata,
     };
   };
 
@@ -584,11 +606,9 @@ export class VWBL extends VWBLBase {
       .replace(/\.vwbl/, "");
     return {
       id: tokenId,
-      name: metadata.name,
-      description: metadata.description,
-      image: metadata.image,
       mimeType: metadata.mime_type,
       encryptLogic: metadata.encrypt_logic,
+      ...metadata,
       ownDataBase64,
       ownFiles,
       fileName,

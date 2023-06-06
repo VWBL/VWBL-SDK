@@ -10,8 +10,8 @@ import {
   encryptFile,
   encryptStream,
   encryptString,
-} from "../util/cryptoHelper";
-import { toBase64FromBlob } from "../util/fileHelper";
+  toBase64FromBlob,
+} from "../util";
 import { VWBLApi } from "./api";
 import { signToProtocol } from "./blockchain";
 import { BaseConstructorProps, UploadContentType, UploadMetadataType } from "./types";
@@ -109,8 +109,22 @@ export class VWBLBase {
     if (!this.signature) {
       throw "please sign first";
     }
-
     await this.api.setKey(documentId, chainId, key, this.signature, address);
+  };
+
+  /**
+   * Set key to VWBL Network
+   *
+   * @param documentId - DocumentId
+   * @param chainId - The indentifier of blockchain
+   * @param address address
+   *
+   */
+  protected _getKey = async (documentId: string, chainId: number, address?: string): Promise<string> => {
+    if (!this.signature) {
+      throw "please sign first";
+    }
+    return await this.api.getKey(documentId, chainId, this.signature, address);
   };
 
   /**
