@@ -1,6 +1,7 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { fromCognitoIdentityPool, fromIni } from "@aws-sdk/credential-providers";
 import { Upload } from "@aws-sdk/lib-storage";
+import * as fs from "fs";
 import * as Stream from "stream";
 
 import { getMimeType, toArrayBuffer } from "../../util/fileHelper";
@@ -119,4 +120,42 @@ export const uploadMetadata = async (
   await s3Client.send(uploadCommand);
 
   return `${awsConfig.cloudFrontUrl.replace(/\/$/, "")}/${key}`;
+};
+
+export const uploadDirectoryToS3 = (directoryPath: string, awsConfig?: AWSConfig) => {
+  if (!awsConfig || !awsConfig.bucketName.content) {
+    throw new Error("bucket is not specified.");
+  }
+  if (!awsConfig.idPoolId && !awsConfig.profile) {
+    throw new Error("aws credential environment variable is not specified.");
+  }
+
+  const credentials = awsConfig.idPoolId
+    ? fromCognitoIdentityPool({
+        clientConfig: { region: awsConfig.region },
+        identityPoolId: awsConfig.idPoolId,
+      })
+    : fromIni({ profile: awsConfig.profile });
+  const s3Client = new S3Client({ credentials });
+
+  fs.readdir(directoryPath, (err, files) => {
+    if (err) throw err;
+    files.forEach((file) => {
+      const filePath = `${directoryPath}/${file}`;
+      fs.readFile(filePath, async (err, data) => {
+        if (err) throw err;
+
+        const upload = new Upload({
+          client: s3Client,
+          params: {
+            Bucket: awsConfig.bucketName.content,
+            Key: `${directoryPath}/${file}`,
+            Body: data,
+            ACL: "public-read",
+          },
+        });
+        await upload.done();
+      });
+    });
+  });
 };
