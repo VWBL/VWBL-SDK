@@ -90,7 +90,7 @@ export class VWBL extends VWBLBase {
    * @param description - The NFT description
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
@@ -201,7 +201,7 @@ export class VWBL extends VWBLBase {
    * @param description - The NFT description
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param subscriber - Optional: the subscriber for seeing progress
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
@@ -315,7 +315,7 @@ export class VWBL extends VWBLBase {
   /**
    * Mint new NFT
    *
-   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
    * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns The ID of minted NFT
@@ -333,7 +333,7 @@ export class VWBL extends VWBLBase {
    * Mint new NFT
    *
    * @param metadataUrl metadata url
-   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @returns The ID of minted NFT
    */
   mintTokenForIPFS = async (metadataUrl: string, feeNumerator: number): Promise<number> => {

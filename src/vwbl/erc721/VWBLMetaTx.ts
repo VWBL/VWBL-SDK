@@ -80,7 +80,7 @@ export class VWBLMetaTx extends VWBLBase {
    * @param description - The NFT description
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param mintApiId - The mint method api id of biconomy
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
@@ -186,7 +186,7 @@ export class VWBLMetaTx extends VWBLBase {
    * @param description - The NFT description
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param mintApiId - The mint method api id of biconomy
    * @param subscriber - Optional: the subscriber for seeing progress
@@ -286,7 +286,7 @@ export class VWBLMetaTx extends VWBLBase {
   /**
    * Mint new NFT
    *
-   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param mintApiId - The mint method api id of biconomy
    * @returns The ID of minted NFT
    */

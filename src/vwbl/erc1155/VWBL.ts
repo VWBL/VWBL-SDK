@@ -94,7 +94,7 @@ export class VWBLERC1155 extends VWBLBase {
    * * @param amount - The amount of erc1155 tokens to be minted
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
@@ -207,7 +207,7 @@ export class VWBLERC1155 extends VWBLBase {
    * @param amount - The amount of erc1155 tokens to be minted
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param subscriber - Optional: the subscriber for seeing progress
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
@@ -293,7 +293,7 @@ export class VWBLERC1155 extends VWBLBase {
    * Mint new ERC1155 NFT
    *
    * @param amount - The amount of erc1155 tokens to be minted
-   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    * @returns The ID of minted NFT
    */
