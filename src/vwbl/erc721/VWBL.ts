@@ -2,7 +2,7 @@ import axios from "axios";
 import { utils } from "ethers";
 import * as fs from "fs";
 
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload";
+import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
 import {
   createRandomKey,
   decryptFile,
@@ -11,8 +11,9 @@ import {
   encryptFile,
   encryptStream,
   encryptString,
-} from "../../util/cryptoHelper";
-import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
+  getMimeType,
+  toBase64FromBlob,
+} from "../../util";
 import { VWBLBase } from "../base";
 import { VWBLNFT, VWBLNFTEthers } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";

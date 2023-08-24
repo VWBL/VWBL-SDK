@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
-import vwbl1155 from "../../../contract/VWBLERC1155.json";
-import vwbl1155IPFS from "../../../contract/VWBLERC1155SupportIPFS.json";
+import vwbl1155 from "../../../contract/VWBLERC1155ERC2981.json";
+import vwbl1155IPFS from "../../../contract/VWBLERC1155ERC2981ForMetadata.json";
 import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelper";
 import { GasSettings } from "../../types";
 

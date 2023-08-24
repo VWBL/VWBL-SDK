@@ -2,8 +2,8 @@ import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
 import { AbiItem } from "web3-utils";
 
-import vwbl from "../../../contract/VWBL.json";
-import vwblIPFS from "../../../contract/VWBLSupportIPFS.json";
+import vwbl from "../../../contract/VWBLERC721ERC2981.json";
+import vwblIPFS from "../../../contract/VWBLERC721ERC2981ForMetadata.json";
 import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelper";
 import { GasSettings } from "../../types";
 
