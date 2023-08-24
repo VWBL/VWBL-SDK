@@ -94,7 +94,7 @@ export class VWBLERC1155 extends VWBLBase {
    * * @param amount - The amount of erc1155 tokens to be minted
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
@@ -109,7 +109,7 @@ export class VWBLERC1155 extends VWBLBase {
     amount: number,
     plainFile: File | File[],
     thumbnailImage: File,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
@@ -123,7 +123,7 @@ export class VWBLERC1155 extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId, gasSettings);
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId, gasSettings);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -207,7 +207,7 @@ export class VWBLERC1155 extends VWBLBase {
    * @param amount - The amount of erc1155 tokens to be minted
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param subscriber - Optional: the subscriber for seeing progress
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
@@ -219,7 +219,7 @@ export class VWBLERC1155 extends VWBLBase {
     amount: number,
     plainFile: File | File[],
     thumbnailImage: File,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     subscriber?: ProgressSubscriber,
     gasSettings?: GasSettings
@@ -269,7 +269,7 @@ export class VWBLERC1155 extends VWBLBase {
       metadataUrl as string,
       vwblNetworkUrl,
       amount,
-      royaltiesPercentage,
+      feeNumerator,
       documentId,
       gasSettings
     );
@@ -293,14 +293,14 @@ export class VWBLERC1155 extends VWBLBase {
    * Mint new ERC1155 NFT
    *
    * @param amount - The amount of erc1155 tokens to be minted
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    * @returns The ID of minted NFT
    */
-  mintToken = async (amount: number, royaltiesPercentage: number, gasSettings?: GasSettings): Promise<number> => {
+  mintToken = async (amount: number, feeNumerator: number, gasSettings?: GasSettings): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId, gasSettings);
+    return await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId, gasSettings);
   };
 
   /**

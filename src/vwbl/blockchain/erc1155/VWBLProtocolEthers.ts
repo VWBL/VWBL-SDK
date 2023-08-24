@@ -26,7 +26,7 @@ export class VWBLERC1155EthersContract {
   async mintToken(
     decryptUrl: string,
     amount: number,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     documentId: string,
     gasSettings?: GasSettings
   ) {
@@ -47,7 +47,7 @@ export class VWBLERC1155EthersContract {
       };
     }
     console.log("transaction start");
-    const tx = await this.contract.mint(decryptUrl, amount, royaltiesPercentage, documentId, txSettings);
+    const tx = await this.contract.mint(decryptUrl, amount, feeNumerator, documentId, txSettings);
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);
@@ -57,7 +57,7 @@ export class VWBLERC1155EthersContract {
   async batchMintToken(
     decryptUrl: string,
     amount: number[],
-    royaltiesPercentage: number[],
+    feeNumerator: number[],
     documentId: string[],
     gasSettings?: GasSettings
   ) {
@@ -78,7 +78,7 @@ export class VWBLERC1155EthersContract {
       };
     }
     console.log("transaction start");
-    const tx = await this.contract.mintBatch(decryptUrl, amount, royaltiesPercentage, documentId, txSettings);
+    const tx = await this.contract.mintBatch(decryptUrl, amount, feeNumerator, documentId, txSettings);
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
     const tokenIds = parseToTokenIds(receipt);
@@ -89,7 +89,7 @@ export class VWBLERC1155EthersContract {
     metadataUrl: string,
     decryptUrl: string,
     amount: number,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     documentId: string,
     gasSettings?: GasSettings
   ) {
@@ -110,7 +110,7 @@ export class VWBLERC1155EthersContract {
       };
     }
     console.log("transaction start");
-    const tx = await this.contract.mint(metadataUrl, decryptUrl, amount, royaltiesPercentage, documentId, txSettings);
+    const tx = await this.contract.mint(metadataUrl, decryptUrl, amount, feeNumerator, documentId, txSettings);
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);
@@ -121,7 +121,7 @@ export class VWBLERC1155EthersContract {
     metadataUrl: string,
     decryptUrl: string,
     amount: number[],
-    royaltiesPercentage: number[],
+    feeNumerator: number[],
     documentId: string[],
     gasSettings?: GasSettings
   ) {
@@ -146,7 +146,7 @@ export class VWBLERC1155EthersContract {
       metadataUrl,
       decryptUrl,
       amount,
-      royaltiesPercentage,
+      feeNumerator,
       documentId,
       txSettings
     );

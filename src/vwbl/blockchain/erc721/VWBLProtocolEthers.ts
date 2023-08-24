@@ -23,7 +23,7 @@ export class VWBLNFTEthers {
       : new ethers.Contract(address, vwbl.abi, ethersSigner);
   }
 
-  async mintToken(decryptUrl: string, royaltiesPercentage: number, documentId: string, gasSettings?: GasSettings) {
+  async mintToken(decryptUrl: string, feeNumerator: number, documentId: string, gasSettings?: GasSettings) {
     const fee = await this.getFee();
     let txSettings: unknown;
     if (gasSettings?.gasPrice) {
@@ -41,7 +41,7 @@ export class VWBLNFTEthers {
       };
     }
     console.log("transaction start");
-    const tx = await this.contract.mint(decryptUrl, royaltiesPercentage, documentId, txSettings);
+    const tx = await this.contract.mint(decryptUrl, feeNumerator, documentId, txSettings);
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);
@@ -51,7 +51,7 @@ export class VWBLNFTEthers {
   async mintTokenForIPFS(
     metadataUrl: string,
     decryptUrl: string,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     documentId: string,
     gasSettings?: GasSettings
   ) {
@@ -72,7 +72,7 @@ export class VWBLNFTEthers {
       };
     }
     console.log("transaction start");
-    const tx = await this.contract.mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId, txSettings);
+    const tx = await this.contract.mint(metadataUrl, decryptUrl, feeNumerator, documentId, txSettings);
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);

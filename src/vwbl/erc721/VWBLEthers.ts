@@ -73,7 +73,7 @@ export class VWBLEthers extends VWBLBase {
    * @param description - The NFT description
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
@@ -86,7 +86,7 @@ export class VWBLEthers extends VWBLBase {
     description: string,
     plainFile: File | File[],
     thumbnailImage: File,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
@@ -99,7 +99,7 @@ export class VWBLEthers extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -183,7 +183,7 @@ export class VWBLEthers extends VWBLBase {
    * @param description - The NFT description
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param subscriber - Optional: the subscriber for seeing progress
    * @returns
@@ -193,7 +193,7 @@ export class VWBLEthers extends VWBLBase {
     description: string,
     plainFile: File | File[],
     thumbnailImage: File,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     subscriber?: ProgressSubscriber
   ) => {
@@ -241,7 +241,7 @@ export class VWBLEthers extends VWBLBase {
     const tokenId = await this.nft.mintTokenForIPFS(
       metadataUrl as string,
       vwblNetworkUrl,
-      royaltiesPercentage,
+      feeNumerator,
       documentId
     );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
@@ -286,13 +286,13 @@ export class VWBLEthers extends VWBLBase {
   /**
    * Mint new NFT
    *
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
    * @returns The ID of minted NFT
    */
-  mintToken = async (royaltiesPercentage: number): Promise<number> => {
+  mintToken = async (feeNumerator: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId);
+    return await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId);
   };
 
   /**
