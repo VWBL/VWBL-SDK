@@ -142,14 +142,7 @@ export class VWBLERC1155EthersContract {
       };
     }
     console.log("transaction start");
-    const tx = await this.contract.mintBatch(
-      metadataUrl,
-      decryptUrl,
-      amount,
-      feeNumerator,
-      documentId,
-      txSettings
-    );
+    const tx = await this.contract.mintBatch(metadataUrl, decryptUrl, amount, feeNumerator, documentId, txSettings);
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
     const tokenIds = parseToTokenIds(receipt);

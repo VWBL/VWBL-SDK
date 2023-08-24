@@ -238,12 +238,7 @@ export class VWBLEthers extends VWBLBase {
 
     // 5. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintTokenForIPFS(
-      metadataUrl as string,
-      vwblNetworkUrl,
-      feeNumerator,
-      documentId
-    );
+    const tokenId = await this.nft.mintTokenForIPFS(metadataUrl as string, vwblNetworkUrl, feeNumerator, documentId);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 6. set key to vwbl-network

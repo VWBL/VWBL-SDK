@@ -49,9 +49,7 @@ export class VWBLERC1155Contract {
       };
     }
     console.log("transaction start");
-    const receipt = await this.contract.methods
-      .mint(decryptUrl, amount, feeNumerator, documentId)
-      .send(txSettings);
+    const receipt = await this.contract.methods.mint(decryptUrl, amount, feeNumerator, documentId).send(txSettings);
     console.log("transaction end");
     const tokenId: number = receipt.events.TransferSingle.returnValues.id;
     return tokenId;

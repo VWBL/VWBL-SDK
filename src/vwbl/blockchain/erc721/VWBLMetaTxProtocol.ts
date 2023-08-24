@@ -29,12 +29,7 @@ export class VWBLNFTMetaTx {
     this.forwarderAddress = forwarderAddress;
   }
 
-  async mintToken(
-    decryptUrl: string,
-    feeNumerator: number,
-    documentId: string,
-    mintApiId: string
-  ): Promise<number> {
+  async mintToken(decryptUrl: string, feeNumerator: number, documentId: string, mintApiId: string): Promise<number> {
     const walletSigner = this.walletProvider.getSigner();
     const myAddress = await walletSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTx.abi, walletSigner);
