@@ -61,7 +61,6 @@ export class VWBLApi {
 
   private async constractKeyMapping(key: string) {
     const validatorInfo = (await this.instance.get("/api/v1/validator_info").catch(() => undefined))?.data;
-    console.log(validatorInfo)
     const shares = secrets.share(secrets.str2hex(key), validatorInfo.m, validatorInfo.n)
     const keyMapping: { [key: string]: string } = {};
     for (let i = 0; i < validatorInfo.m; i++) {
