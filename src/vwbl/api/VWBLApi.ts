@@ -18,6 +18,7 @@ export class VWBLApi {
     const keyMapping = await this.constractKeyMapping(key);
     await this.instance.post("/api/v1/keys", {
       userSig: signature,
+      userAddress: address,
       documentId,
       chainId,
       autoMigration,
@@ -28,13 +29,14 @@ export class VWBLApi {
   async migrateKey(
     documentId: string,
     chainId: number,
+    key: string,
     signature: string,
     address?: string,
   ) {
-    const key = await this.getKey(documentId, chainId, signature);
     const keyMapping = await this.constractKeyMapping(key);
     await this.instance.post("api/v1/migrate", {
       userSig: signature,
+      userAddress: address,
       documentId,
       chainId,
       keyMapping
@@ -46,7 +48,7 @@ export class VWBLApi {
     const privKey = new PrivateKey();
     const userPubKey = "0x" + privKey.publicKey.toHex();
     const encryptedKeys = (await this.instance.get(
-        `/api/v1/keys/${documentId}/${chainId}?userSig=${signature}&userPubkey=${userPubKey}`
+        `/api/v1/keys/${documentId}/${chainId}?userSig=${signature}&userPubkey=${userPubKey}&userAddress=${address}`
     )).data.encryptedKeys;
     const keys = encryptedKeys.map((k: string) => decrypt(privKey.toHex(), Buffer.from(k, 'hex')).toString());
     return secrets.hex2str(secrets.combine(keys))
@@ -59,6 +61,7 @@ export class VWBLApi {
 
   private async constractKeyMapping(key: string) {
     const validatorInfo = (await this.instance.get("/api/v1/validator_info").catch(() => undefined))?.data;
+    console.log(validatorInfo)
     const shares = secrets.share(secrets.str2hex(key), validatorInfo.m, validatorInfo.n)
     const keyMapping: { [key: string]: string } = {};
     for (let i = 0; i < validatorInfo.m; i++) {
