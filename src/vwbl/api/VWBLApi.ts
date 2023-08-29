@@ -15,14 +15,13 @@ export class VWBLApi {
     address?: string,
     autoMigration?: boolean
   ) {
-    const keyMapping = await this.constractKeyMapping(key);
+    const keyAndSigMapping = await this.constructKeyAndSigMapping(key, signature);
     await this.instance.post("/api/v1/keys", {
-      userSig: signature,
       userAddress: address,
       documentId,
       chainId,
       autoMigration,
-      keyMapping
+      keyAndSigMapping
     })
   }
 
@@ -33,22 +32,21 @@ export class VWBLApi {
     signature: string,
     address?: string,
   ) {
-    const keyMapping = await this.constractKeyMapping(key);
+    const keyAndSigMapping = await this.constructKeyAndSigMapping(key, signature);
     await this.instance.post("api/v1/migrate", {
-      userSig: signature,
       userAddress: address,
       documentId,
       chainId,
-      keyMapping
+      keyAndSigMapping
     })
   }
-
 
   async getKey(documentId: string, chainId: number, signature: string, address?: string): Promise<string> {
     const privKey = new PrivateKey();
     const userPubKey = "0x" + privKey.publicKey.toHex();
+    const sigMapping = await this.contructSigMapping(signature);
     const encryptedKeys = (await this.instance.get(
-        `/api/v1/keys/${documentId}/${chainId}?userSig=${signature}&userPubkey=${userPubKey}&userAddress=${address}`
+        `/api/v1/keys/${documentId}/${chainId}?userPubkey=${userPubKey}&userAddress=${address}&userSig=${sigMapping}`
     )).data.encryptedKeys;
     const keys = encryptedKeys.map((k: string) => decrypt(privKey.toHex(), Buffer.from(k, 'hex')).toString());
     return secrets.hex2str(secrets.combine(keys))
@@ -59,15 +57,27 @@ export class VWBLApi {
     return response.data.signMessage;
   }
 
-  private async constractKeyMapping(key: string) {
+  private async constructKeyAndSigMapping(key: string, signature: string) {
     const validatorInfo = (await this.instance.get("/api/v1/validator_info").catch(() => undefined))?.data;
     const shares = secrets.share(secrets.str2hex(key), validatorInfo.m, validatorInfo.n)
-    const keyMapping: { [key: string]: string } = {};
+    const keyAndSigMapping: { [key: string]: string } = {};
+    for (let i = 0; i < validatorInfo.m; i++) {
+      const shareAndSig = shares[i] + " " + signature
+      const pubKey = new PublicKey(Buffer.from(validatorInfo.publicKeys[i], 'hex'));
+      const encryptedShareAndSig = encrypt(pubKey.toHex(), Buffer.from(shareAndSig)).toString('hex');
+      keyAndSigMapping[validatorInfo.publicKeys[i]] = encryptedShareAndSig;
+    }
+    return keyAndSigMapping;
+  }
+
+  private async contructSigMapping(signature: string) {
+    const validatorInfo = (await this.instance.get("/api/v1/validator_info").catch(() => undefined))?.data;
+    const sigMapping: { [key: string]: string } = {};
     for (let i = 0; i < validatorInfo.m; i++) {
       const pubKey = new PublicKey(Buffer.from(validatorInfo.publicKeys[i], 'hex'));
-      const encryptedShare = encrypt(pubKey.toHex(), Buffer.from(shares[i]));
-      keyMapping[validatorInfo.publicKeys[i]] = encryptedShare.toString('hex');
+      const encryptedSig = encrypt(pubKey.toHex(), Buffer.from(signature));
+      sigMapping[validatorInfo.publicKeys[i]] = encryptedSig.toString('hex');
     }
-    return keyMapping;
+    return JSON.stringify(sigMapping);
   }
 }
