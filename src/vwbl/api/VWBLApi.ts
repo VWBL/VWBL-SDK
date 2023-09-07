@@ -13,7 +13,7 @@ export class VWBLApi {
     key: string,
     signature: string,
     address?: string,
-    autoMigration?: boolean
+    autoMigration: boolean = true
   ) {
     const keyAndSigMapping = await this.constructKeyAndSigMapping(key, signature);
     await this.instance.post("/api/v1/keys", {
@@ -31,12 +31,14 @@ export class VWBLApi {
     key: string,
     signature: string,
     address?: string,
+    autoMigration: boolean = true 
   ) {
     const keyAndSigMapping = await this.constructKeyAndSigMapping(key, signature);
     await this.instance.post("api/v1/migrate", {
       userAddress: address,
       documentId,
       chainId,
+      autoMigration,
       keyAndSigMapping
     })
   }
@@ -53,7 +55,7 @@ export class VWBLApi {
   }
 
   async getSignMessage(contractAddress: string, chainId: number, address?: string): Promise<string> {
-    const response = await this.instance.get(`/signature/${contractAddress}/${chainId}?address=${address}`);
+    const response = await this.instance.get(`/sign_message/${contractAddress}/${chainId}?address=${address}`);
     return response.data.signMessage;
   }
 
