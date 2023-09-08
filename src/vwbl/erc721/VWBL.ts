@@ -2,7 +2,7 @@ import axios from "axios";
 import { utils } from "ethers";
 import * as fs from "fs";
 
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload";
+import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
 import {
   createRandomKey,
   decryptFile,
@@ -11,8 +11,9 @@ import {
   encryptFile,
   encryptStream,
   encryptString,
-} from "../../util/cryptoHelper";
-import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
+  getMimeType,
+  toBase64FromBlob,
+} from "../../util";
 import { VWBLBase } from "../base";
 import { VWBLNFT, VWBLNFTEthers } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
@@ -89,7 +90,7 @@ export class VWBL extends VWBLBase {
    * @param description - The NFT description
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
@@ -103,7 +104,7 @@ export class VWBL extends VWBLBase {
     description: string,
     plainFile: File | File[],
     thumbnailImage: File,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
@@ -117,7 +118,7 @@ export class VWBL extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId, gasSettings);
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId, gasSettings);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -200,7 +201,7 @@ export class VWBL extends VWBLBase {
    * @param description - The NFT description
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param subscriber - Optional: the subscriber for seeing progress
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
@@ -211,7 +212,7 @@ export class VWBL extends VWBLBase {
     description: string,
     plainFile: File | File[],
     thumbnailImage: File,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     subscriber?: ProgressSubscriber,
     gasSettings?: GasSettings
@@ -260,7 +261,7 @@ export class VWBL extends VWBLBase {
     const tokenId = await this.nft.mintTokenForIPFS(
       metadataUrl as string,
       vwblNetworkUrl,
-      royaltiesPercentage,
+      feeNumerator,
       documentId,
       gasSettings
     );
@@ -314,15 +315,15 @@ export class VWBL extends VWBLBase {
   /**
    * Mint new NFT
    *
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
    * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns The ID of minted NFT
    */
-  mintToken = async (royaltiesPercentage: number, gasSettings?: GasSettings): Promise<number> => {
+  mintToken = async (feeNumerator: number, gasSettings?: GasSettings): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId, {
+    return await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId, {
       maxPriorityFeePerGas: gasSettings?.maxPriorityFeePerGas,
       maxFeePerGas: gasSettings?.maxFeePerGas,
     });
@@ -332,13 +333,13 @@ export class VWBL extends VWBLBase {
    * Mint new NFT
    *
    * @param metadataUrl metadata url
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @returns The ID of minted NFT
    */
-  mintTokenForIPFS = async (metadataUrl: string, royaltiesPercentage: number): Promise<number> => {
+  mintTokenForIPFS = async (metadataUrl: string, feeNumerator: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, royaltiesPercentage, documentId);
+    return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, feeNumerator, documentId);
   };
 
   /**
