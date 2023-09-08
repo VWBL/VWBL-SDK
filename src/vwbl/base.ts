@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import * as Stream from "stream";
 import Web3 from "web3";
 
-import { UploadToIPFS } from "../storage/ipfs/upload";
+import { UploadToIPFS } from "../storage/ipfs";
 import {
   createRandomKey,
   decryptFile,

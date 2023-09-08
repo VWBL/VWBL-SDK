@@ -2,7 +2,7 @@ import axios from "axios";
 import { utils } from "ethers";
 import * as fs from "fs";
 
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload";
+import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
 import {
   createRandomKey,
   decryptFile,
