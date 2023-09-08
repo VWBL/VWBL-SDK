@@ -2,7 +2,7 @@ import axios from "axios";
 import { ethers, utils } from "ethers";
 import * as fs from "fs";
 
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload";
+import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
 import {
   createRandomKey,
   decryptFile,
@@ -80,7 +80,7 @@ export class VWBLMetaTx extends VWBLBase {
    * @param description - The NFT description
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param mintApiId - The mint method api id of biconomy
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
@@ -94,7 +94,7 @@ export class VWBLMetaTx extends VWBLBase {
     description: string,
     plainFile: File | File[],
     thumbnailImage: File,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     mintApiId: string,
     uploadEncryptedFileCallback?: UploadEncryptedFile,
@@ -108,7 +108,7 @@ export class VWBLMetaTx extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId, mintApiId);
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId, mintApiId);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -186,7 +186,7 @@ export class VWBLMetaTx extends VWBLBase {
    * @param description - The NFT description
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param mintApiId - The mint method api id of biconomy
    * @param subscriber - Optional: the subscriber for seeing progress
@@ -197,7 +197,7 @@ export class VWBLMetaTx extends VWBLBase {
     description: string,
     plainFile: File | File[],
     thumbnailImage: File,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     mintApiId: string,
     subscriber?: ProgressSubscriber
@@ -246,7 +246,7 @@ export class VWBLMetaTx extends VWBLBase {
     const tokenId = await this.nft.mintTokenForIPFS(
       metadataUrl as string,
       vwblNetworkUrl,
-      royaltiesPercentage,
+      feeNumerator,
       documentId,
       mintApiId
     );
@@ -286,14 +286,14 @@ export class VWBLMetaTx extends VWBLBase {
   /**
    * Mint new NFT
    *
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param mintApiId - The mint method api id of biconomy
    * @returns The ID of minted NFT
    */
-  mintToken = async (royaltiesPercentage: number, mintApiId: string): Promise<number> => {
+  mintToken = async (feeNumerator: number, mintApiId: string): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, royaltiesPercentage, documentId, mintApiId);
+    return await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId, mintApiId);
   };
 
   /**

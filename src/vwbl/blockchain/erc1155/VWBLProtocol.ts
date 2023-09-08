@@ -2,8 +2,8 @@ import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
 import { AbiItem } from "web3-utils";
 
-import vwbl1155 from "../../../contract/VWBLERC1155.json";
-import vwbl1155IPFS from "../../../contract/VWBLERC1155SupportIPFS.json";
+import vwbl1155 from "../../../contract/VWBLERC1155ERC2981.json";
+import vwbl1155IPFS from "../../../contract/VWBLERC1155ERC2981ForMetadata.json";
 import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelper";
 import { GasSettings } from "../../types";
 
@@ -21,7 +21,7 @@ export class VWBLERC1155Contract {
   async mintToken(
     decryptUrl: string,
     amount: number,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     documentId: string,
     gasSettings?: GasSettings
   ) {
@@ -30,7 +30,7 @@ export class VWBLERC1155Contract {
     let txSettings: unknown;
     if (gasSettings?.gasPrice) {
       const gas = await this.contract.methods
-        .mint(decryptUrl, amount, royaltiesPercentage, documentId)
+        .mint(decryptUrl, amount, feeNumerator, documentId)
         .estimateGas({ from: myAddress, value: fee });
       txSettings = {
         from: myAddress,
@@ -49,9 +49,7 @@ export class VWBLERC1155Contract {
       };
     }
     console.log("transaction start");
-    const receipt = await this.contract.methods
-      .mint(decryptUrl, amount, royaltiesPercentage, documentId)
-      .send(txSettings);
+    const receipt = await this.contract.methods.mint(decryptUrl, amount, feeNumerator, documentId).send(txSettings);
     console.log("transaction end");
     const tokenId: number = receipt.events.TransferSingle.returnValues.id;
     return tokenId;
@@ -60,7 +58,7 @@ export class VWBLERC1155Contract {
   async batchMintToken(
     decryptUrl: string,
     amount: number[],
-    royaltiesPercentage: number[],
+    feeNumerator: number[],
     documentId: string[],
     gasSettings?: GasSettings
   ) {
@@ -69,7 +67,7 @@ export class VWBLERC1155Contract {
     let txSettings: unknown;
     if (gasSettings?.gasPrice) {
       const gas = await this.contract.methods
-        .mintBatch(decryptUrl, amount, royaltiesPercentage, documentId)
+        .mintBatch(decryptUrl, amount, feeNumerator, documentId)
         .estimateGas({ from: myAddress, value: fee });
       txSettings = {
         from: myAddress,
@@ -91,7 +89,7 @@ export class VWBLERC1155Contract {
     const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
       getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
     const receipt = await this.contract.methods
-      .mintBatch(decryptUrl, amount, royaltiesPercentage, documentId)
+      .mintBatch(decryptUrl, amount, feeNumerator, documentId)
       .send(txSettings);
     console.log("transaction end");
     const tokenIds: number[] = receipt.events.TransferBatch.returnValues.ids;
@@ -102,7 +100,7 @@ export class VWBLERC1155Contract {
     metadataUrl: string,
     decryptUrl: string,
     amount: number,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     documentId: string,
     gasSettings?: GasSettings
   ) {
@@ -111,7 +109,7 @@ export class VWBLERC1155Contract {
     let txSettings: unknown;
     if (gasSettings?.gasPrice) {
       const gas = await this.contract.methods
-        .mint(metadataUrl, decryptUrl, amount, royaltiesPercentage, documentId)
+        .mint(metadataUrl, decryptUrl, amount, feeNumerator, documentId)
         .estimateGas({ from: myAddress, value: fee });
       txSettings = {
         from: myAddress,
@@ -131,7 +129,7 @@ export class VWBLERC1155Contract {
     }
     console.log("transaction start");
     const receipt = await this.contract.methods
-      .mint(metadataUrl, decryptUrl, amount, royaltiesPercentage, documentId)
+      .mint(metadataUrl, decryptUrl, amount, feeNumerator, documentId)
       .send(txSettings);
     console.log("transaction end");
     const tokenId: number = receipt.events.TransferSingle.returnValues.id;
@@ -142,7 +140,7 @@ export class VWBLERC1155Contract {
     metadataUrl: string,
     decryptUrl: string,
     amount: number[],
-    royaltiesPercentage: number[],
+    feeNumerator: number[],
     documentId: string[],
     gasSettings?: GasSettings
   ) {
@@ -151,7 +149,7 @@ export class VWBLERC1155Contract {
     let txSettings: unknown;
     if (gasSettings?.gasPrice) {
       const gas = await this.contract.methods
-        .mintBatch(metadataUrl, decryptUrl, amount, royaltiesPercentage, documentId)
+        .mintBatch(metadataUrl, decryptUrl, amount, feeNumerator, documentId)
         .estimateGas({ from: myAddress, value: fee });
       txSettings = {
         from: myAddress,
@@ -171,7 +169,7 @@ export class VWBLERC1155Contract {
     }
     console.log("transaction start");
     const receipt = await this.contract.methods
-      .mintBatch(metadataUrl, decryptUrl, amount, royaltiesPercentage, documentId)
+      .mintBatch(metadataUrl, decryptUrl, amount, feeNumerator, documentId)
       .send(txSettings);
     console.log("transaction end");
     const tokenIds: number[] = receipt.events.TransferBatch.returnValues.ids;

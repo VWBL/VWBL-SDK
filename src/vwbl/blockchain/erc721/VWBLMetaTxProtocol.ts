@@ -29,16 +29,11 @@ export class VWBLNFTMetaTx {
     this.forwarderAddress = forwarderAddress;
   }
 
-  async mintToken(
-    decryptUrl: string,
-    royaltiesPercentage: number,
-    documentId: string,
-    mintApiId: string
-  ): Promise<number> {
+  async mintToken(decryptUrl: string, feeNumerator: number, documentId: string, mintApiId: string): Promise<number> {
     const walletSigner = this.walletProvider.getSigner();
     const myAddress = await walletSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTx.abi, walletSigner);
-    const { data } = await vwblMetaTxContract.populateTransaction.mint(decryptUrl, royaltiesPercentage, documentId);
+    const { data } = await vwblMetaTxContract.populateTransaction.mint(decryptUrl, feeNumerator, documentId);
     const chainId = await walletSigner.getChainId();
     const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
@@ -51,7 +46,7 @@ export class VWBLNFTMetaTx {
   async mintTokenForIPFS(
     metadataUrl: string,
     decryptUrl: string,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     documentId: string,
     mintApiId: string
   ): Promise<number> {
@@ -61,7 +56,7 @@ export class VWBLNFTMetaTx {
     const { data } = await vwblMetaTxContract.populateTransaction.mint(
       metadataUrl,
       decryptUrl,
-      royaltiesPercentage,
+      feeNumerator,
       documentId
     );
     const chainId = await walletSigner.getChainId();

@@ -2,8 +2,8 @@ import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
 import { AbiItem } from "web3-utils";
 
-import vwbl from "../../../contract/VWBL.json";
-import vwblIPFS from "../../../contract/VWBLSupportIPFS.json";
+import vwbl from "../../../contract/VWBLERC721ERC2981.json";
+import vwblIPFS from "../../../contract/VWBLERC721ERC2981ForMetadata.json";
 import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelper";
 import { GasSettings } from "../../types";
 
@@ -18,13 +18,13 @@ export class VWBLNFT {
       : new web3.eth.Contract(vwbl.abi as AbiItem[], address);
   }
 
-  async mintToken(decryptUrl: string, royaltiesPercentage: number, documentId: string, gasSettings?: GasSettings) {
+  async mintToken(decryptUrl: string, feeNumerator: number, documentId: string, gasSettings?: GasSettings) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const fee = await this.getFee();
     let txSettings: unknown;
     if (gasSettings?.gasPrice) {
       const gas = await this.contract.methods
-        .mint(decryptUrl, royaltiesPercentage, documentId)
+        .mint(decryptUrl, feeNumerator, documentId)
         .estimateGas({ from: myAddress, value: fee });
       txSettings = {
         from: myAddress,
@@ -44,7 +44,7 @@ export class VWBLNFT {
     }
 
     console.log("transaction start");
-    const receipt = await this.contract.methods.mint(decryptUrl, royaltiesPercentage, documentId).send(txSettings);
+    const receipt = await this.contract.methods.mint(decryptUrl, feeNumerator, documentId).send(txSettings);
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;
     return tokenId;
@@ -53,7 +53,7 @@ export class VWBLNFT {
   async mintTokenForIPFS(
     metadataUrl: string,
     decryptUrl: string,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     documentId: string,
     gasSettings?: GasSettings
   ) {
@@ -62,7 +62,7 @@ export class VWBLNFT {
     let txSettings: unknown;
     if (gasSettings?.gasPrice) {
       const gas = await this.contract.methods
-        .mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId)
+        .mint(metadataUrl, decryptUrl, feeNumerator, documentId)
         .estimateGas({ from: myAddress, value: fee });
       txSettings = {
         from: myAddress,
@@ -82,7 +82,7 @@ export class VWBLNFT {
     }
     console.log("transaction start");
     const receipt = await this.contract.methods
-      .mint(metadataUrl, decryptUrl, royaltiesPercentage, documentId)
+      .mint(metadataUrl, decryptUrl, feeNumerator, documentId)
       .send(txSettings);
     console.log("transaction end");
     const tokenId: number = receipt.events.Transfer.returnValues.tokenId;

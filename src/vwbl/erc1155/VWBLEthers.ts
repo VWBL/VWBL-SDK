@@ -2,7 +2,7 @@ import axios from "axios";
 import { utils } from "ethers";
 import * as fs from "fs";
 
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload";
+import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
 import {
   createRandomKey,
   decryptFile,
@@ -68,7 +68,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
    * * @param amount - The amount of erc1155 tokens to be minted
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
@@ -82,7 +82,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
     amount: number,
     plainFile: File | File[],
     thumbnailImage: File,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
@@ -95,7 +95,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId);
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -180,7 +180,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
    * @param amount - The amount of erc1155 tokens to be minted
    * @param plainFile - The data that only NFT owner can view
    * @param thumbnailImage - The NFT image
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param subscriber - Optional: the subscriber for seeing progress
    * @returns
@@ -191,7 +191,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
     amount: number,
     plainFile: File | File[],
     thumbnailImage: File,
-    royaltiesPercentage: number,
+    feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     subscriber?: ProgressSubscriber
   ) => {
@@ -240,7 +240,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
       metadataUrl as string,
       vwblNetworkUrl,
       amount,
-      royaltiesPercentage,
+      feeNumerator,
       documentId
     );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
@@ -264,13 +264,13 @@ export class VWBLERC1155Ethers extends VWBLBase {
    * Mint new ERC1155 NFT
    *
    * @param amount - The amount of erc1155 tokens to be minted
-   * @param royaltiesPercentage - This percentage of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @returns The ID of minted NFT
    */
-  mintToken = async (amount: number, royaltiesPercentage: number): Promise<number> => {
+  mintToken = async (amount: number, feeNumerator: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, amount, royaltiesPercentage, documentId);
+    return await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId);
   };
 
   /**
