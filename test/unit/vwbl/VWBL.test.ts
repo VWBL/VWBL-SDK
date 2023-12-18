@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import * as dotenv from "dotenv";
 import sinon from "sinon";
-import Web3 from "web3";
+import { Web3 } from "web3";
 import { ethers } from "ethers";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const FileAPI = require("file-api"),

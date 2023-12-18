@@ -23,14 +23,14 @@
     "mocha": "mocha-parallel-tests -r ts-node/register  --exit"
   },
   "devDependencies": {
-    "@truffle/hdwallet-provider": "^2.1.11",
-    "@types/chai": "^4.3.0",
-    "@types/crypto-js": "^4.0.2",
-    "@types/mocha": "^9.1.0",
-    "@types/sinon": "^9.0.0",
-    "@types/uuid": "^8.3.3",
-    "@typescript-eslint/eslint-plugin": "^5.13.0",
-    "@typescript-eslint/parser": "^5.13.0",
+    "@truffle/hdwallet-provider": "^2.1.15",
+    "@types/chai": "^4.3.11",
+    "@types/crypto-js": "^4.2.1",
+    "@types/mocha": "^10.0.6",
+    "@types/sinon": "^17.0.2",
+    "@types/uuid": "^9.0.7",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
     "chai": "^4.3.6",
     "dotenv": "^16.0.3",
     "eslint": "^8.10.0",
@@ -42,9 +42,9 @@
     "mocha-parallel-tests": "^2.3.0",
     "prettier": "^2.5.1",
     "sinon": "4.1.2",
-    "ts-loader": "^9.4.2",
-    "ts-node": "^10.7.0",
-    "typescript": "^4.5.3"
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.338.0",
@@ -59,6 +59,6 @@
     "jimp": "^0.16.1",
     "nft.storage": "^7.0.0",
     "uuid": "^8.3.2",
-    "web3": "^1.8.0"
+    "web3": "^4.3.0"
   }
 }
