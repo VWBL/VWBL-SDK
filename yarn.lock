@@ -2841,7 +2841,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@truffle/hdwallet-provider@npm:^2.1.11":
+"@truffle/hdwallet-provider@npm:^2.1.15":
   version: 2.1.15
   resolution: "@truffle/hdwallet-provider@npm:2.1.15"
   dependencies:
@@ -2930,7 +2930,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chai@npm:^4.3.0":
+"@types/chai@npm:^4.3.11":
   version: 4.3.11
   resolution: "@types/chai@npm:4.3.11"
   checksum: 0c216ac4a19bfbf8318bb104d32e50704ee2ffc4b538b976c4326e6638fee121462402caa570662227a2a218810388aadb14bdbd3d3d474ec300b00695db448a
@@ -2997,10 +2997,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mocha@npm:^9.1.0":
-  version: 9.1.1
-  resolution: "@types/mocha@npm:9.1.1"
-  checksum: d033742ce0c92b917815b6e515165ee396866d0db0c0bbe0c301e49402abe3a61bd51e5bb1df7577f1fac60c99ee505fa744f515b476cc934ecb57f709f327e9
+"@types/mocha@npm:^10.0.6":
+  version: 10.0.6
+  resolution: "@types/mocha@npm:10.0.6"
+  checksum: 4526c9e88388f9e1004c6d3937c5488a39908810f26b927173c58d52b43057f3895627dc06538e96706e08b88158885f869ec6311f6b58fd72bdef715f26d6c3
   languageName: node
   linkType: hard
 
@@ -3075,12 +3075,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sinon@npm:^9.0.0":
-  version: 9.0.11
-  resolution: "@types/sinon@npm:9.0.11"
+"@types/sinon@npm:^17.0.2":
+  version: 17.0.2
+  resolution: "@types/sinon@npm:17.0.2"
   dependencies:
     "@types/sinonjs__fake-timers": "npm:*"
-  checksum: 859f338fb1ee869b1a2d017e35af5c71bc3beb85d82646fa283865265db5def3352a8282e3246878e87e26d11bc4b3b3f362e934878476e012cbe66e72d691d9
+  checksum: 0794a7c2ebdef397f510db0ccbfa242d4ae52db88f0f0e23e087f569e8ff76b6466680d96209b511acc0f3c08bb70dac6e51c0c2a4f62dfd1faf34f6cb308498
   languageName: node
   linkType: hard
 
@@ -3098,10 +3098,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/uuid@npm:^8.3.3":
-  version: 8.3.4
-  resolution: "@types/uuid@npm:8.3.4"
-  checksum: b9ac98f82fcf35962317ef7dc44d9ac9e0f6fdb68121d384c88fe12ea318487d5585d3480fa003cf28be86a3bbe213ca688ba786601dce4a97724765eb5b1cf2
+"@types/uuid@npm:^9.0.7":
+  version: 9.0.7
+  resolution: "@types/uuid@npm:9.0.7"
+  checksum: b329ebd4f9d1d8e08d4f2cc211be4922d70d1149f73d5772630e4a3acfb5170c6d37b3d7a39a0412f1a56e86e8a844c7f297c798b082f90380608bf766688787
   languageName: node
   linkType: hard
 
@@ -11219,12 +11219,12 @@ __metadata:
     "@aws-sdk/client-s3": "npm:^3.338.0"
     "@aws-sdk/credential-providers": "npm:^3.338.0"
     "@aws-sdk/lib-storage": "npm:^3.338.0"
-    "@truffle/hdwallet-provider": "npm:^2.1.11"
-    "@types/chai": "npm:^4.3.0"
+    "@truffle/hdwallet-provider": "npm:^2.1.15"
+    "@types/chai": "npm:^4.3.11"
     "@types/crypto-js": "npm:^4.2.1"
-    "@types/mocha": "npm:^9.1.0"
-    "@types/sinon": "npm:^9.0.0"
-    "@types/uuid": "npm:^8.3.3"
+    "@types/mocha": "npm:^10.0.6"
+    "@types/sinon": "npm:^17.0.2"
+    "@types/uuid": "npm:^9.0.7"
     "@typescript-eslint/eslint-plugin": "npm:^6.14.0"
     "@typescript-eslint/parser": "npm:^6.14.0"
     axios: "npm:^0.27.2"
