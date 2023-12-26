@@ -1,7 +1,7 @@
 {
   "name": "vwbl-sdk",
   "description": "VWBL SDK for TypeScript",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -60,5 +60,20 @@
     "nft.storage": "^7.0.0",
     "uuid": "^8.3.2",
     "web3": "^4.3.0"
+  },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false,
+    "filereader": false,
+    "crypto": false
+  },
+  "react-native": {
+    "fs": false,
+    "path": false,
+    "os": false,
+    "filereader": false,
+    "crypto": false,
+    "nft.storage": false
   }
 }
