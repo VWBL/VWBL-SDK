@@ -62,11 +62,11 @@
     "web3": "^4.3.0"
   },
   "browser": {
-    "fs": false,
-    "path": false,
-    "os": false,
+    "crypto": false,
     "filereader": false,
-    "crypto": false
+    "fs": false,
+    "os": false,
+    "path": false
   },
   "react-native": {
     "fs": false,

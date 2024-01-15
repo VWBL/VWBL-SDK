@@ -6,7 +6,7 @@ import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelpe
 import { GasSettings } from "../../types";
 
 export class VWBLERC1155Contract {
-  private contract: any;// eslint-disable-line
+  private contract: any; // eslint-disable-line
   private web3: Web3;
 
   constructor(web3: Web3, address: string, isIpfs: boolean) {

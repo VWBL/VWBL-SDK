@@ -437,9 +437,8 @@ export class VWBLERC1155 extends VWBLBase {
    */
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainIdBigInt =
-      "web3" in this.opts ? await (this.opts.web3.eth as any).getChainId() : await this.opts.ethersSigner.getChainId();
-    const chainId = Number(chainIdBigInt);
+    const chainId =
+      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await this.opts.ethersSigner.getChainId();
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
