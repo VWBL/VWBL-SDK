@@ -1,11 +1,9 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const FileReaderNodeJs = require("filereader");
-
+import { FileReader as FileReaderNodeJs } from "@tanker/file-reader";
 const isRunningOnBrowser = typeof window !== "undefined";
 
 export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const reader = switchReader();
+    const reader = switchReader(blob);
     reader.readAsDataURL(blob);
     reader.onload = () => {
       const result = reader.result;
@@ -25,7 +23,7 @@ export const getMimeType = (file: File): string => {
 
 export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
   return new Promise((resolve, reject) => {
-    const reader = switchReader();
+    const reader = switchReader(blob);
     reader.readAsArrayBuffer(blob);
     reader.onload = () => {
       const result = reader.result;
@@ -39,10 +37,10 @@ export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
   });
 };
 
-const switchReader = (): any => {
+const switchReader = (blob: Blob): any => {
   if (isRunningOnBrowser) {
-    return new FileReader();
+    return new window.FileReader();
   } else {
-    return new FileReaderNodeJs();
+    return new FileReaderNodeJs(blob);
   }
 };
