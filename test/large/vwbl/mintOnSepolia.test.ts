@@ -2,10 +2,6 @@ import { expect } from "chai";
 import * as dotenv from "dotenv";
 import { Web3 } from "web3";
 import { ethers } from "ethers";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const FileAPI = require("file-api"),
-  File = FileAPI.File;
-
 import {
   ManageKeyType,
   UploadContentType,
@@ -13,7 +9,8 @@ import {
   VWBL
 } from "../../../src/vwbl";
 import HDWalletProvider from "@truffle/hdwallet-provider";
-
+import FileAPI from "file-api";
+const File = FileAPI.File;
 dotenv.config();
 
 const providerUrl = process.env.SEPOLIA_PROVIDER_URL;

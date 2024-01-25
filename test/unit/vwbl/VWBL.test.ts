@@ -3,10 +3,6 @@ import * as dotenv from "dotenv";
 import sinon from "sinon";
 import { Web3 } from "web3";
 import { ethers } from "ethers";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const FileAPI = require("file-api"),
-File = FileAPI.File;
-
 import {
   ManageKeyType,
   UploadContentType,
@@ -19,7 +15,8 @@ import {
   VWBLNFT,
   VWBLNFTEthers,
 } from "../../../src/vwbl";
-
+import FileAPI from "file-api";
+const File = FileAPI.File;
 dotenv.config();
 
 const vwblApiStub = {
@@ -217,7 +214,7 @@ describe("VWBLERC1155 with web3.js", () => {
 
   it("mint erc1155 token without gas settings", async () => {
     vwblProtocolStub.mintToken.returns(Promise.resolve(1));
-    
+
     const tokenId = await vwbl.managedCreateToken(
       "test token",
       "test",
@@ -503,7 +500,7 @@ describe("VWBLERC1155 with ethers.js", () => {
 
   it("mint erc1155 token without gas settings", async () => {
     vwblProtocolStub.mintToken.returns(Promise.resolve(1));
-    
+
     const tokenId = await vwbl.managedCreateToken(
       "test token",
       "test",
