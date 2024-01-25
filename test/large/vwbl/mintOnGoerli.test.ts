@@ -10,7 +10,7 @@ import {
   VWBL
 } from "../../../src/vwbl";
 import HDWalletProvider from "@truffle/hdwallet-provider";
-import FileAPI from "file-api";
+import * as FileAPI from "file-api";
 const File = FileAPI.File;
 dotenv.config();
 
