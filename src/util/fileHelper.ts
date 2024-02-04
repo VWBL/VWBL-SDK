@@ -1,4 +1,6 @@
 import { FileReader as FileReaderNodeJs } from "@tanker/file-reader";
+import mime from 'mime';
+import { FileOrPath } from "../vwbl/types";
 const isRunningOnBrowser = typeof window !== "undefined";
 
 export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
@@ -17,8 +19,8 @@ export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
   });
 };
 
-export const getMimeType = (file: File): string => {
-  return file.type;
+export const getMimeType =  (file: FileOrPath): string=> {
+  return file instanceof File ? file.type :mime.getType(file) || "";
 };
 
 export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
