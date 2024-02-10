@@ -144,7 +144,7 @@ export class VWBL extends VWBLBase {
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
         const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)],file);
-        const filePath = file instanceof File ? (file as any).path : file;
+        const filePath = file instanceof File ? file.name : file;
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"

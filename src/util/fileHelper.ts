@@ -43,6 +43,7 @@ const switchReader = (blob: Blob): any => {
   if (isRunningOnBrowser) {
     return new window.FileReader();
   } else {
+    console.log(blob)
     return new FileReaderNodeJs(blob);
   }
 };
