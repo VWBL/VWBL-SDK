@@ -9,7 +9,7 @@ on:
 env:
   # Check available versions below
   # https://github.com/actions/node-versions/blob/main/versions-manifest.json
-  node-version: "18.x"
+  node-version: "20.x"
 
 jobs:
   publish:

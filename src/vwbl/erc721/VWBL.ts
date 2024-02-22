@@ -213,8 +213,8 @@ export class VWBL extends VWBLBase {
   managedCreateTokenForIPFS = async (
     name: string,
     description: string,
-    plainFile: File | File[],
-    thumbnailImage: File,
+    plainFile: FileOrPath | FileOrPath[],
+    thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     subscriber?: ProgressSubscriber,
@@ -237,9 +237,11 @@ export class VWBL extends VWBLBase {
     console.log("upload data");
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
+        const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)],file);
+        const filePath = file instanceof File ? file.name : file;
+        const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
-          encryptLogic === "base64" ? encryptString(await toBase64FromBlob(file), key) : await encryptFile(file, key);
-        console.log(typeof encryptedContent);
+          encryptLogic === "base64" ? encryptString(await toBase64FromBlob(plainFileBlob), key) : await encryptFile(plainFileBlob, key);
         return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent);
       })
     );

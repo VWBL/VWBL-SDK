@@ -2299,11 +2299,6 @@
     "@noble/hashes" "~1.3.2"
     "@scure/base" "~1.1.4"
 
-"@sentry/types@7.76.0":
-  version "7.76.0"
-  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-7.76.0.tgz#628c9899bfa82ea762708314c50fd82f2138587d"
-  integrity sha512-vj6z+EAbVrKAXmJPxSv/clpwS9QjPqzkraMFk2hIdE/kii8s8kwnkBwTSpIrNc8GnzV3qYC4r3qD+BXDxAGPaw==
-
 "@sinclair/typebox@^0.27.8":
   version "0.27.8"
   resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.27.8.tgz#6667fac16c436b5434a387a34dedb013198f6e6e"
@@ -2833,22 +2828,6 @@
   integrity sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==
   dependencies:
     defer-to-connect "^2.0.1"
-
-"@tanker/file-reader@^4.1.1":
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/@tanker/file-reader/-/file-reader-4.1.1.tgz#97fa85b92d04b0956d60e9b8abeac736eec2cce3"
-  integrity sha512-vYQAkO7jApu5H2Omck8NufQsLX2kQ3A3mMBd3npFI+1PEwmKT+/SgR5GkUCrFbMIvl7t1Gclk/woMwt2klsypg==
-  dependencies:
-    "@tanker/global-this" "4.1.1"
-    tslib "^2.3.1"
-
-"@tanker/global-this@4.1.1":
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/@tanker/global-this/-/global-this-4.1.1.tgz#a2c26614d17a782cd9d60a70ae68f690685f1da9"
-  integrity sha512-miRbnTF0q7ZxsoeSQQlnTdbJ77wLPW+YgW9kfsd9FB51LXyONd6vvugNF2lg/smqO74CQa0kzUl0ePr20qSMng==
-  dependencies:
-    "@sentry/types" "7.76.0"
-    tslib "^2.3.1"
 
 "@tokenizer/token@^0.3.0":
   version "0.3.0"
