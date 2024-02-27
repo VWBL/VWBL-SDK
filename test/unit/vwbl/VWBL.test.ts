@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import * as dotenv from "dotenv";
 import sinon from "sinon";
-import { Web3 } from "web3";
+import Web3  from "web3";
 import { ethers } from "ethers";
 import {
   ManageKeyType,
@@ -15,8 +15,6 @@ import {
   VWBLNFT,
   VWBLNFTEthers,
 } from "../../../src/vwbl";
-import * as FileAPI from "file-api";
-const File = FileAPI.File;
 dotenv.config();
 
 const vwblApiStub = {
@@ -68,7 +66,7 @@ describe("VWBL with web3.js", () => {
   const uploadFileStub = sinon.stub(testFunctions, "uploadThumbnail").returns(Promise.resolve("https://example.com"));
   const uploadMetadataStub = sinon.stub(testFunctions, "uploadMetadata");
 
-  before(async () => {
+  beforeAll(async () => {
     await vwbl.sign();
   });
 
@@ -77,16 +75,8 @@ describe("VWBL with web3.js", () => {
     const tokenId = await vwbl.managedCreateToken(
       "test token",
       "test",
-      new File({
-        name: "thumbnail image",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
-      new File({
-        name: "plain data",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
+      "test/asset/thumbnail.png",
+      "test/asset/plain.png",
       10,
       "base64",
       testFunctions.uploadEncryptedFile,
@@ -111,16 +101,8 @@ describe("VWBL with web3.js", () => {
     const tokenId = await vwbl.managedCreateToken(
       "test token",
       "test",
-      new File({
-        name: "thumbnail image",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
-      new File({
-        name: "plain data",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
+      "test/asset/thumbnail.png",
+      "test/asset/plain.png",
       10,
       "base64",
       testFunctions.uploadEncryptedFile,
@@ -147,16 +129,8 @@ describe("VWBL with web3.js", () => {
     const tokenId = await vwbl.managedCreateToken(
       "test token",
       "test",
-      new File({
-        name: "thumbnail image",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
-      new File({
-        name: "plain data",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
+      "test/asset/thumbnail.png",
+      "test/asset/plain.png",
       10,
       "base64",
       testFunctions.uploadEncryptedFile,
@@ -208,7 +182,7 @@ describe("VWBLERC1155 with web3.js", () => {
   const uploadFileStub = sinon.stub(testFunctions, "uploadThumbnail").returns(Promise.resolve("https://example.com"));
   const uploadMetadataStub = sinon.stub(testFunctions, "uploadMetadata");
 
-  before(async () => {
+  beforeAll(async () => {
     await vwbl.sign();
   });
 
@@ -219,16 +193,8 @@ describe("VWBLERC1155 with web3.js", () => {
       "test token",
       "test",
       100,
-      new File({
-        name: "thumbnail image",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
-      new File({
-        name: "plain data",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
+      "test/asset/thumbnail.png",
+      "test/asset/plain.png",
       10,
       "base64",
       testFunctions.uploadEncryptedFile,
@@ -254,16 +220,8 @@ describe("VWBLERC1155 with web3.js", () => {
       "test token",
       "test",
       100,
-      new File({
-        name: "thumbnail image",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
-      new File({
-        name: "plain data",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
+      "test/asset/thumbnail.png",
+      "test/asset/plain.png",
       10,
       "base64",
       testFunctions.uploadEncryptedFile,
@@ -291,16 +249,8 @@ describe("VWBLERC1155 with web3.js", () => {
       "test token",
       "test",
       100,
-      new File({
-        name: "thumbnail image",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
-      new File({
-        name: "plain data",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
+      "test/asset/thumbnail.png",
+      "test/asset/plain.png",
       10,
       "base64",
       testFunctions.uploadEncryptedFile,
@@ -353,7 +303,7 @@ describe("VWBL with ethers.js", () => {
   const uploadFileStub = sinon.stub(testFunctions, "uploadThumbnail").returns(Promise.resolve("https://example.com"));
   const uploadMetadataStub = sinon.stub(testFunctions, "uploadMetadata");
 
-  before(async () => {
+  beforeAll(async () => {
     await vwbl.sign();
   });
 
@@ -362,16 +312,8 @@ describe("VWBL with ethers.js", () => {
     const tokenId = await vwbl.managedCreateToken(
       "test token",
       "test",
-      new File({
-        name: "thumbnail image",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
-      new File({
-        name: "plain data",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
+      "test/asset/thumbnail.png",
+      "test/asset/plain.png",
       10,
       "base64",
       testFunctions.uploadEncryptedFile,
@@ -396,16 +338,8 @@ describe("VWBL with ethers.js", () => {
     const tokenId = await vwbl.managedCreateToken(
       "test token",
       "test",
-      new File({
-        name: "thumbnail image",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
-      new File({
-        name: "plain data",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
+      "test/asset/thumbnail.png",
+      "test/asset/plain.png",
       10,
       "base64",
       testFunctions.uploadEncryptedFile,
@@ -432,16 +366,8 @@ describe("VWBL with ethers.js", () => {
     const tokenId = await vwbl.managedCreateToken(
       "test token",
       "test",
-      new File({
-        name: "thumbnail image",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
-      new File({
-        name: "plain data",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
+      "test/asset/thumbnail.png",
+      "test/asset/plain.png",
       10,
       "base64",
       testFunctions.uploadEncryptedFile,
@@ -494,7 +420,7 @@ describe("VWBLERC1155 with ethers.js", () => {
   const uploadFileStub = sinon.stub(testFunctions, "uploadThumbnail").returns(Promise.resolve("https://example.com"));
   const uploadMetadataStub = sinon.stub(testFunctions, "uploadMetadata");
 
-  before(async () => {
+  beforeAll(async () => {
     await vwbl.sign();
   });
 
@@ -505,16 +431,8 @@ describe("VWBLERC1155 with ethers.js", () => {
       "test token",
       "test",
       100,
-      new File({
-        name: "thumbnail image",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
-      new File({
-        name: "plain data",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
+      "test/asset/thumbnail.png",
+      "test/asset/plain.png",
       10,
       "base64",
       testFunctions.uploadEncryptedFile,
@@ -540,16 +458,8 @@ describe("VWBLERC1155 with ethers.js", () => {
       "test token",
       "test",
       100,
-      new File({
-        name: "thumbnail image",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
-      new File({
-        name: "plain data",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
+      "test/asset/thumbnail.png",
+      "test/asset/plain.png",
       10,
       "base64",
       testFunctions.uploadEncryptedFile,
@@ -577,16 +487,8 @@ describe("VWBLERC1155 with ethers.js", () => {
       "test token",
       "test",
       100,
-      new File({
-        name: "thumbnail image",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
-      new File({
-        name: "plain data",
-        type: "image/png",
-        buffer: Buffer.alloc(100),
-      }),
+      "test/asset/thumbnail.png",
+      "test/asset/plain.png",
       10,
       "base64",
       testFunctions.uploadEncryptedFile,
