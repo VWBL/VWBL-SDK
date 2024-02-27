@@ -19,7 +19,8 @@ import { VWBLNFTEthers } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
   EncryptLogic,
-  EthersConstructorProps, FileOrPath,
+  EthersConstructorProps,
+  FileOrPath,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -125,7 +126,7 @@ export class VWBLEthers extends VWBLBase {
     const isRunningOnBrowser = typeof window !== "undefined";
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
-        const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)],file);
+        const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
         const filePath = file instanceof File ? file.name : file;
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
@@ -218,11 +219,13 @@ export class VWBLEthers extends VWBLBase {
     console.log("upload data");
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
-        const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)],file);
+        const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
         const filePath = file instanceof File ? file.name : file;
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
-          encryptLogic === "base64" ? encryptString(await toBase64FromBlob(plainFileBlob), key) : await encryptFile(plainFileBlob, key);
+          encryptLogic === "base64"
+            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
+            : await encryptFile(plainFileBlob, key);
         return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent);
       })
     );

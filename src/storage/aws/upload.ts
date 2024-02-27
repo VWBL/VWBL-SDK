@@ -24,11 +24,11 @@ export const uploadEncryptedFile = async (
 
   const credentials = awsConfig.idPoolId
     ? fromCognitoIdentityPool({
-      clientConfig: {region: awsConfig.region},
-      identityPoolId: awsConfig.idPoolId,
-    })
-    : fromIni({profile: awsConfig.profile});
-  const s3Client = new S3Client({credentials});
+        clientConfig: { region: awsConfig.region },
+        identityPoolId: awsConfig.idPoolId,
+      })
+    : fromIni({ profile: awsConfig.profile });
+  const s3Client = new S3Client({ credentials });
 
   const key = `data/${uuid}-${fileName}.vwbl`;
   const upload = new Upload({
@@ -45,7 +45,11 @@ export const uploadEncryptedFile = async (
   return `${awsConfig.cloudFrontUrl.replace(/\/$/, "")}/${key}`;
 };
 
-export const uploadThumbnail = async (thumbnailImage: FileOrPath, uuid: string, awsConfig?: AWSConfig): Promise<string> => {
+export const uploadThumbnail = async (
+  thumbnailImage: FileOrPath,
+  uuid: string,
+  awsConfig?: AWSConfig
+): Promise<string> => {
   if (!awsConfig || !awsConfig.bucketName.content) {
     throw new Error("bucket is not specified.");
   }
@@ -55,11 +59,11 @@ export const uploadThumbnail = async (thumbnailImage: FileOrPath, uuid: string, 
 
   const credentials = awsConfig.idPoolId
     ? fromCognitoIdentityPool({
-      clientConfig: {region: awsConfig.region},
-      identityPoolId: awsConfig.idPoolId,
-    })
-    : fromIni({profile: awsConfig.profile});
-  const s3Client = new S3Client({credentials});
+        clientConfig: { region: awsConfig.region },
+        identityPoolId: awsConfig.idPoolId,
+      })
+    : fromIni({ profile: awsConfig.profile });
+  const s3Client = new S3Client({ credentials });
   const fileName = thumbnailImage instanceof File ? thumbnailImage.name : thumbnailImage.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
 
   const key = `data/${uuid}-${fileName}`;
@@ -96,11 +100,11 @@ export const uploadMetadata = async (
 
   const credentials = awsConfig.idPoolId
     ? fromCognitoIdentityPool({
-      clientConfig: {region: awsConfig.region},
-      identityPoolId: awsConfig.idPoolId,
-    })
-    : fromIni({profile: awsConfig.profile});
-  const s3Client = new S3Client({credentials});
+        clientConfig: { region: awsConfig.region },
+        identityPoolId: awsConfig.idPoolId,
+      })
+    : fromIni({ profile: awsConfig.profile });
+  const s3Client = new S3Client({ credentials });
 
   const metadata: PlainMetadata = {
     name,
@@ -133,11 +137,11 @@ export const uploadDirectoryToS3 = (directoryPath: string, awsConfig?: AWSConfig
 
   const credentials = awsConfig.idPoolId
     ? fromCognitoIdentityPool({
-      clientConfig: {region: awsConfig.region},
-      identityPoolId: awsConfig.idPoolId,
-    })
-    : fromIni({profile: awsConfig.profile});
-  const s3Client = new S3Client({credentials});
+        clientConfig: { region: awsConfig.region },
+        identityPoolId: awsConfig.idPoolId,
+      })
+    : fromIni({ profile: awsConfig.profile });
+  const s3Client = new S3Client({ credentials });
 
   fs.readdir(directoryPath, (err, files) => {
     if (err) throw err;

@@ -1,9 +1,10 @@
-import mime from 'mime';
+import mime from "mime";
+
 import { FileOrPath } from "../vwbl/types";
 const isRunningOnBrowser = typeof window !== "undefined";
 
 export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
-  if(isRunningOnBrowser) {
+  if (isRunningOnBrowser) {
     return new Promise((resolve, reject) => {
       const reader = new window.FileReader();
       reader.readAsDataURL(blob);
@@ -19,16 +20,16 @@ export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
     });
   }
   const arrayBuffer = await blob.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer)
-  return buffer.toString("base64")
+  const buffer = Buffer.from(arrayBuffer);
+  return buffer.toString("base64");
 };
 
-export const getMimeType =  (file: FileOrPath): string=> {
-  return file instanceof File ? file.type :mime.getType(file) || "";
+export const getMimeType = (file: FileOrPath): string => {
+  return file instanceof File ? file.type : mime.getType(file) || "";
 };
 
 export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
-  if(isRunningOnBrowser) {
+  if (isRunningOnBrowser) {
     return new Promise((resolve, reject) => {
       const reader = new window.FileReader();
       reader.readAsArrayBuffer(blob);
@@ -45,4 +46,3 @@ export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
   }
   return await blob.arrayBuffer();
 };
-
