@@ -22,7 +22,7 @@ const hdWalletProvider = new HDWalletProvider({
   privateKeys: [process.env.PRIVATE_KEY as string],
   providerOrUrl: providerUrl
 })
-const web3 = new Web3(hdWalletProvider as any);
+const web3 = new Web3(hdWalletProvider);
 // preparation for ethers.js
 const privateKey = process.env.PRIVATE_KEY as string;
 const ethProvider = new ethers.providers.JsonRpcProvider(providerUrl);
