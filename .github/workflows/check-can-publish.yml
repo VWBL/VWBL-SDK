@@ -26,5 +26,8 @@ jobs:
           registry-url: "https://registry.npmjs.org"
           always-auth: true
 
-      - name: npx can-npm-publish
-        run: npx can-npm-publish
+      - name: Check if package version can be published
+        uses: technote-space/package-version-check-action@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_MANAGER: yarn
