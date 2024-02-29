@@ -8,7 +8,7 @@ on:
 env:
   # Check available versions below
   # https://github.com/actions/node-versions/blob/main/versions-manifest.json
-  node-version: "16.x"
+  node-version: "20.x"
 
 jobs:
   check-can-publish:
@@ -26,5 +26,8 @@ jobs:
           registry-url: "https://registry.npmjs.org"
           always-auth: true
 
-      - name: npx can-npm-publish
-        run: npx can-npm-publish
+      - name: Check if package version can be published
+        uses: technote-space/package-version-check-action@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_MANAGER: yarn

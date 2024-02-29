@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import Web3 from "web3";
+import { Web3 } from "web3";
 
 import { AWSConfig } from "../../storage/aws/types";
 import { BiconomyConfig } from "./BiconomyConfigType";

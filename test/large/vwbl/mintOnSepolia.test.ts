@@ -1,11 +1,7 @@
 import { expect } from "chai";
 import * as dotenv from "dotenv";
-import Web3 from "web3";
+import { Web3 } from "web3";
 import { ethers } from "ethers";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const FileAPI = require("file-api"),
-  File = FileAPI.File;
-
 import {
   ManageKeyType,
   UploadContentType,
@@ -13,8 +9,8 @@ import {
   VWBL
 } from "../../../src/vwbl";
 import HDWalletProvider from "@truffle/hdwallet-provider";
-import {provider} from "web3-core";
-
+import * as FileAPI from "file-api";
+const File = FileAPI.File;
 dotenv.config();
 
 const providerUrl = process.env.SEPOLIA_PROVIDER_URL;
@@ -25,7 +21,7 @@ const hdWalletProvider = new HDWalletProvider({
   privateKeys: [process.env.PRIVATE_KEY as string],
   providerOrUrl: providerUrl
 })
-const web3 = new Web3(hdWalletProvider as provider);
+const web3 = new Web3(hdWalletProvider as any);
 // preparation for ethers.js
 const privateKey = process.env.PRIVATE_KEY as string;
 const ethProvider = new ethers.providers.JsonRpcProvider(providerUrl);

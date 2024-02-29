@@ -8,7 +8,7 @@ type UploadEncryptedFile = (
   uuid: string
 ) => Promise<string>;
 
-type UploadThumbnail = (thumbnailImage: File, uuid: string) => Promise<string>;
+type UploadThumbnail = (thumbnailImage: FileOrPath, uuid: string) => Promise<string>;
 
 type UploadMetadata = (
   tokenId: number,
@@ -20,4 +20,6 @@ type UploadMetadata = (
   encryptLogic: EncryptLogic
 ) => Promise<void>;
 
-export { UploadMetadata, UploadEncryptedFile, UploadThumbnail };
+type FileOrPath = File | string;
+
+export { UploadMetadata, UploadEncryptedFile, UploadThumbnail, FileOrPath };

@@ -1,6 +1,4 @@
-import Web3 from "web3";
-import { Contract } from "web3-eth-contract";
-import { AbiItem } from "web3-utils";
+import { Web3 } from "web3";
 
 import vwbl1155 from "../../../contract/VWBLERC1155ERC2981.json";
 import vwbl1155IPFS from "../../../contract/VWBLERC1155ERC2981ForMetadata.json";
@@ -8,14 +6,14 @@ import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelpe
 import { GasSettings } from "../../types";
 
 export class VWBLERC1155Contract {
-  private contract: Contract;
+  private contract: any; // eslint-disable-line
   private web3: Web3;
 
   constructor(web3: Web3, address: string, isIpfs: boolean) {
     this.web3 = web3;
     this.contract = isIpfs
-      ? new web3.eth.Contract(vwbl1155IPFS.abi as AbiItem[], address)
-      : new web3.eth.Contract(vwbl1155.abi as AbiItem[], address);
+      ? new web3.eth.Contract(vwbl1155IPFS.abi, address)
+      : new web3.eth.Contract(vwbl1155.abi, address);
   }
 
   async mintToken(
