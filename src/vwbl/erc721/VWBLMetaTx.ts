@@ -11,13 +11,15 @@ import {
   encryptFile,
   encryptStream,
   encryptString,
-} from "../../util/cryptoHelper";
-import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
+  getMimeType,
+  toBase64FromBlob,
+} from "../../util";
 import { VWBLBase } from "../base";
 import { VWBLNFTMetaTx } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
   EncryptLogic,
+  FileOrPath,
   MetaTxConstructorProps,
   ProgressSubscriber,
   StepStatus,
@@ -92,8 +94,8 @@ export class VWBLMetaTx extends VWBLBase {
   managedCreateToken = async (
     name: string,
     description: string,
-    plainFile: File | File[],
-    thumbnailImage: File,
+    plainFile: FileOrPath | FileOrPath[],
+    thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     mintApiId: string,
@@ -133,13 +135,16 @@ export class VWBLMetaTx extends VWBLBase {
     const isRunningOnBrowser = typeof window !== "undefined";
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
+        const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
+        const filePath = file instanceof File ? file.name : file;
+        const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(file), key)
+            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
             : isRunningOnBrowser
-            ? await encryptFile(file, key)
-            : encryptStream(fs.createReadStream((file as any).path), key);
-        return await uploadEncryptedFunction(file.name, encryptedContent, uuid, awsConfig);
+            ? await encryptFile(plainFileBlob, key)
+            : encryptStream(fs.createReadStream(filePath), key);
+        return await uploadEncryptedFunction(fileName, encryptedContent, uuid, awsConfig);
       })
     );
     const thumbnailImageUrl = await uploadThumbnailFunction(thumbnailImage, uuid, awsConfig);
@@ -195,8 +200,8 @@ export class VWBLMetaTx extends VWBLBase {
   managedCreateTokenForIPFS = async (
     name: string,
     description: string,
-    plainFile: File | File[],
-    thumbnailImage: File,
+    plainFile: FileOrPath | FileOrPath[],
+    thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     mintApiId: string,
@@ -219,9 +224,13 @@ export class VWBLMetaTx extends VWBLBase {
     console.log("upload data");
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
+        const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
+        const filePath = file instanceof File ? file.name : file;
+        const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
-          encryptLogic === "base64" ? encryptString(await toBase64FromBlob(file), key) : await encryptFile(file, key);
-        console.log(typeof encryptedContent);
+          encryptLogic === "base64"
+            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
+            : await encryptFile(plainFileBlob, key);
         return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent);
       })
     );

@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import Web3 from "web3";
+import { Web3 } from "web3";
 
 interface IEthersSigner {
   signMessage(message: string | ethers.utils.Bytes): Promise<string>;

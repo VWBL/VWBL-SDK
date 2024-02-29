@@ -1,9 +1,6 @@
 /* eslint-disable no-prototype-builtins */
 import axios from "axios";
 import { ethers } from "ethers";
-import Web3 from "web3";
-import { Contract } from "web3-eth-contract";
-import { AbiItem } from "web3-utils";
 
 import vwblDataCollector from "../contract/VWBLDataCollector.json";
 import { ExtendedMetadeta, PlainMetadata } from "./metadata";
@@ -17,14 +14,14 @@ type TokenInfo = {
 
 export class VWBLViewer {
   public opts: ViewerOption;
-  private dataCollector: Contract | ethers.Contract;
+  private dataCollector: any;
 
   constructor(props: ViewerConstructorProps) {
     this.opts = props;
     const { provider, dataCollectorAddress } = props;
     this.dataCollector =
       "eth" in provider
-        ? new provider.eth.Contract(vwblDataCollector.abi as AbiItem[], dataCollectorAddress)
+        ? new provider.eth.Contract(vwblDataCollector.abi, dataCollectorAddress)
         : new ethers.Contract(dataCollectorAddress, vwblDataCollector.abi, provider);
   }
 
