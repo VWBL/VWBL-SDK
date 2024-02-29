@@ -50,7 +50,7 @@ jobs:
       #     github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check if package version can be published
-        uses: technote-space/package-version-check-action@v2
+        uses: technote-space/package-version-check-action@v1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PACKAGE_MANAGER: yarn
