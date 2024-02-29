@@ -287,7 +287,7 @@ export class VWBLERC1155 extends VWBLBase {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainIdBigInt =
-      "web3" in this.opts ? await (this.opts.web3.eth as any).getChainId() : await this.opts.ethersSigner.getChainId();
+      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
     const chainId = Number(chainIdBigInt);
     const signerAddress =
       "web3" in this.opts
@@ -560,7 +560,7 @@ export class VWBLERC1155 extends VWBLBase {
         ? await this.viewer.getDocumentId(contractAddress, tokenId)
         : (await this.nft.getTokenInfo(tokenId)).documentId;
     const chainIdBigInt =
-      "web3" in this.opts ? await (this.opts.web3.eth as any).getChainId() : await this.opts.ethersSigner.getChainId();
+      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
     const chainId = Number(chainIdBigInt);
     const signerAddress =
       "web3" in this.opts
