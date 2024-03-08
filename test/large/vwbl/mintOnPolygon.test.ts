@@ -36,8 +36,6 @@ const privateKey = process.env.PRIVATE_KEY as string;
 const ethProvider = new ethers.providers.JsonRpcProvider(providerUrl);
 const ethSigner = new ethers.Wallet(privateKey, ethProvider);
 
-jest.setTimeout(10000);
-
 describe("VWBL with web3.js", () => {
   const vwbl = new VWBL({
     ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,

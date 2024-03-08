@@ -29,8 +29,6 @@ const ethSigner = new ethers.Wallet(privateKey, ethProvider);
 const maxPriorityFee_gwei = '1.5';
 const maxFee_gwei = '47.329387804';
 
-jest.setTimeout(8000);
-
 describe("VWBL with web3.js", () => {
   const vwbl = new VWBL({
     ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,
