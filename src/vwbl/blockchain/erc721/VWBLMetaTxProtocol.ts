@@ -9,7 +9,7 @@ import {
   getDataToSignForEIP712,
   getDomainSeparator,
   TxParam,
-} from "../../../util/biconomyHelper";
+} from "../../../util/biconomyHelper.js";
 
 export class VWBLNFTMetaTx {
   private walletProvider: ethers.providers.Web3Provider;
@@ -245,7 +245,7 @@ export class VWBLNFTMetaTx {
         "x-api-key": this.biconomyAPIKey,
         "content-Type": "application/json;charset=utf-8",
       };
-      const { data } = await axios.post(
+      const { data } = await axios.default.post(
         `https://api.biconomy.io/api/v2/meta-tx/native`,
         {
           to: this.nftAddress,

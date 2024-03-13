@@ -3,7 +3,7 @@ import axios from "axios";
 export class VWBLApi {
   private instance;
   constructor(endpointUrl: string) {
-    this.instance = axios.create({ baseURL: endpointUrl });
+    this.instance = axios.default.create({ baseURL: endpointUrl });
   }
   async setKey(
     documentId: string,

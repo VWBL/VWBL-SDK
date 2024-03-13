@@ -2,8 +2,8 @@ import { Web3 } from "web3";
 
 import vwbl from "../../../contract/VWBLERC721ERC2981.json";
 import vwblIPFS from "../../../contract/VWBLERC721ERC2981ForMetadata.json";
-import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelper";
-import { GasSettings } from "../../types";
+import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelper.js";
+import { GasSettings } from "../../types/GasSettings.js";
 
 export class VWBLNFT {
   private contract: any; // eslint-disable-line

@@ -2,8 +2,9 @@
   "name": "vwbl-sdk",
   "description": "VWBL SDK for TypeScript",
   "version": "0.1.15",
-  "main": "dist/index.js",
+  "exports": "./dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "engines": {
     "node": ">=20.0.0"
   },

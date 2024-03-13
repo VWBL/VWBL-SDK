@@ -1,6 +1,6 @@
 import mime from "mime";
 
-import { FileOrPath } from "../vwbl/types";
+import { FileOrPath } from "../vwbl/types/File.js";
 const isRunningOnBrowser = typeof window !== "undefined";
 
 export const toBase64FromBlob = async (blob: Blob): Promise<string> => {

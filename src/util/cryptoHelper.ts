@@ -2,8 +2,8 @@ import nodeCrypto from "crypto";
 import crypto from "crypto-js";
 import * as Stream from "stream";
 import * as uuid from "uuid";
+import { toArrayBuffer } from "./fileHelper.js";
 
-import { toArrayBuffer } from "./fileHelper";
 
 export const createRandomKey = uuid.v4;
 export const encryptString = (message: string, key: string) => {

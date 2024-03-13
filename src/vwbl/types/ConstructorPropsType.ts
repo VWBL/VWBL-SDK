@@ -1,11 +1,11 @@
 import { ethers } from "ethers";
 import { Web3 } from "web3";
 
-import { AWSConfig } from "../../storage/aws/types";
-import { BiconomyConfig } from "./BiconomyConfigType";
-import { ManageKeyType } from "./ManageKeyType";
-import { UploadContentType } from "./UploadContentType";
-import { UploadMetadataType } from "./UploadMetadataType";
+import { BiconomyConfig } from "./BiconomyConfigType.js";
+import { ManageKeyType } from "./ManageKeyType.js";
+import { UploadContentType } from "./UploadContentType.js";
+import { UploadMetadataType } from "./UploadMetadataType.js";
+import { AWSConfig } from "../../index.js";
 
 export type BaseConstructorProps = {
   contractAddress: string;
@@ -34,7 +34,9 @@ export type EthersConstructorProps = BaseConstructorProps & {
 export type VWBLEthersOption = EthersConstructorProps;
 
 export type MetaTxConstructorProps = BaseConstructorProps & {
-  bcProvider: ethers.providers.ExternalProvider | ethers.providers.JsonRpcFetchFunc;
+  bcProvider:
+    | ethers.providers.ExternalProvider
+    | ethers.providers.JsonRpcFetchFunc;
   biconomyConfig: BiconomyConfig;
   manageKeyType?: ManageKeyType;
   dataCollectorAddress?: string;

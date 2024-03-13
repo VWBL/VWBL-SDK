@@ -1,3 +1,3 @@
-export * from "./vwbl";
-export * from "./util";
-export * from "./storage";
+export * from "./vwbl/index.js";
+export * from "./util/index.js";
+export * from "./storage/index.js";

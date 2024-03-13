@@ -1,6 +1,6 @@
 import * as Stream from "stream";
 
-import { EncryptLogic } from "./EncryptLogic";
+import { EncryptLogic } from "./EncryptLogic.js";
 
 type UploadEncryptedFile = (
   fileName: string,

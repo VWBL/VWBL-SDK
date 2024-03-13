@@ -1,2 +1,2 @@
-export * from "./aws";
-export * from "./ipfs";
+export * from "./aws/index.js";
+export * from "./ipfs/index.js";

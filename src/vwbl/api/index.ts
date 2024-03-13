@@ -1,1 +1,1 @@
-export * from "./VWBLApi";
+export * from "./VWBLApi.js";

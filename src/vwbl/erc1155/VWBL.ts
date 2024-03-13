@@ -2,7 +2,7 @@ import axios from "axios";
 import { utils } from "ethers";
 import * as fs from "fs";
 
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
+import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws/upload.js";
 import {
   createRandomKey,
   decryptFile,
@@ -11,11 +11,10 @@ import {
   encryptFile,
   encryptStream,
   encryptString,
-} from "../../util/cryptoHelper";
-import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
-import { VWBLBase } from "../base";
-import { VWBLERC1155Contract, VWBLERC1155EthersContract } from "../blockchain";
-import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
+} from "../../util/cryptoHelper.js";
+import { getMimeType, toBase64FromBlob } from "../../util/fileHelper.js";
+import { VWBLBase } from "../base.js";
+import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata/type.js";
 import {
   ConstructorProps,
   EncryptLogic,
@@ -31,8 +30,9 @@ import {
   UploadThumbnail,
   VWBLEthersOption,
   VWBLOption,
-} from "../types";
-import { VWBLViewer } from "../viewer";
+} from "../types/index.js";
+import { VWBLViewer } from "../viewer.js";
+import { VWBLERC1155Contract, VWBLERC1155EthersContract } from "../blockchain/index.js";
 
 export class VWBLERC1155 extends VWBLBase {
   public opts: VWBLOption | VWBLEthersOption;
@@ -253,16 +253,16 @@ export class VWBLERC1155 extends VWBLBase {
           encryptLogic === "base64"
             ? encryptString(await toBase64FromBlob(plainFileBlob), key)
             : await encryptFile(plainFileBlob, key);
-        return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent);
+        return await this.UploadToIPFS?.uploadEncryptedFile(encryptedContent);
       })
     );
-    const thumbnailImageUrl = await this.uploadToIpfs?.uploadThumbnail(thumbnailImage);
+    const thumbnailImageUrl = await this.UploadToIPFS?.uploadThumbnail(thumbnailImage);
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
 
     // 4. upload metadata
     console.log("upload meta data");
     const mimeType = getMimeType(plainFileArray[0]);
-    const metadataUrl = await this.uploadToIpfs?.uploadMetadata(
+    const metadataUrl = await this.UploadToIPFS?.uploadMetadata(
       name,
       description,
       thumbnailImageUrl as string,
@@ -423,7 +423,7 @@ export class VWBLERC1155 extends VWBLBase {
     mimeType: string,
     encryptLogic: EncryptLogic
   ): Promise<string> => {
-    const metadataUrl = await this.uploadToIpfs?.uploadMetadata(
+    const metadataUrl = await this.UploadToIPFS?.uploadMetadata(
       name,
       description,
       thumbnailImageUrl,
@@ -514,7 +514,7 @@ export class VWBLERC1155 extends VWBLBase {
    */
   getMetadata = async (tokenId: number): Promise<Metadata | undefined> => {
     const metadataUrl = await this.nft.getMetadataUrl(tokenId);
-    const metadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
+    const metadata = (await axios.default.get(metadataUrl).catch(() => undefined))?.data;
     // delete token if metadata is not found
     if (!metadata) {
       return undefined;
@@ -550,7 +550,9 @@ export class VWBLERC1155 extends VWBLBase {
       contractAddress && this.viewer
         ? await this.viewer.getMetadataUrl(contractAddress, tokenId)
         : await this.nft.getMetadataUrl(tokenId);
-    const metadata: PlainMetadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
+    const metadata: PlainMetadata = (
+      await axios.default.get(metadataUrl).catch(() => undefined)
+    )?.data;
     // delete token if metadata is not found
     if (!metadata) {
       return undefined;
@@ -573,8 +575,13 @@ export class VWBLERC1155 extends VWBLBase {
     const ownDataArray = await Promise.all(
       encryptedDataUrls.map(async (encryptedDataUrl) => {
         const encryptedData = (
-          await axios.get(encryptedDataUrl, {
-            responseType: encryptLogic === "base64" ? "text" : isRunningOnBrowser ? "arraybuffer" : "stream",
+          await axios.default.get(encryptedDataUrl, {
+            responseType:
+              encryptLogic === "base64"
+                ? "text"
+                : isRunningOnBrowser
+                ? "arraybuffer"
+                : "stream",
           })
         ).data;
         return encryptLogic === "base64"

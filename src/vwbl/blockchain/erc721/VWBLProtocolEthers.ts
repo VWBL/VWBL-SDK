@@ -2,8 +2,8 @@ import { ethers } from "ethers";
 
 import vwbl from "../../../contract/VWBLERC721ERC2981.json";
 import vwblIPFS from "../../../contract/VWBLERC721ERC2981ForMetadata.json";
-import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelper";
-import { GasSettings } from "../../types";
+import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelper.js";
+import { GasSettings } from "../../types/GasSettings.js";
 
 export class VWBLNFTEthers {
   private ethersProvider: ethers.providers.BaseProvider;

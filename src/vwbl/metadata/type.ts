@@ -1,7 +1,7 @@
 // use snake case because OpenSea's metadata standard is snake case.
 import * as Stream from "stream";
 
-import { EncryptLogic } from "../types";
+import { EncryptLogic } from "../types/EncryptLogic.js";
 
 export type PlainMetadata = {
   name: string;

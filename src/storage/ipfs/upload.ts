@@ -1,8 +1,9 @@
 import { Blob, NFTStorage } from "nft.storage";
 
-import { getMimeType } from "../../util";
-import { PlainMetadata } from "../../vwbl/metadata";
-import { EncryptLogic, FileOrPath } from "../../vwbl/types";
+import { getMimeType } from "../../util/fileHelper.js";
+import { PlainMetadata } from "../../vwbl/metadata/type.js";
+import { EncryptLogic } from "../../vwbl/types/EncryptLogic.js";
+import { FileOrPath } from "../../vwbl/types/File.js";
 
 export class UploadToIPFS {
   private client: NFTStorage;
@@ -10,7 +11,9 @@ export class UploadToIPFS {
     this.client = new NFTStorage({ token: ipfsNftStorageKey });
   }
 
-  async uploadEncryptedFile(encryptedContent: string | ArrayBuffer): Promise<string> {
+  async uploadEncryptedFile(
+    encryptedContent: string | ArrayBuffer
+  ): Promise<string> {
     const encryptedContentData = new Blob([encryptedContent]);
 
     let cid;
@@ -25,7 +28,9 @@ export class UploadToIPFS {
 
   async uploadThumbnail(thumbnailImage: FileOrPath): Promise<string> {
     const thumbnailFileType = getMimeType(thumbnailImage);
-    const thumbnailblob = new Blob([thumbnailImage], { type: thumbnailFileType });
+    const thumbnailblob = new Blob([thumbnailImage], {
+      type: thumbnailFileType,
+    });
 
     let cid;
     try {

@@ -3,8 +3,8 @@ import axios from "axios";
 import { ethers } from "ethers";
 
 import vwblDataCollector from "../contract/VWBLDataCollector.json";
-import { ExtendedMetadeta, PlainMetadata } from "./metadata";
-import { ViewerConstructorProps, ViewerOption } from "./types";
+import { ExtendedMetadeta, PlainMetadata } from "./metadata/type.js";
+import { ViewerConstructorProps, ViewerOption } from "./types/ConstructorPropsType.js";
 
 type TokenInfo = {
   contractAddress: string;
@@ -32,7 +32,7 @@ export class VWBLViewer {
         ? await this.dataCollector.callStatic.getTokenURI(contractAddress, tokenId)
         : await this.dataCollector.methods.getTokenURI(contractAddress, tokenId).call();
     if (!metadataUrl) return undefined;
-    const metadata: PlainMetadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
+    const metadata: PlainMetadata = (await axios.default.get(metadataUrl).catch(() => undefined))?.data;
     if (!metadata) return undefined;
     return {
       id: tokenId,
@@ -53,7 +53,7 @@ export class VWBLViewer {
         : await this.dataCollector.methods.getAllTokensFromOptionalContract(contractAddress).call();
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
-        const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
+        const metadata: PlainMetadata = (await axios.default.get(token.tokenURI).catch(() => undefined))?.data;
         if (!metadata) return undefined;
         return {
           id: token.tokenId,
@@ -87,7 +87,7 @@ export class VWBLViewer {
         : await this.dataCollector.methods.getAllOwnedTokens(userAddress).call();
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
-        const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
+        const metadata: PlainMetadata = (await axios.default.get(token.tokenURI).catch(() => undefined))?.data;
         if (!metadata) return undefined;
         return {
           id: token.tokenId,
@@ -111,7 +111,7 @@ export class VWBLViewer {
         : await this.dataCollector.methods.getOwnedNFTs(userAddress).call();
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
-        const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
+        const metadata: PlainMetadata = (await axios.default.get(token.tokenURI).catch(() => undefined))?.data;
         if (!metadata) return undefined;
         return {
           id: token.tokenId,
@@ -135,7 +135,9 @@ export class VWBLViewer {
         : await this.dataCollector.methods.getOwnedERC1155s(userAddress).call();
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
-        const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
+        const metadata: PlainMetadata = (
+          await axios.default.get(token.tokenURI).catch(() => undefined)
+        )?.data;
         if (!metadata) return undefined;
         return {
           id: token.tokenId,
@@ -159,7 +161,7 @@ export class VWBLViewer {
         : await this.dataCollector.methods.getAllMintedTokens(userAddress).call();
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
-        const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
+        const metadata: PlainMetadata = (await axios.default.get(token.tokenURI).catch(() => undefined))?.data;
         if (!metadata) return undefined;
         return {
           id: token.tokenId,
@@ -183,7 +185,7 @@ export class VWBLViewer {
         : await this.dataCollector.methods.getMintedNFTs(userAddress).call();
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
-        const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
+        const metadata: PlainMetadata = (await axios.default.get(token.tokenURI).catch(() => undefined))?.data;
         if (!metadata) return undefined;
         return {
           id: token.tokenId,
@@ -207,7 +209,7 @@ export class VWBLViewer {
         : await this.dataCollector.methods.getMintedERC1155s(userAddress).call();
     const items: (ExtendedMetadeta | undefined)[] = await Promise.all(
       tokens.map(async (token: TokenInfo) => {
-        const metadata: PlainMetadata = (await axios.get(token.tokenURI).catch(() => undefined))?.data;
+        const metadata: PlainMetadata = (await axios.default.get(token.tokenURI).catch(() => undefined))?.data;
         if (!metadata) return undefined;
         return {
           id: token.tokenId,

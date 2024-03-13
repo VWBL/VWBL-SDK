@@ -1,14 +1,18 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { fromCognitoIdentityPool, fromIni } from "@aws-sdk/credential-providers";
+import {
+  fromCognitoIdentityPool,
+  fromIni,
+} from "@aws-sdk/credential-providers";
 import { Upload } from "@aws-sdk/lib-storage";
 import * as fs from "fs";
 import * as Stream from "stream";
 
-import { getMimeType } from "../../util";
-import { PlainMetadata } from "../../vwbl/metadata";
-import { EncryptLogic, FileOrPath } from "../../vwbl/types";
-import { AWSConfig } from "./types";
+import { EncryptLogic } from "../../vwbl/types/EncryptLogic.js";
+import { FileOrPath } from "../../vwbl/types/File.js";
 
+import { getMimeType } from "../../util/fileHelper.js";
+import { PlainMetadata } from "../../vwbl/metadata/type.js";
+import { AWSConfig } from "./types.js";
 export const uploadEncryptedFile = async (
   fileName: string,
   encryptedContent: string | Uint8Array | Stream.Readable,
@@ -64,7 +68,10 @@ export const uploadThumbnail = async (
       })
     : fromIni({ profile: awsConfig.profile });
   const s3Client = new S3Client({ credentials });
-  const fileName = thumbnailImage instanceof File ? thumbnailImage.name : thumbnailImage.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
+  const fileName =
+    thumbnailImage instanceof File
+      ? thumbnailImage.name
+      : thumbnailImage.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
 
   const key = `data/${uuid}-${fileName}`;
   const type = getMimeType(thumbnailImage);
@@ -72,7 +79,10 @@ export const uploadThumbnail = async (
   const uploadCommand = new PutObjectCommand({
     Bucket: awsConfig.bucketName.content,
     Key: key,
-    Body: thumbnailImage instanceof File ? thumbnailImage : await fs.promises.readFile(thumbnailImage),
+    Body:
+      thumbnailImage instanceof File
+        ? thumbnailImage
+        : await fs.promises.readFile(thumbnailImage),
     ContentType: type,
     ACL: "public-read",
   });
@@ -127,7 +137,10 @@ export const uploadMetadata = async (
   return `${awsConfig.cloudFrontUrl.replace(/\/$/, "")}/${key}`;
 };
 
-export const uploadDirectoryToS3 = (directoryPath: string, awsConfig?: AWSConfig) => {
+export const uploadDirectoryToS3 = (
+  directoryPath: string,
+  awsConfig?: AWSConfig
+) => {
   if (!awsConfig || !awsConfig.bucketName.content) {
     throw new Error("bucket is not specified.");
   }
