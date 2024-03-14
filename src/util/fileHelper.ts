@@ -1,5 +1,6 @@
+import mime from "mime-types";
+
 import { FileOrPath } from "../vwbl";
-import mime from "mime-types"
 const isRunningOnBrowser = typeof window !== "undefined";
 
 export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
@@ -23,8 +24,8 @@ export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
   return buffer.toString("base64");
 };
 
-export const getMimeType = (file: FileOrPath): string=> {
-  return file instanceof File ? file.type :mime.lookup(file) || "";
+export const getMimeType = (file: FileOrPath): string => {
+  return file instanceof File ? file.type : mime.lookup(file) || "";
 };
 
 export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
