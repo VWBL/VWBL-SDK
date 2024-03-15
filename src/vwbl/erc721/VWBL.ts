@@ -166,7 +166,7 @@ export class VWBL extends VWBLBase {
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback");
     }
-    const mimeType = (await getMimeType(plainFileArray[0])) || "";
+    const mimeType = getMimeType(plainFileArray[0]) || "";
     await uploadMetadataFunction(
       tokenId,
       name,
