@@ -68,7 +68,8 @@
     "mime-types": "^2.1.35",
     "nft.storage": "^7.0.0",
     "uuid": "^8.3.2",
-    "web3": "^4.3.0"
+    "web3": "^4.3.0",
+    "xrpl": "^3.0.0"
   },
   "browser": {
     "crypto": false,
