@@ -28,7 +28,7 @@ export class VWBLNFTMetaTx {
     this.biconomyAPIKey = biconomyAPIKey;
     this.walletProvider = walletProvider;
     if (isWeb3Provider(walletProvider as IWeb3Provider)) {
-      this.ethersSigner = (walletProvider as IWeb3Provider).getSigner(); 
+      this.ethersSigner = (walletProvider as IWeb3Provider).getSigner();
     } else {
       this.ethersSigner = walletProvider as ethers.Wallet;
     }
@@ -86,47 +86,27 @@ export class VWBLNFTMetaTx {
   }
 
   async getTokenByMinter(address: string) {
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.ethersSigner
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     return await vwblMetaTxContract.callStatic.getTokenByMinter(address);
   }
 
   async getMetadataUrl(tokenId: number) {
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.ethersSigner
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     return await vwblMetaTxContract.callStatic.tokenURI(tokenId);
   }
 
   async getOwner(tokenId: number) {
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.ethersSigner
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     return await vwblMetaTxContract.callStatic.ownerOf(tokenId);
   }
 
   async getMinter(tokenId: number) {
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.ethersSigner
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     return await vwblMetaTxContract.callStatic.getMinter(tokenId);
   }
 
   async checkViewPermission(tokenId: number, user: string) {
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.ethersSigner
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     return await vwblMetaTxContract.callStatic.checkViewPermission(tokenId, user);
   }
 
@@ -148,20 +128,12 @@ export class VWBLNFTMetaTx {
   }
 
   async getFee() {
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.ethersSigner
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     return await vwblMetaTxContract.callStatic.getFee();
   }
 
   async getTokenInfo(tokenId: number) {
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.ethersSigner
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     return await vwblMetaTxContract.callStatic.tokenIdToTokenInfo(tokenId);
   }
 
@@ -177,11 +149,7 @@ export class VWBLNFTMetaTx {
   }
 
   async getApproved(tokenId: number): Promise<string> {
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.ethersSigner
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     return await vwblMetaTxContract.callStatic.getApproved(tokenId);
   }
 
@@ -197,11 +165,7 @@ export class VWBLNFTMetaTx {
   }
 
   async isApprovedForAll(owner: string, operator: string): Promise<boolean> {
-    const vwblMetaTxContract = new ethers.Contract(
-      this.nftAddress,
-      vwblMetaTxIpfs.abi,
-      this.ethersSigner
-    );
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     return await vwblMetaTxContract.callStatic.isApprovedForAll(owner, operator);
   }
 
@@ -235,11 +199,7 @@ export class VWBLNFTMetaTx {
       data,
     });
     console.log("estimate gas end");
-    const forwarderContract = new ethers.Contract(
-      this.forwarderAddress,
-      forwarder.abi,
-      this.ethersSigner
-    );
+    const forwarderContract = new ethers.Contract(this.forwarderAddress, forwarder.abi, this.ethersSigner);
     const batchNonce = await forwarderContract.getNonce(myAddress, 0);
     const txParam: TxParam = buildForwardTxRequest(
       myAddress,
@@ -248,11 +208,14 @@ export class VWBLNFTMetaTx {
       batchNonce,
       data
     );
-  
+
     if (isWeb3Provider(this.walletProvider as IWeb3Provider)) {
       const domainSeparator = getDomainSeparator(this.forwarderAddress, chainId);
       const dataToSign = getDataToSignForEIP712(txParam, this.forwarderAddress, chainId);
-      const sig = await (this.walletProvider as ethers.providers.Web3Provider).send("eth_signTypedData_v3", [myAddress, dataToSign]);
+      const sig = await (this.walletProvider as ethers.providers.Web3Provider).send("eth_signTypedData_v3", [
+        myAddress,
+        dataToSign,
+      ]);
       return { txParam, sig, domainSeparator };
     } else {
       const hashToSign = getDataToSignForPersonalSign(txParam);
@@ -288,9 +251,9 @@ export class VWBLNFTMetaTx {
         { headers: headers }
       );
       console.log("post meta tx resp", data);
-      const receipt = isWeb3Provider(this.walletProvider as IWeb3Provider) 
+      const receipt = isWeb3Provider(this.walletProvider as IWeb3Provider)
         ? (this.walletProvider as ethers.providers.Web3Provider).waitForTransaction(data.txHash)
-        : (this.walletProvider as ethers.Wallet).provider.waitForTransaction(data.txHash); 
+        : (this.walletProvider as ethers.Wallet).provider.waitForTransaction(data.txHash);
       console.log("confirmed:", data.txHash);
       return receipt;
     } catch (error) {
@@ -319,9 +282,9 @@ const parseToTokenId = (receipt: ethers.providers.TransactionReceipt): number =>
 };
 
 interface IWeb3Provider {
-  getSigner(): ethers.providers.JsonRpcSigner
+  getSigner(): ethers.providers.JsonRpcSigner;
 }
 
 const isWeb3Provider = (walletProvider: IWeb3Provider): walletProvider is IWeb3Provider => {
   return walletProvider.getSigner !== undefined;
-}
+};

@@ -44,19 +44,15 @@ export class VWBLMetaTx extends VWBLBase {
     this.opts = props;
     const { bcProvider, contractAddress, biconomyConfig, dataCollectorAddress } = props;
 
-    const walletProvider = "address" in bcProvider 
-      ? bcProvider as ethers.Wallet 
-      : new ethers.providers.Web3Provider(bcProvider);
-    this.signer = "address" in bcProvider 
-      ? bcProvider as ethers.Wallet 
-      : (walletProvider as ethers.providers.Web3Provider).getSigner();
+    const walletProvider = "address" in bcProvider ? bcProvider : new ethers.providers.Web3Provider(bcProvider);
+    this.signer = "address" in bcProvider ? bcProvider : (walletProvider as ethers.providers.Web3Provider).getSigner();
     this.nft = new VWBLNFTMetaTx(
       biconomyConfig.apiKey,
       walletProvider,
       contractAddress,
       biconomyConfig.forwarderAddress
     );
-    
+
     if (dataCollectorAddress) {
       this.viewer = new VWBLViewer({
         provider: walletProvider,
