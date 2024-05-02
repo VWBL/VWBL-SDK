@@ -106,6 +106,10 @@ export class VWBLNFTEthers {
     return await this.contract.callStatic.getMinter(tokenId);
   }
 
+  async checkViewPermission(tokenId: number, user: string) {
+    return await this.contract.callStatic.checkViewPermission(tokenId, user);
+  }
+
   async isOwnerOf(tokenId: number) {
     const myAddress = await this.ethersSigner.getAddress();
     const owner = await this.getOwner(tokenId);
@@ -116,6 +120,11 @@ export class VWBLNFTEthers {
     const myAddress = await this.ethersSigner.getAddress();
     const minter = await this.getMinter(tokenId);
     return myAddress === minter;
+  }
+
+  async isGranteeOf(tokenId: number) {
+    const myAddress = await this.ethersSigner.getAddress();
+    return await this.checkViewPermission(tokenId, myAddress);
   }
 
   async getFee() {
@@ -186,6 +195,24 @@ export class VWBLNFTEthers {
       };
     }
     const tx = await this.contract.safeTransferFrom(myAddress, to, tokenId, txSettings);
+    await this.ethersProvider.waitForTransaction(tx.hash);
+  }
+
+  async grantViewPermission(tokenId: number, grantee: string, gasSettings?: GasSettings): Promise<void> {
+    let txSettings: unknown;
+    if (gasSettings?.gasPrice) {
+      txSettings = {
+        gasPrice: gasSettings?.gasPrice,
+      };
+    } else {
+      const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+        getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+      txSettings = {
+        maxPriorityFeePerGas: _maxPriorityFeePerGas,
+        maxFeePerGas: _maxFeePerGas,
+      };
+    }
+    const tx = await this.contract.grantViewPermission(tokenId, grantee).send(txSettings);
     await this.ethersProvider.waitForTransaction(tx.hash);
   }
 }

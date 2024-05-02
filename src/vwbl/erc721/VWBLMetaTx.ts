@@ -359,6 +359,17 @@ export class VWBLMetaTx extends VWBLBase {
   };
 
   /**
+   * Grant view permission
+   * 
+   * @param tokenId - The ID of NFT
+   * @param grantee - The wallet address of a grantee
+   * @param grantViewPermissionApiId - The grantViewPermission api id of biconomy
+   */
+  grantViewPermission = async (tokenId: number, grantee: string, grantViewPermissionApiId: string): Promise<void> => {
+    await this.nft.grantViewPermission(tokenId, grantee, grantViewPermissionApiId);
+  }
+
+  /**
    * Uplod Metadata
    *
    * @remarks
@@ -469,9 +480,9 @@ export class VWBLMetaTx extends VWBLBase {
    * @returns Token metadata and an address of NFT owner
    */
   getTokenById = async (tokenId: number): Promise<(ExtractMetadata | Metadata) & { owner: string }> => {
-    const isOwnerOrMinter = (await this.nft.isOwnerOf(tokenId)) || (await this.nft.isMinterOf(tokenId));
+    const isOwnerOrMinterOrGrantee = (await this.nft.isOwnerOf(tokenId)) || (await this.nft.isMinterOf(tokenId)) || (await this.nft.isGranteeOf(tokenId));
     const owner = await this.nft.getOwner(tokenId);
-    const metadata = isOwnerOrMinter ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
+    const metadata = isOwnerOrMinterOrGrantee ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
     if (!metadata) {
       throw new Error("metadata not found");
     }

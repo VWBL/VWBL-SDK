@@ -117,6 +117,15 @@ export class VWBLNFTMetaTx {
     return await vwblMetaTxContract.callStatic.getMinter(tokenId);
   }
 
+  async checkViewPermission(tokenId: number, user: string) {
+    const vwblMetaTxContract = new ethers.Contract(
+      this.nftAddress,
+      vwblMetaTxIpfs.abi,
+      this.walletProvider.getSigner()
+    );
+    return await vwblMetaTxContract.callStatic.checkViewPermission(tokenId, user);
+  }
+
   async isOwnerOf(tokenId: number) {
     const walletSigner = this.walletProvider.getSigner();
     const myAddress = await walletSigner.getAddress();
@@ -129,6 +138,12 @@ export class VWBLNFTMetaTx {
     const myAddress = await walletSigner.getAddress();
     const minter = await this.getMinter(tokenId);
     return myAddress === minter;
+  }
+
+  async isGranteeOf(tokenId: number) {
+    const walletSigner = this.walletProvider.getSigner();
+    const myAddress = await walletSigner.getAddress();
+    return await this.checkViewPermission(tokenId, myAddress);
   }
 
   async getFee() {
@@ -200,6 +215,18 @@ export class VWBLNFTMetaTx {
     const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
     await this.sendTransaction(txParam, sig, myAddress, domainSeparator, safeTransferFromApiId, "EIP712_SIGN");
+    console.log("transaction end");
+  }
+
+  async grantViewPermission(tokenId: number, grantee: string, grantViewPermissionApiId: string): Promise<void> {
+    const walletSigner = this.walletProvider.getSigner();
+    const myAddress = await walletSigner.getAddress();
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, walletSigner);
+    const { data } = await vwblMetaTxContract.populateTransaction.grantViewPermission(tokenId, grantee);
+    const chainId = await walletSigner.getChainId();
+    const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
+    console.log("transaction start");
+    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, grantViewPermissionApiId, "EIP712_SIGN");
     console.log("transaction end");
   }
 

@@ -111,6 +111,10 @@ export class VWBLNFT {
     return await this.contract.methods.getMinter(tokenId).call();
   }
 
+  async checkViewPermission(tokenId: number, user: string) {
+    return await this.contract.methods.checkViewPermission(tokenId, user).call();
+  }
+
   async isOwnerOf(tokenId: number) {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const owner = await this.getOwner(tokenId);
@@ -121,6 +125,11 @@ export class VWBLNFT {
     const myAddress = (await this.web3.eth.getAccounts())[0];
     const minter = await this.getMinter(tokenId);
     return myAddress === minter;
+  }
+
+  async isGranteeOf(tokenId: number) {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    return await this.checkViewPermission(tokenId, myAddress);
   }
 
   async getFee() {
@@ -203,6 +212,28 @@ export class VWBLNFT {
       };
     }
     await this.contract.methods.safeTransferFrom(myAddress, to, tokenId).send(txSettings);
+  }
+
+  async grantViewPermission(tokenId: number, grantee: string, gasSettings?: GasSettings): Promise<void> {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    let txSettings: unknown;
+    if (gasSettings?.gasPrice) {
+      const gas = await this.contract.methods.grantViewPermission(tokenId, grantee).estimateGas({ from: myAddress });
+      txSettings = {
+        from: myAddress,
+        gasPrice: gasSettings?.gasPrice,
+        gas,
+      };
+    } else {
+      const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+        getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+      txSettings = {
+        from: myAddress,
+        maxPriorityFeePerGas: _maxPriorityFeePerGas,
+        maxFeePerGas: _maxFeePerGas,
+      };
+    }
+    await this.contract.methods.grantViewPermission(tokenId, grantee).send(txSettings);
   }
 }
 
