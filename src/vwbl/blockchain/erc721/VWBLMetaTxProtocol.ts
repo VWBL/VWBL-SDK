@@ -7,34 +7,40 @@ import vwblMetaTxIpfs from "../../../contract/VWBLMetaTxSupportIPFS.json";
 import {
   buildForwardTxRequest,
   getDataToSignForEIP712,
+  getDataToSignForPersonalSign,
   getDomainSeparator,
   TxParam,
 } from "../../../util/biconomyHelper";
 
 export class VWBLNFTMetaTx {
-  private walletProvider: ethers.providers.Web3Provider;
+  private walletProvider: ethers.providers.Web3Provider | ethers.Wallet;
+  private ethersSigner: ethers.providers.JsonRpcSigner | ethers.Wallet;
   private nftAddress: string;
   private forwarderAddress: string;
   private biconomyAPIKey: string;
 
   constructor(
     biconomyAPIKey: string,
-    walletProvider: ethers.providers.Web3Provider,
+    walletProvider: ethers.providers.Web3Provider | ethers.Wallet,
     nftAddress: string,
     forwarderAddress: string
   ) {
     this.biconomyAPIKey = biconomyAPIKey;
     this.walletProvider = walletProvider;
+    if (isWeb3Provider(walletProvider as IWeb3Provider)) {
+      this.ethersSigner = (walletProvider as IWeb3Provider).getSigner(); 
+    } else {
+      this.ethersSigner = walletProvider as ethers.Wallet;
+    }
     this.nftAddress = nftAddress;
     this.forwarderAddress = forwarderAddress;
   }
 
   async mintToken(decryptUrl: string, feeNumerator: number, documentId: string, mintApiId: string): Promise<number> {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
-    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTx.abi, walletSigner);
+    const myAddress = await this.ethersSigner.getAddress();
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTx.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.mint(decryptUrl, feeNumerator, documentId);
-    const chainId = await walletSigner.getChainId();
+    const chainId = await this.ethersSigner.getChainId();
     const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
     const receipt = await this.sendTransaction(txParam, sig, myAddress, domainSeparator, mintApiId, "EIP712_SIGN");
@@ -50,16 +56,15 @@ export class VWBLNFTMetaTx {
     documentId: string,
     mintApiId: string
   ): Promise<number> {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
-    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, walletSigner);
+    const myAddress = await this.ethersSigner.getAddress();
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.mint(
       metadataUrl,
       decryptUrl,
       feeNumerator,
       documentId
     );
-    const chainId = await walletSigner.getChainId();
+    const chainId = await this.ethersSigner.getChainId();
     const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
     const receipt = await this.sendTransaction(txParam, sig, myAddress, domainSeparator, mintApiId, "EIP712_SIGN");
@@ -69,9 +74,8 @@ export class VWBLNFTMetaTx {
   }
 
   async getOwnTokenIds() {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
-    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, walletSigner);
+    const myAddress = await this.ethersSigner.getAddress();
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const balance = await vwblMetaTxContract.callStatic.balanceOf(myAddress);
     return await Promise.all(
       range(Number.parseInt(balance)).map(async (i) => {
@@ -85,7 +89,7 @@ export class VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.walletProvider.getSigner()
+      this.ethersSigner
     );
     return await vwblMetaTxContract.callStatic.getTokenByMinter(address);
   }
@@ -94,7 +98,7 @@ export class VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.walletProvider.getSigner()
+      this.ethersSigner
     );
     return await vwblMetaTxContract.callStatic.tokenURI(tokenId);
   }
@@ -103,7 +107,7 @@ export class VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.walletProvider.getSigner()
+      this.ethersSigner
     );
     return await vwblMetaTxContract.callStatic.ownerOf(tokenId);
   }
@@ -112,7 +116,7 @@ export class VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.walletProvider.getSigner()
+      this.ethersSigner
     );
     return await vwblMetaTxContract.callStatic.getMinter(tokenId);
   }
@@ -121,28 +125,25 @@ export class VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.walletProvider.getSigner()
+      this.ethersSigner
     );
     return await vwblMetaTxContract.callStatic.checkViewPermission(tokenId, user);
   }
 
   async isOwnerOf(tokenId: number) {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
+    const myAddress = await this.ethersSigner.getAddress();
     const owner = await this.getOwner(tokenId);
     return myAddress === owner;
   }
 
   async isMinterOf(tokenId: number) {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
+    const myAddress = await this.ethersSigner.getAddress();
     const minter = await this.getMinter(tokenId);
     return myAddress === minter;
   }
 
   async isGranteeOf(tokenId: number) {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
+    const myAddress = await this.ethersSigner.getAddress();
     return await this.checkViewPermission(tokenId, myAddress);
   }
 
@@ -150,7 +151,7 @@ export class VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.walletProvider.getSigner()
+      this.ethersSigner
     );
     return await vwblMetaTxContract.callStatic.getFee();
   }
@@ -159,17 +160,16 @@ export class VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.walletProvider.getSigner()
+      this.ethersSigner
     );
     return await vwblMetaTxContract.callStatic.tokenIdToTokenInfo(tokenId);
   }
 
   async approve(operator: string, tokenId: number, approveApiId: string): Promise<void> {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
-    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, walletSigner);
+    const myAddress = await this.ethersSigner.getAddress();
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.approve(operator, tokenId);
-    const chainId = await walletSigner.getChainId();
+    const chainId = await this.ethersSigner.getChainId();
     const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
     await this.sendTransaction(txParam, sig, myAddress, domainSeparator, approveApiId, "EIP712_SIGN");
@@ -180,17 +180,16 @@ export class VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.walletProvider.getSigner()
+      this.ethersSigner
     );
     return await vwblMetaTxContract.callStatic.getApproved(tokenId);
   }
 
   async setApprovalForAll(operator: string, setApprovalForAllApiId: string): Promise<void> {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
-    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, walletSigner);
+    const myAddress = await this.ethersSigner.getAddress();
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.setApprovalForAll(operator);
-    const chainId = await walletSigner.getChainId();
+    const chainId = await this.ethersSigner.getChainId();
     const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
     await this.sendTransaction(txParam, sig, myAddress, domainSeparator, setApprovalForAllApiId, "EIP712_SIGN");
@@ -201,17 +200,16 @@ export class VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(
       this.nftAddress,
       vwblMetaTxIpfs.abi,
-      this.walletProvider.getSigner()
+      this.ethersSigner
     );
     return await vwblMetaTxContract.callStatic.isApprovedForAll(owner, operator);
   }
 
   async safeTransfer(to: string, tokenId: number, safeTransferFromApiId: string): Promise<void> {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
-    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, walletSigner);
+    const myAddress = await this.ethersSigner.getAddress();
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.safeTransferFrom(myAddress, to, tokenId);
-    const chainId = await walletSigner.getChainId();
+    const chainId = await this.ethersSigner.getChainId();
     const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
     await this.sendTransaction(txParam, sig, myAddress, domainSeparator, safeTransferFromApiId, "EIP712_SIGN");
@@ -219,11 +217,10 @@ export class VWBLNFTMetaTx {
   }
 
   async grantViewPermission(tokenId: number, grantee: string, grantViewPermissionApiId: string): Promise<void> {
-    const walletSigner = this.walletProvider.getSigner();
-    const myAddress = await walletSigner.getAddress();
-    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, walletSigner);
+    const myAddress = await this.ethersSigner.getAddress();
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.grantViewPermission(tokenId, grantee);
-    const chainId = await walletSigner.getChainId();
+    const chainId = await this.ethersSigner.getChainId();
     const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
     await this.sendTransaction(txParam, sig, myAddress, domainSeparator, grantViewPermissionApiId, "EIP712_SIGN");
@@ -241,7 +238,7 @@ export class VWBLNFTMetaTx {
     const forwarderContract = new ethers.Contract(
       this.forwarderAddress,
       forwarder.abi,
-      this.walletProvider.getSigner()
+      this.ethersSigner
     );
     const batchNonce = await forwarderContract.getNonce(myAddress, 0);
     const txParam: TxParam = buildForwardTxRequest(
@@ -251,21 +248,28 @@ export class VWBLNFTMetaTx {
       batchNonce,
       data
     );
-    const domainSeparator = getDomainSeparator(this.forwarderAddress, chainId);
-    const dataToSign = getDataToSignForEIP712(txParam, this.forwarderAddress, chainId);
-    const sig = await this.walletProvider.send("eth_signTypedData_v3", [myAddress, dataToSign]);
-    return { txParam, sig, domainSeparator };
+  
+    if (isWeb3Provider(this.walletProvider as IWeb3Provider)) {
+      const domainSeparator = getDomainSeparator(this.forwarderAddress, chainId);
+      const dataToSign = getDataToSignForEIP712(txParam, this.forwarderAddress, chainId);
+      const sig = await (this.walletProvider as ethers.providers.Web3Provider).send("eth_signTypedData_v3", [myAddress, dataToSign]);
+      return { txParam, sig, domainSeparator };
+    } else {
+      const hashToSign = getDataToSignForPersonalSign(txParam);
+      const sig = (this.walletProvider as ethers.Wallet).signMessage(hashToSign);
+      return { txParam, sig };
+    }
   }
 
   private async sendTransaction(
     request: TxParam,
     sig: any,
     myAddress: string,
-    domainSeparator: string,
+    domainSeparator: string | undefined,
     methodApiId: string,
     signatureType: string
   ): Promise<ethers.providers.TransactionReceipt> {
-    const params = [request, domainSeparator, sig];
+    const params = typeof domainSeparator === "undefined" ? [request, sig] : [request, domainSeparator, sig];
 
     try {
       const headers = {
@@ -284,7 +288,9 @@ export class VWBLNFTMetaTx {
         { headers: headers }
       );
       console.log("post meta tx resp", data);
-      const receipt = await this.walletProvider.waitForTransaction(data.txHash);
+      const receipt = isWeb3Provider(this.walletProvider as IWeb3Provider) 
+        ? (this.walletProvider as ethers.providers.Web3Provider).waitForTransaction(data.txHash)
+        : (this.walletProvider as ethers.Wallet).provider.waitForTransaction(data.txHash); 
       console.log("confirmed:", data.txHash);
       return receipt;
     } catch (error) {
@@ -311,3 +317,11 @@ const parseToTokenId = (receipt: ethers.providers.TransactionReceipt): number =>
   });
   return tokenId;
 };
+
+interface IWeb3Provider {
+  getSigner(): ethers.providers.JsonRpcSigner
+}
+
+const isWeb3Provider = (walletProvider: IWeb3Provider): walletProvider is IWeb3Provider => {
+  return walletProvider.getSigner !== undefined;
+}

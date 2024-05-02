@@ -89,3 +89,31 @@ export const getDomainSeparator = (forwarderAddress: string, chainId: number) =>
   );
   return domainSeparator;
 };
+
+export const getDataToSignForPersonalSign = (request: TxParam) => {
+  const hashToSign = ethers.utils.solidityKeccak256(
+    [
+      'address',
+      'address',
+      'address',
+      'uint256',
+      'uint256',
+      'uint256',
+      'uint256',
+      'uint256',
+      'bytes32',
+    ],
+    [
+      request.from,
+      request.to,
+      request.token,
+      request.txGas,
+      request.tokenGasPrice,
+      request.batchId,
+      request.batchNonce,
+      request.deadline,
+      ethers.utils.keccak256(request.data),
+    ]
+  )
+  return hashToSign
+}

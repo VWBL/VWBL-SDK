@@ -35,7 +35,7 @@ import { VWBLViewer } from "../viewer";
 export class VWBLMetaTx extends VWBLBase {
   public opts: VWBLMetaTxOption;
   public nft: VWBLNFTMetaTx;
-  public signer: ethers.providers.JsonRpcSigner;
+  public signer: ethers.providers.JsonRpcSigner | ethers.Wallet;
   public viewer?: VWBLViewer;
 
   constructor(props: MetaTxConstructorProps) {
@@ -43,14 +43,20 @@ export class VWBLMetaTx extends VWBLBase {
 
     this.opts = props;
     const { bcProvider, contractAddress, biconomyConfig, dataCollectorAddress } = props;
-    const walletProvider = new ethers.providers.Web3Provider(bcProvider);
-    this.signer = walletProvider.getSigner();
+
+    const walletProvider = "address" in bcProvider 
+      ? bcProvider as ethers.Wallet 
+      : new ethers.providers.Web3Provider(bcProvider);
+    this.signer = "address" in bcProvider 
+      ? bcProvider as ethers.Wallet 
+      : (walletProvider as ethers.providers.Web3Provider).getSigner();
     this.nft = new VWBLNFTMetaTx(
       biconomyConfig.apiKey,
       walletProvider,
       contractAddress,
       biconomyConfig.forwarderAddress
     );
+    
     if (dataCollectorAddress) {
       this.viewer = new VWBLViewer({
         provider: walletProvider,
