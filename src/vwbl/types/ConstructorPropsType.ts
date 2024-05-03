@@ -34,9 +34,7 @@ export type EthersConstructorProps = BaseConstructorProps & {
 export type VWBLEthersOption = EthersConstructorProps;
 
 export type MetaTxConstructorProps = BaseConstructorProps & {
-  bcProvider:
-    | ethers.providers.ExternalProvider
-    | ethers.providers.JsonRpcFetchFunc;
+  bcProvider: ethers.providers.ExternalProvider | ethers.providers.JsonRpcFetchFunc;
   biconomyConfig: BiconomyConfig;
   manageKeyType?: ManageKeyType;
   dataCollectorAddress?: string;
