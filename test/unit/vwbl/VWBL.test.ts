@@ -21,7 +21,7 @@ const vwblApiStub = {
   setKey: sinon.stub(VWBLApi.prototype, "setKey"),
 };
 
-const providerUrl = "https://rpc-mumbai.maticvigil.com/";
+const providerUrl = "https://rpc-amoy.polygon.technology/";
 
 // preparation for web3.js
 const web3 = new Web3(providerUrl as string);
