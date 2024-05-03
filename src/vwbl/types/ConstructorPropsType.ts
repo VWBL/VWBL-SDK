@@ -34,7 +34,9 @@ export type EthersConstructorProps = BaseConstructorProps & {
 export type VWBLEthersOption = EthersConstructorProps;
 
 export type MetaTxConstructorProps = BaseConstructorProps & {
-  bcProvider: ethers.providers.ExternalProvider | ethers.providers.JsonRpcFetchFunc;
+  bcProvider:
+    | ethers.providers.ExternalProvider
+    | ethers.providers.JsonRpcFetchFunc;
   biconomyConfig: BiconomyConfig;
   manageKeyType?: ManageKeyType;
   dataCollectorAddress?: string;
@@ -48,3 +50,12 @@ export type ViewerConstructorProps = {
 };
 
 export type ViewerOption = ViewerConstructorProps;
+
+export type XRPLConstructorProps = {
+  vwblNetworkUrl: string;
+  xrplChainId: number;
+  uploadContentType?: UploadContentType;
+  uploadMetadataType?: UploadMetadataType;
+  awsConfig?: AWSConfig;
+  ipfsNftStorageKey?: string;
+};
