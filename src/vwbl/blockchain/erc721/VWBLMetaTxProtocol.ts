@@ -233,7 +233,6 @@ export class VWBLNFTMetaTx {
     signatureType: string
   ): Promise<ethers.providers.TransactionReceipt> {
     const params = typeof domainSeparator === "undefined" ? [request, sig] : [request, domainSeparator, sig];
-    console.log("sig: ", sig);
     try {
       const headers = {
         "x-api-key": this.biconomyAPIKey,
