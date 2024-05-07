@@ -308,6 +308,20 @@ export class VWBLMetaTx extends VWBLBase {
   };
 
   /**
+   * Mint new NFT
+   *
+   * @param metadataUrl metadata url
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
+   * @param mintApiId - The mint method api id of biconomy
+   * @returns The ID of minted NFT
+   */
+  mintTokenForIPFS = async (metadataUrl: string, feeNumerator: number, mintApiId: string): Promise<number> => {
+    const { vwblNetworkUrl } = this.opts;
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, feeNumerator, documentId, mintApiId); 
+  }
+
+  /**
    * Approves `operator` to transfer the given `tokenId`
    *
    * @param operator - The wallet address

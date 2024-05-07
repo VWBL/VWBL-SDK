@@ -90,8 +90,9 @@ export const getDomainSeparator = (forwarderAddress: string, chainId: number) =>
   return domainSeparator;
 };
 
-export const getDataToSignForPersonalSign = (request: TxParam) => {
-  const hashToSign = ethers.utils.solidityKeccak256(
+export const getDataToSignForPersonalSign = async (request: TxParam) => {
+  const abi = await import('ethereumjs-abi');
+  const hashToSign = abi.soliditySHA3(
     ["address", "address", "address", "uint256", "uint256", "uint256", "uint256", "uint256", "bytes32"],
     [
       request.from,
@@ -105,5 +106,6 @@ export const getDataToSignForPersonalSign = (request: TxParam) => {
       ethers.utils.keccak256(request.data),
     ]
   );
+
   return hashToSign;
 };
