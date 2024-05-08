@@ -91,7 +91,7 @@ export const getDomainSeparator = (forwarderAddress: string, chainId: number) =>
 };
 
 export const getDataToSignForPersonalSign = async (request: TxParam) => {
-  const abi = await import('ethereumjs-abi');
+  const abi = await import("ethereumjs-abi");
   const hashToSign = abi.soliditySHA3(
     ["address", "address", "address", "uint256", "uint256", "uint256", "uint256", "uint256", "bytes32"],
     [

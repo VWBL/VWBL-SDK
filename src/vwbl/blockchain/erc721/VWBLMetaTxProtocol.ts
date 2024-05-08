@@ -27,9 +27,9 @@ export class VWBLNFTMetaTx {
   ) {
     this.biconomyAPIKey = biconomyAPIKey;
     this.walletProvider = walletProvider;
-    this.ethersSigner = isWeb3Provider(walletProvider as IWeb3Provider) 
+    this.ethersSigner = isWeb3Provider(walletProvider as IWeb3Provider)
       ? (walletProvider as IWeb3Provider).getSigner()
-      : walletProvider as ethers.Wallet;
+      : (walletProvider as ethers.Wallet);
     this.nftAddress = nftAddress;
     this.forwarderAddress = forwarderAddress;
   }

@@ -318,8 +318,8 @@ export class VWBLMetaTx extends VWBLBase {
   mintTokenForIPFS = async (metadataUrl: string, feeNumerator: number, mintApiId: string): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, feeNumerator, documentId, mintApiId); 
-  }
+    return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, feeNumerator, documentId, mintApiId);
+  };
 
   /**
    * Approves `operator` to transfer the given `tokenId`
