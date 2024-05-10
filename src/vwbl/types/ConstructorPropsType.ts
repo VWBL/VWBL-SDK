@@ -15,7 +15,6 @@ export type BaseConstructorProps = {
   uploadMetadataType?: UploadMetadataType;
   awsConfig?: AWSConfig;
   ipfsConfig?: IPFSConfig;
-  ipfsNftStorageKey?: string;
 };
 
 export type ConstructorProps = BaseConstructorProps & {

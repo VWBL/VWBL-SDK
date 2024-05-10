@@ -280,14 +280,13 @@ export class VWBLMetaTx extends VWBLBase {
     console.log("encrypt data");
     const plainFileArray = [plainFile].flat();
     const uuid = createRandomKey();
-    const uploadEncryptedFunction =
-      uploadContentType === UploadContentType.NFTStorage
-        ? uploadEncryptedFileToIPFS
-        : uploadEncryptedFileCallback;
-    const uploadThumbnailFunction =
-      uploadContentType === UploadContentType.NFTStorage
-        ? uploadThumbnailToIPFS
-        : uploadThumbnailCallback;
+    const uploadEncryptedFunction = uploadEncryptedFileCallback
+      ? uploadEncryptedFileCallback
+      : uploadEncryptedFileToIPFS;
+
+    const uploadThumbnailFunction = uploadThumbnailCallback
+      ? uploadThumbnailCallback
+      : uploadThumbnailToIPFS;
     if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
       throw new Error("please specify upload file type or give callback");
     }
@@ -311,10 +310,7 @@ export class VWBLMetaTx extends VWBLBase {
             : isRunningOnBrowser
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
-        return await uploadEncryptedFunction(
-          encryptedContent as any,
-          ipfsConfig as any
-        );
+        return await uploadEncryptedFunction(encryptedContent, ipfsConfig);
       })
     );
     const thumbnailImageUrl = await uploadThumbnailFunction(
@@ -325,10 +321,10 @@ export class VWBLMetaTx extends VWBLBase {
 
     // 4. upload metadata
     console.log("upload meta data");
-    const uploadMetadataFunction =
-      uploadMetadataType === UploadMetadataType.NFTStorage
-        ? uploadMetadataToIPFS
-        : uploadMetadataCallBack;
+    const uploadMetadataFunction = uploadMetadataCallBack
+      ? uploadMetadataCallBack
+      : uploadMetadataToIPFS;
+
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback");
     }
@@ -347,14 +343,6 @@ export class VWBLMetaTx extends VWBLBase {
 
     // 5. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const metadataUrl = await this.uploadToIpfs?.uploadMetadata(
-      name,
-      description,
-      thumbnailImageUrl as string,
-      encryptedDataUrls as string[],
-      mimeType,
-      encryptLogic
-    );
     const tokenId = await this.nft.mintTokenForIPFS(
       metadataUrl,
       vwblNetworkUrl,
