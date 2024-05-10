@@ -8,6 +8,11 @@ import {
   uploadThumbnail,
 } from "../../storage/aws";
 import {
+  uploadEncryptedFileToIPFS,
+  uploadMetadataToIPFS,
+  uploadThumbnailToIPFS,
+} from "../../storage/ipfs";
+import {
   createRandomKey,
   decryptFile,
   decryptStream,
@@ -33,6 +38,9 @@ import {
   UploadMetadataType,
   UploadThumbnail,
   VWBLMetaTxOption,
+  UploadMetadataToIPFS,
+  UploadEncryptedFileToIPFS,
+  UploadThumbnailToIPFS,
 } from "../types";
 import { VWBLViewer } from "../viewer";
 
@@ -249,28 +257,20 @@ export class VWBLMetaTx extends VWBLBase {
     feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     mintApiId: string,
-    uploadEncryptedFileCallback?: (
-      encryptedContent: string | Buffer
-    ) => Promise<string>,
-    uploadThumbnailCallback?: (thumbnailImage: FileOrPath) => Promise<string>,
-    uploadMetadataCallBack?: (
-      name: string,
-      description: string,
-      thumbnailUrl: string,
-      encryptedUrls: string[],
-      mimeType: string,
-      encryptLogic: EncryptLogic
-    ) => Promise<string>,
-    // uploadEncryptedFileCallback?: UploadEncryptedFile,
-    // uploadThumbnailCallback?: UploadThumbnail,
-    // uploadMetadataCallBack?: UploadMetadata,
+    uploadEncryptedFileCallback?: UploadEncryptedFileToIPFS,
+    uploadThumbnailCallback?: UploadThumbnailToIPFS,
+    uploadMetadataCallBack?: UploadMetadataToIPFS,
     subscriber?: ProgressSubscriber
   ) => {
     if (!this.signature) {
       throw "please sign first";
     }
-    // const { uploadContentType, uploadMetadataType, vwblNetworkUrl } = this.opts;
-    const { vwblNetworkUrl } = this.opts;
+    const {
+      uploadContentType,
+      uploadMetadataType,
+      ipfsConfig,
+      vwblNetworkUrl,
+    } = this.opts;
 
     // 1. create key in frontend
     const key = createRandomKey();
@@ -280,10 +280,22 @@ export class VWBLMetaTx extends VWBLBase {
     console.log("encrypt data");
     const plainFileArray = [plainFile].flat();
     const uuid = createRandomKey();
+    const uploadEncryptedFunction =
+      uploadContentType === UploadContentType.NFTStorage
+        ? uploadEncryptedFileToIPFS
+        : uploadEncryptedFileCallback;
+    const uploadThumbnailFunction =
+      uploadContentType === UploadContentType.NFTStorage
+        ? uploadThumbnailToIPFS
+        : uploadThumbnailCallback;
+    if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
+      throw new Error("please specify upload file type or give callback");
+    }
     subscriber?.kickStep(StepStatus.ENCRYPT_DATA);
 
     // 3. upload data
     console.log("upload data");
+    const isRunningOnBrowser = typeof window !== "undefined";
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
         const plainFileBlob =
@@ -296,41 +308,53 @@ export class VWBLMetaTx extends VWBLBase {
         const encryptedContent =
           encryptLogic === "base64"
             ? encryptString(await toBase64FromBlob(plainFileBlob), key)
-            : await encryptFile(plainFileBlob, key);
-        return await uploadEncryptedFunction(fileName, encryptedContent, uuid);
+            : isRunningOnBrowser
+            ? await encryptFile(plainFileBlob, key)
+            : encryptStream(fs.createReadStream(filePath), key);
+        return await uploadEncryptedFunction(
+          encryptedContent as any,
+          ipfsConfig as any
+        );
       })
+    );
+    const thumbnailImageUrl = await uploadThumbnailFunction(
+      thumbnailImage,
+      ipfsConfig
     );
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
 
-    const thumbnailImageUrl = uploadThumbnailCallback
-      ? await uploadThumbnailCallback(thumbnailImage)
-      : await this.uploadToIpfs.uploadThumbnail(thumbnailImage);
-
     // 4. upload metadata
     console.log("upload meta data");
+    const uploadMetadataFunction =
+      uploadMetadataType === UploadMetadataType.NFTStorage
+        ? uploadMetadataToIPFS
+        : uploadMetadataCallBack;
+    if (!uploadMetadataFunction) {
+      throw new Error("please specify upload metadata type or give callback");
+    }
     const mimeType = getMimeType(plainFileArray[0]);
-    const metadataUrl = uploadMetadataCallBack
-      ? await uploadMetadataCallBack(
-          name,
-          description,
-          thumbnailImageUrl,
-          encryptedDataUrls,
-          mimeType,
-          encryptLogic
-        )
-      : await this.uploadToIpfs.uploadMetadata(
-          name,
-          description,
-          thumbnailImageUrl,
-          encryptedDataUrls,
-          mimeType,
-          encryptLogic
-        );
+    await uploadMetadataFunction(
+      name,
+      description,
+      thumbnailImageUrl,
+      encryptedDataUrls,
+      mimeType,
+      encryptLogic,
+      ipfsConfig
+    );
 
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
     // 5. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
+    const metadataUrl = await this.uploadToIpfs?.uploadMetadata(
+      name,
+      description,
+      thumbnailImageUrl as string,
+      encryptedDataUrls as string[],
+      mimeType,
+      encryptLogic
+    );
     const tokenId = await this.nft.mintTokenForIPFS(
       metadataUrl,
       vwblNetworkUrl,

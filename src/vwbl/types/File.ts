@@ -20,6 +20,33 @@ type UploadMetadata = (
   encryptLogic: EncryptLogic
 ) => Promise<void>;
 
+type UploadEncryptedFileToIPFS = (
+  fileName: string,
+  encryptedContent: string | Uint8Array | Stream.Readable,
+) => Promise<string>;
+
+type UploadThumbnailToIPFS = (
+  thumbnailImage: FileOrPath,
+) => Promise<string>;
+
+type UploadMetadataToIPFS = (
+  tokenId: number,
+  name: string,
+  description: string,
+  previewImageUrl: string,
+  encryptedDataUrl: string[],
+  mimeType: string,
+  encryptLogic: EncryptLogic
+) => Promise<void>;
+
 type FileOrPath = File | string;
 
-export { UploadMetadata, UploadEncryptedFile, UploadThumbnail, FileOrPath };
+export {
+  UploadMetadata,
+  UploadEncryptedFile,
+  UploadThumbnail,
+  FileOrPath,
+  UploadMetadataToIPFS,
+  UploadEncryptedFileToIPFS,
+  UploadThumbnailToIPFS
+};
