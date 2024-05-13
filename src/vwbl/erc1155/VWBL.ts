@@ -2,7 +2,16 @@ import axios from "axios";
 import { utils } from "ethers";
 import * as fs from "fs";
 
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
+import {
+  uploadEncryptedFile,
+  uploadMetadata,
+  uploadThumbnail,
+} from "../../storage/aws";
+import {
+  uploadEncryptedFileToIPFS,
+  uploadMetadataToIPFS,
+  uploadThumbnailToIPFS,
+} from "../../storage/ipfs";
 import {
   createRandomKey,
   decryptFile,
@@ -31,6 +40,9 @@ import {
   UploadThumbnail,
   VWBLEthersOption,
   VWBLOption,
+  UploadMetadataToIPFS,
+  UploadEncryptedFileToIPFS,
+  UploadThumbnailToIPFS,
 } from "../types";
 import { VWBLViewer } from "../viewer";
 
@@ -121,10 +133,17 @@ export class VWBLERC1155 extends VWBLBase {
     if (!this.signature) {
       throw "please sign first";
     }
-    const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
+    const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } =
+      this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId, gasSettings);
+    const tokenId = await this.nft.mintToken(
+      vwblNetworkUrl,
+      amount,
+      feeNumerator,
+      documentId,
+      gasSettings
+    );
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -136,9 +155,13 @@ export class VWBLERC1155 extends VWBLBase {
     const plainFileArray = [plainFile].flat();
     const uuid = createRandomKey();
     const uploadEncryptedFunction =
-      uploadContentType === UploadContentType.S3 ? uploadEncryptedFile : uploadEncryptedFileCallback;
+      uploadContentType === UploadContentType.S3
+        ? uploadEncryptedFile
+        : uploadEncryptedFileCallback;
     const uploadThumbnailFunction =
-      uploadContentType === UploadContentType.S3 ? uploadThumbnail : uploadThumbnailCallback;
+      uploadContentType === UploadContentType.S3
+        ? uploadThumbnail
+        : uploadThumbnailCallback;
     if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
       throw new Error("please specify upload file type or give callback");
     }
@@ -149,25 +172,40 @@ export class VWBLERC1155 extends VWBLBase {
     const isRunningOnBrowser = typeof window !== "undefined";
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
-        const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
+        const plainFileBlob =
+          file instanceof File
+            ? file
+            : new File([await fs.promises.readFile(file)], file);
         const filePath = file instanceof File ? file.name : file;
-        const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
+        const fileName: string =
+          file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
             ? encryptString(await toBase64FromBlob(plainFileBlob), key)
             : isRunningOnBrowser
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
-        return await uploadEncryptedFunction(fileName, encryptedContent, uuid, awsConfig);
+        return await uploadEncryptedFunction(
+          fileName,
+          encryptedContent,
+          uuid,
+          awsConfig
+        );
       })
     );
-    const thumbnailImageUrl = await uploadThumbnailFunction(thumbnailImage, uuid, awsConfig);
+    const thumbnailImageUrl = await uploadThumbnailFunction(
+      thumbnailImage,
+      uuid,
+      awsConfig
+    );
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
 
     // 5. upload metadata
     console.log("upload meta data");
     const uploadMetadataFunction =
-      uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
+      uploadMetadataType === UploadMetadataType.S3
+        ? uploadMetadata
+        : uploadMetadataCallBack;
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback");
     }
@@ -187,13 +225,21 @@ export class VWBLERC1155 extends VWBLBase {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainIdBigInt =
-      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
+      "web3" in this.opts
+        ? await this.opts.web3.eth.getChainId()
+        : await this.opts.ethersSigner.getChainId();
     const chainId = Number(chainIdBigInt);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
         : await this._getAddressBySigner(this.opts.ethersSigner);
-    await this.api.setKey(documentId, chainId, key, this.signature, signerAddress);
+    await this.api.setKey(
+      documentId,
+      chainId,
+      key,
+      this.signature,
+      signerAddress
+    );
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
@@ -214,6 +260,9 @@ export class VWBLERC1155 extends VWBLBase {
    * @param thumbnailImage - The NFT image
    * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
+   *  @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
+   * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
+   * @param uploadMetadataCallBack - Optional: the function for uploading metadata
    * @param subscriber - Optional: the subscriber for seeing progress
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    * @returns
@@ -226,13 +275,16 @@ export class VWBLERC1155 extends VWBLBase {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
+    uploadEncryptedFileCallback?: UploadEncryptedFileToIPFS,
+    uploadThumbnailCallback?: UploadThumbnailToIPFS,
+    uploadMetadataCallBack?: UploadMetadataToIPFS,
     subscriber?: ProgressSubscriber,
     gasSettings?: GasSettings
   ) => {
     if (!this.signature) {
       throw "please sign first";
     }
-    const { vwblNetworkUrl } = this.opts;
+    const { ipfsConfig, vwblNetworkUrl } = this.opts;
     // 1. create key in frontend
     const key = createRandomKey();
     subscriber?.kickStep(StepStatus.CREATE_KEY);
@@ -240,35 +292,60 @@ export class VWBLERC1155 extends VWBLBase {
     // 2. encrypt data
     console.log("encrypt data");
     const plainFileArray = [plainFile].flat();
+    const uploadEncryptedFunction = uploadEncryptedFileCallback
+      ? uploadEncryptedFileCallback
+      : (uploadEncryptedFileToIPFS as UploadEncryptedFileToIPFS);
+
+    const uploadThumbnailFunction = uploadThumbnailCallback
+      ? uploadThumbnailCallback
+      : uploadThumbnailToIPFS;
+    if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
+      throw new Error("please specify upload file type or give callback");
+    }
     subscriber?.kickStep(StepStatus.ENCRYPT_DATA);
 
     // 3. upload data
     console.log("upload data");
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
-        const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
+        const plainFileBlob =
+          file instanceof File
+            ? file
+            : new File([await fs.promises.readFile(file)], file);
         const filePath = file instanceof File ? file.name : file;
-        const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
+        const fileName: string =
+          file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
             ? encryptString(await toBase64FromBlob(plainFileBlob), key)
             : await encryptFile(plainFileBlob, key);
-        return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent);
+        return await uploadEncryptedFunction(encryptedContent, ipfsConfig!);
       })
     );
-    const thumbnailImageUrl = await this.uploadToIpfs?.uploadThumbnail(thumbnailImage);
+    const thumbnailImageUrl = await uploadThumbnailFunction(
+      thumbnailImage,
+      ipfsConfig
+    );
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
 
     // 4. upload metadata
     console.log("upload meta data");
+    const uploadMetadataFunction = uploadMetadataCallBack
+      ? uploadMetadataCallBack
+      : uploadMetadataToIPFS;
+
+    if (!uploadMetadataFunction) {
+      throw new Error("please specify upload metadata type or give callback");
+    }
     const mimeType = getMimeType(plainFileArray[0]);
-    const metadataUrl = await this.uploadToIpfs?.uploadMetadata(
+    const metadataUrl = await uploadMetadataFunction(
       name,
       description,
-      thumbnailImageUrl as string,
-      encryptedDataUrls as string[],
+      thumbnailImageUrl,
+      encryptedDataUrls,
       mimeType,
-      encryptLogic
+      encryptLogic,
+      ipfsConfig
     );
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
@@ -287,13 +364,21 @@ export class VWBLERC1155 extends VWBLBase {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainIdBigInt =
-      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
+      "web3" in this.opts
+        ? await this.opts.web3.eth.getChainId()
+        : await this.opts.ethersSigner.getChainId();
     const chainId = Number(chainIdBigInt);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
         : await this._getAddressBySigner(this.opts.ethersSigner);
-    await this.api.setKey(documentId, chainId, key, this.signature, signerAddress);
+    await this.api.setKey(
+      documentId,
+      chainId,
+      key,
+      this.signature,
+      signerAddress
+    );
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
@@ -307,10 +392,20 @@ export class VWBLERC1155 extends VWBLBase {
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    * @returns The ID of minted NFT
    */
-  mintToken = async (amount: number, feeNumerator: number, gasSettings?: GasSettings): Promise<number> => {
+  mintToken = async (
+    amount: number,
+    feeNumerator: number,
+    gasSettings?: GasSettings
+  ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId, gasSettings);
+    return await this.nft.mintToken(
+      vwblNetworkUrl,
+      amount,
+      feeNumerator,
+      documentId,
+      gasSettings
+    );
   };
 
   /**
@@ -339,7 +434,12 @@ export class VWBLERC1155 extends VWBLBase {
    * @param amount - The amount of erc1155 tokens to be burnt
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    */
-  burn = async (owner: string, tokenId: number, amount: number, gasSettings?: GasSettings): Promise<void> => {
+  burn = async (
+    owner: string,
+    tokenId: number,
+    amount: number,
+    gasSettings?: GasSettings
+  ): Promise<void> => {
     return await this.nft.burn(owner, tokenId, amount, gasSettings);
   };
 
@@ -385,7 +485,9 @@ export class VWBLERC1155 extends VWBLBase {
   ): Promise<void> => {
     const { uploadMetadataType, awsConfig } = this.opts;
     const uploadMetadataFunction =
-      uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
+      uploadMetadataType === UploadMetadataType.S3
+        ? uploadMetadata
+        : uploadMetadataCallBack;
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback");
     }
@@ -423,7 +525,7 @@ export class VWBLERC1155 extends VWBLBase {
     mimeType: string,
     encryptLogic: EncryptLogic
   ): Promise<string> => {
-    const metadataUrl = await this.uploadToIpfs?.uploadMetadata(
+    const metadataUrl = await uploadMetadataToIPFS(
       name,
       description,
       thumbnailImageUrl,
@@ -443,15 +545,29 @@ export class VWBLERC1155 extends VWBLBase {
    * @param autoMigration
    *
    */
-  setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
+  setKey = async (
+    tokenId: number,
+    key: string,
+    hasNonce?: boolean,
+    autoMigration?: boolean
+  ): Promise<void> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
     const chainId =
-      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await this.opts.ethersSigner.getChainId();
+      "web3" in this.opts
+        ? Number(await this.opts.web3.eth.getChainId())
+        : await this.opts.ethersSigner.getChainId();
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
         : await this._getAddressBySigner(this.opts.ethersSigner);
-    return await this._setKey(documentId, chainId, key, signerAddress, hasNonce, autoMigration);
+    return await this._setKey(
+      documentId,
+      chainId,
+      key,
+      signerAddress,
+      hasNonce,
+      autoMigration
+    );
   };
 
   /**
@@ -464,8 +580,11 @@ export class VWBLERC1155 extends VWBLBase {
       throw "please sign first";
     }
     const ownTokenIds = await this.nft.getOwnTokenIds();
-    return (await Promise.all(ownTokenIds.map(this.getMetadata.bind(this)))).filter(
-      (extractMetadata): extractMetadata is Metadata => extractMetadata !== undefined
+    return (
+      await Promise.all(ownTokenIds.map(this.getMetadata.bind(this)))
+    ).filter(
+      (extractMetadata): extractMetadata is Metadata =>
+        extractMetadata !== undefined
     );
   };
 
@@ -487,10 +606,16 @@ export class VWBLERC1155 extends VWBLBase {
    * @param tokenId - The ID of NFT
    * @returns Token metadata and an address of NFT owner
    */
-  getTokenById = async (tokenId: number): Promise<(ExtractMetadata | Metadata) & { owner: string }> => {
-    const isOwnerOrMinter = (await this.nft.isOwnerOf(tokenId)) || (await this.nft.isMinterOf(tokenId));
+  getTokenById = async (
+    tokenId: number
+  ): Promise<(ExtractMetadata | Metadata) & { owner: string }> => {
+    const isOwnerOrMinter =
+      (await this.nft.isOwnerOf(tokenId)) ||
+      (await this.nft.isMinterOf(tokenId));
     const owner = await this.nft.getOwner(tokenId);
-    const metadata = isOwnerOrMinter ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
+    const metadata = isOwnerOrMinter
+      ? await this.extractMetadata(tokenId)
+      : await this.getMetadata(tokenId);
     if (!metadata) {
       throw new Error("metadata not found");
     }
@@ -514,7 +639,8 @@ export class VWBLERC1155 extends VWBLBase {
    */
   getMetadata = async (tokenId: number): Promise<Metadata | undefined> => {
     const metadataUrl = await this.nft.getMetadataUrl(tokenId);
-    const metadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
+    const metadata = (await axios.get(metadataUrl).catch(() => undefined))
+      ?.data;
     // delete token if metadata is not found
     if (!metadata) {
       return undefined;
@@ -539,7 +665,10 @@ export class VWBLERC1155 extends VWBLBase {
    * @param contractAddress Optional: The contractAddress of any VWBL Token(ERC721 or ERC1155).
    * @returns Token metadata
    */
-  extractMetadata = async (tokenId: number, contractAddress?: string): Promise<ExtractMetadata | undefined> => {
+  extractMetadata = async (
+    tokenId: number,
+    contractAddress?: string
+  ): Promise<ExtractMetadata | undefined> => {
     if (!this.signature) {
       throw "please sign first";
     }
@@ -550,7 +679,9 @@ export class VWBLERC1155 extends VWBLBase {
       contractAddress && this.viewer
         ? await this.viewer.getMetadataUrl(contractAddress, tokenId)
         : await this.nft.getMetadataUrl(tokenId);
-    const metadata: PlainMetadata = (await axios.get(metadataUrl).catch(() => undefined))?.data;
+    const metadata: PlainMetadata = (
+      await axios.get(metadataUrl).catch(() => undefined)
+    )?.data;
     // delete token if metadata is not found
     if (!metadata) {
       return undefined;
@@ -560,13 +691,20 @@ export class VWBLERC1155 extends VWBLBase {
         ? await this.viewer.getDocumentId(contractAddress, tokenId)
         : (await this.nft.getTokenInfo(tokenId)).documentId;
     const chainIdBigInt =
-      "web3" in this.opts ? await this.opts.web3.eth.getChainId() : await this.opts.ethersSigner.getChainId();
+      "web3" in this.opts
+        ? await this.opts.web3.eth.getChainId()
+        : await this.opts.ethersSigner.getChainId();
     const chainId = Number(chainIdBigInt);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
         : await this._getAddressBySigner(this.opts.ethersSigner);
-    const decryptKey = await this.api.getKey(documentId, chainId, this.signature, signerAddress);
+    const decryptKey = await this.api.getKey(
+      documentId,
+      chainId,
+      this.signature,
+      signerAddress
+    );
     const encryptedDataUrls = metadata.encrypted_data;
     const isRunningOnBrowser = typeof window !== "undefined";
     const encryptLogic = metadata.encrypt_logic ?? "base64";
@@ -574,7 +712,12 @@ export class VWBLERC1155 extends VWBLBase {
       encryptedDataUrls.map(async (encryptedDataUrl) => {
         const encryptedData = (
           await axios.get(encryptedDataUrl, {
-            responseType: encryptLogic === "base64" ? "text" : isRunningOnBrowser ? "arraybuffer" : "stream",
+            responseType:
+              encryptLogic === "base64"
+                ? "text"
+                : isRunningOnBrowser
+                ? "arraybuffer"
+                : "stream",
           })
         ).data;
         return encryptLogic === "base64"
@@ -584,8 +727,12 @@ export class VWBLERC1155 extends VWBLBase {
           : decryptStream(encryptedData, decryptKey);
       })
     );
-    const ownFiles = ownDataArray.filter((ownData): ownData is ArrayBuffer => typeof ownData !== "string");
-    const ownDataBase64 = ownDataArray.filter((ownData): ownData is string => typeof ownData === "string");
+    const ownFiles = ownDataArray.filter(
+      (ownData): ownData is ArrayBuffer => typeof ownData !== "string"
+    );
+    const ownDataBase64 = ownDataArray.filter(
+      (ownData): ownData is string => typeof ownData === "string"
+    );
     const fileName = encryptedDataUrls[0]
       .split("/")
       .slice(-1)[0]

@@ -1,4 +1,5 @@
 import { Blob, NFTStorage } from "nft.storage";
+import * as Stream from "stream";
 
 import { getMimeType } from "../../util";
 import { PlainMetadata } from "../../vwbl/metadata";
@@ -6,13 +7,13 @@ import { EncryptLogic, FileOrPath } from "../../vwbl/types";
 import { IPFSConfig } from "./types";
 
 export const uploadEncryptedFileToIPFS = async (
-  encryptedContent: string | ArrayBuffer | Uint8Array,
+  encryptedContent: string | ArrayBuffer,
   ipfsConfig?: IPFSConfig
 ): Promise<string> => {
-  if (!ipfsConfig || !ipfsConfig.nftStorageKey) {
+  if (!ipfsConfig || !ipfsConfig.apiKey) {
     throw new Error("NFT storage key is not specified.");
   }
-  const client = new NFTStorage({ token: ipfsConfig.nftStorageKey });
+  const client = new NFTStorage({ token: ipfsConfig.apiKey });
 
   const encryptedContentData = new Blob([encryptedContent]);
 
@@ -30,10 +31,10 @@ export const uploadThumbnailToIPFS = async (
   thumbnailImage: FileOrPath,
   ipfsConfig?: IPFSConfig
 ): Promise<string> => {
-  if (!ipfsConfig || !ipfsConfig.nftStorageKey) {
+  if (!ipfsConfig || !ipfsConfig.apiKey) {
     throw new Error("NFT storage key is not specified.");
   }
-  const client = new NFTStorage({ token: ipfsConfig.nftStorageKey });
+  const client = new NFTStorage({ token: ipfsConfig.apiKey });
 
   const thumbnailFileType = getMimeType(thumbnailImage);
   const thumbnailBlob = new Blob([thumbnailImage], { type: thumbnailFileType });
@@ -57,10 +58,10 @@ export const uploadMetadataToIPFS = async (
   encryptLogic: EncryptLogic,
   ipfsConfig?: IPFSConfig
 ): Promise<string> => {
-  if (!ipfsConfig || !ipfsConfig.nftStorageKey) {
+  if (!ipfsConfig || !ipfsConfig.apiKey) {
     throw new Error("NFT storage key is not specified.");
   }
-  const client = new NFTStorage({ token: ipfsConfig.nftStorageKey });
+  const client = new NFTStorage({ token: ipfsConfig.apiKey });
   const metadata: PlainMetadata = {
     name,
     description,

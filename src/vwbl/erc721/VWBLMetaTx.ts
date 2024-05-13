@@ -266,8 +266,6 @@ export class VWBLMetaTx extends VWBLBase {
       throw "please sign first";
     }
     const {
-      uploadContentType,
-      uploadMetadataType,
       ipfsConfig,
       vwblNetworkUrl,
     } = this.opts;
@@ -279,10 +277,9 @@ export class VWBLMetaTx extends VWBLBase {
     // 2. encrypt data
     console.log("encrypt data");
     const plainFileArray = [plainFile].flat();
-    const uuid = createRandomKey();
     const uploadEncryptedFunction = uploadEncryptedFileCallback
       ? uploadEncryptedFileCallback
-      : uploadEncryptedFileToIPFS;
+      : uploadEncryptedFileToIPFS as UploadEncryptedFileToIPFS;
 
     const uploadThumbnailFunction = uploadThumbnailCallback
       ? uploadThumbnailCallback
@@ -294,7 +291,6 @@ export class VWBLMetaTx extends VWBLBase {
 
     // 3. upload data
     console.log("upload data");
-    const isRunningOnBrowser = typeof window !== "undefined";
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
         const plainFileBlob =
@@ -304,13 +300,11 @@ export class VWBLMetaTx extends VWBLBase {
         const filePath = file instanceof File ? file.name : file;
         const fileName: string =
           file instanceof File ? file.name : file.split("/").slice(-1)[0];
-        const encryptedContent =
+          const encryptedContent =
           encryptLogic === "base64"
             ? encryptString(await toBase64FromBlob(plainFileBlob), key)
-            : isRunningOnBrowser
-            ? await encryptFile(plainFileBlob, key)
-            : encryptStream(fs.createReadStream(filePath), key);
-        return await uploadEncryptedFunction(encryptedContent, ipfsConfig);
+            : await encryptFile(plainFileBlob, key);
+        return await uploadEncryptedFunction(encryptedContent, ipfsConfig!);
       })
     );
     const thumbnailImageUrl = await uploadThumbnailFunction(
@@ -329,7 +323,7 @@ export class VWBLMetaTx extends VWBLBase {
       throw new Error("please specify upload metadata type or give callback");
     }
     const mimeType = getMimeType(plainFileArray[0]);
-    await uploadMetadataFunction(
+    const metadataUrl = await uploadMetadataFunction(
       name,
       description,
       thumbnailImageUrl,
@@ -550,7 +544,7 @@ export class VWBLMetaTx extends VWBLBase {
     mimeType: string,
     encryptLogic: EncryptLogic
   ): Promise<string> => {
-    const metadataUrl = await this.uploadToIpfs?.uploadMetadata(
+    const metadataUrl = await uploadMetadataToIPFS(
       name,
       description,
       thumbnailImageUrl,

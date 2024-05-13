@@ -1,3 +1,3 @@
 export type IPFSConfig = {
-  nftStorageKey: string;
+  apiKey: string;
 };
