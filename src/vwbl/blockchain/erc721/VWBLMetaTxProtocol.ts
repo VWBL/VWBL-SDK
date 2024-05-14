@@ -14,7 +14,7 @@ import {
 
 export class VWBLNFTMetaTx {
   private walletProvider: ethers.providers.Web3Provider | ethers.Wallet;
-  private ethersSigner: ethers.providers.JsonRpcSigner | ethers.Wallet;
+  private ethersSigner: ethers.Signer;
   private nftAddress: string;
   private forwarderAddress: string;
   private biconomyAPIKey: string;
@@ -217,7 +217,7 @@ export class VWBLNFTMetaTx {
       const signatureType = "EIP712_SIGN";
       return { txParam, sig, domainSeparator, signatureType };
     } else {
-      const hashToSign = await getDataToSignForPersonalSign(txParam);
+      const hashToSign = getDataToSignForPersonalSign(txParam);
       const sig = await (this.walletProvider as ethers.Wallet).signMessage(hashToSign);
       const signatureType = "PERSONAL_SIGN";
       return { txParam, sig, signatureType };

@@ -35,7 +35,7 @@ import { VWBLViewer } from "../viewer";
 export class VWBLMetaTx extends VWBLBase {
   public opts: VWBLMetaTxOption;
   public nft: VWBLNFTMetaTx;
-  public signer: ethers.providers.JsonRpcSigner | ethers.Wallet;
+  public signer: ethers.Signer;
   public viewer?: VWBLViewer;
 
   constructor(props: MetaTxConstructorProps) {
@@ -496,12 +496,12 @@ export class VWBLMetaTx extends VWBLBase {
    * @returns Token metadata and an address of NFT owner
    */
   getTokenById = async (tokenId: number): Promise<(ExtractMetadata | Metadata) & { owner: string }> => {
-    const isOwnerOrMinterOrGrantee =
+    const canViewData =
       (await this.nft.isOwnerOf(tokenId)) ||
       (await this.nft.isMinterOf(tokenId)) ||
       (await this.nft.isGranteeOf(tokenId));
     const owner = await this.nft.getOwner(tokenId);
-    const metadata = isOwnerOrMinterOrGrantee ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
+    const metadata = canViewData ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
     if (!metadata) {
       throw new Error("metadata not found");
     }

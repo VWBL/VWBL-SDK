@@ -26,7 +26,7 @@ export type VWBLOption = ConstructorProps;
 
 export type EthersConstructorProps = BaseConstructorProps & {
   ethersProvider: ethers.providers.BaseProvider;
-  ethersSigner: ethers.providers.JsonRpcSigner | ethers.Wallet;
+  ethersSigner: ethers.Signer;
   manageKeyType?: ManageKeyType;
   dataCollectorAddress?: string;
 };
