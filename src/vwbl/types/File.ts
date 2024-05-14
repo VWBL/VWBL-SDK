@@ -1,7 +1,7 @@
 import * as Stream from "stream";
 
-import { EncryptLogic } from "./EncryptLogic";
 import { IPFSConfig } from "../../storage";
+import { EncryptLogic } from "./EncryptLogic";
 
 type UploadEncryptedFile = (
   fileName: string,
@@ -9,10 +9,7 @@ type UploadEncryptedFile = (
   uuid: string
 ) => Promise<string>;
 
-type UploadThumbnail = (
-  thumbnailImage: FileOrPath,
-  uuid: string
-) => Promise<string>;
+type UploadThumbnail = (thumbnailImage: FileOrPath, uuid: string) => Promise<string>;
 
 type UploadMetadata = (
   tokenId: number,
@@ -24,10 +21,7 @@ type UploadMetadata = (
   encryptLogic: EncryptLogic
 ) => Promise<void>;
 
-type UploadEncryptedFileToIPFS = (
-  encryptedContent: string | ArrayBuffer,
-  ipfsConfig?: IPFSConfig
-) => Promise<string>;
+type UploadEncryptedFileToIPFS = (encryptedContent: string | ArrayBuffer, ipfsConfig?: IPFSConfig) => Promise<string>;
 
 type UploadThumbnailToIPFS = (thumbnailImage: FileOrPath) => Promise<string>;
 

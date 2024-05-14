@@ -27,10 +27,7 @@ export const uploadEncryptedFileToIPFS = async (
   return `https://nftstorage.link/ipfs/${cid}`;
 };
 
-export const uploadThumbnailToIPFS = async (
-  thumbnailImage: FileOrPath,
-  ipfsConfig?: IPFSConfig
-): Promise<string> => {
+export const uploadThumbnailToIPFS = async (thumbnailImage: FileOrPath, ipfsConfig?: IPFSConfig): Promise<string> => {
   if (!ipfsConfig || !ipfsConfig.apiKey) {
     throw new Error("NFT storage key is not specified.");
   }
