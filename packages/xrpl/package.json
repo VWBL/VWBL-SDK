@@ -1,0 +1,13 @@
+{
+  "name": "xrpl",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "xrpl": "^3.0.0",
+    "xumm-sdk": "^1.11.1"
+  },
+  "scripts": {
+    "lint": "eslint './src/**/*.ts'"
+  }
+}

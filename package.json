@@ -5,11 +5,16 @@
   "private": "true",
   "repository": "https://github.com/VWBL/VWBL-SDK.git",
   "license": "MIT",
-  "workspaces": [
-    "evm/*",
-    "core/*",
-    "xrpl/*"
-  ],
+  "workspaces": {
+    "packages": ["packages/*"],
+    "nohoist": ["**"]
+  },
+  "scripts": {
+    "lint-all": "yarn workspaces run lint",
+    "lint:evm": "yarn workspace evm lint",
+    "test-all": "yarn workspaces run test",
+    "test:evm": "yarn workspace evm test"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.9.0",
     "@typescript-eslint/parser": "6.2.0",

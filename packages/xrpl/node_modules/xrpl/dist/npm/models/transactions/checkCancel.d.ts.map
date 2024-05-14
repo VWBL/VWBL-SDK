@@ -1,0 +1,1 @@
+{"version":3,"file":"checkCancel.d.ts","sourceRoot":"","sources":["../../../../src/models/transactions/checkCancel.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,eAAe,EAA2B,MAAM,UAAU,CAAA;AAUnE,MAAM,WAAW,WAAY,SAAQ,eAAe;IAClD,eAAe,EAAE,aAAa,CAAA;IAK9B,OAAO,EAAE,MAAM,CAAA;CAChB;AAQD,wBAAgB,mBAAmB,CAAC,EAAE,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAMrE"}

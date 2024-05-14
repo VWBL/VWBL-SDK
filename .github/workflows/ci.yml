@@ -2,7 +2,7 @@ name: Lint & Test
 
 on:
   pull_request:
-    branches: "*"
+    branches: ["*"]
 
 jobs:
   ci:
@@ -35,9 +35,9 @@ jobs:
         run: yarn install
 
       - name: Lint
-        run: yarn lint
+        run: yarn workspace evm lint # TODO: yarn workspaces run lintへ変更
 
       - name: Test
-        run: yarn test
+        run: yarn workspace evm test # TODO: yarn workspaces run testへ変更
         env:
           PROVIDER_URL: https://goerli.infura.io/v3/${{ secrets.INFURA_KEY }}
