@@ -2,6 +2,7 @@ import { SubmittableTransaction, Wallet } from "xrpl";
 
 import { UploadToIPFS } from "../../storage";
 import { VWBLApi } from "../api";
+import { VWBLXRPLProtocol } from "../blockchain/xrpl/VWBLProtocol";
 import {
   EncryptLogic,
   FileOrPath,
@@ -17,6 +18,7 @@ import {
 
 export class VWBLXRPL {
   protected api: VWBLApi;
+  public nft: VWBLXRPL;
   public xrplChainId: number;
   public signTx?: SubmittableTransaction;
   public signature?: string;
@@ -26,6 +28,7 @@ export class VWBLXRPL {
     const { uploadContentType, uploadMetadataType, awsConfig, ipfsNftStorageKey, vwblNetworkUrl, xrplChainId } = props;
 
     this.api = new VWBLApi(vwblNetworkUrl);
+    this.nft = new VWBLXRPLProtocol(props.xrplChainId);
     this.xrplChainId = xrplChainId;
     if (uploadContentType === UploadContentType.S3 || uploadMetadataType === UploadMetadataType.S3) {
       if (!awsConfig) {
@@ -66,5 +69,6 @@ export class VWBLXRPL {
     }
 
     // 1. mint token
+    const tokenId = await this.nft.managedCreateToken();
   };
 }

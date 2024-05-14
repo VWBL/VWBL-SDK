@@ -1,11 +1,15 @@
 import { Client, SubmittableTransaction, Wallet, xrpToDrops } from "xrpl";
+import { XummSdk } from "xumm-sdk";
+import { XummJsonTransaction } from "xumm-sdk/dist/src/types";
 
 export class VWBLXRPLProtocol {
-  private wallet: Wallet;
+  private xumm: XummSdk;
   private client: Client;
+  private walletAddress: string;
 
-  constructor(xrplChainId: number, wallet: Wallet) {
-    this.wallet = wallet;
+  constructor(xrplChainId: number, walletAddress: string, xumm: XummSdk) {
+    this.xumm = xumm;
+    this.walletAddress = walletAddress;
 
     let publicServerUrl: string;
     switch (xrplChainId) {
@@ -33,11 +37,15 @@ export class VWBLXRPLProtocol {
     await this.client.disconnect();
   }
 
-  async mintToken(transferRoyalty: number, isTransferable: boolean, isBurnable: boolean) {
+  async mintToken(
+    transferRoyalty: number,
+    isTransferable: boolean,
+    isBurnable: boolean
+  ) {
     const TagId = 11451419;
-    const mintTxJson: SubmittableTransaction = {
+    const mintTxJson: XummJsonTransaction = {
       TransactionType: "NFTokenMint",
-      Account: this.wallet.address,
+      Account: this.walletAddress,
       NFTokenTaxon: TagId,
       SourceTag: TagId,
       TransferFee: transferRoyalty,
@@ -47,13 +55,13 @@ export class VWBLXRPLProtocol {
       },
     };
 
+    let txId: string | null | undefined;
     let nftokenID: string | undefined;
     try {
-      const response = await this.client.submitAndWait(mintTxJson, {
-        wallet: this.wallet,
-      });
-      if (typeof response.result.meta === "object") {
-        nftokenID = response.result.meta.nftoken_id;
+      const response = await this.xumm.payload.create({ txjson: mintTxJson });
+      if (response) {
+        const payload = await this.xumm.payload.get(response);
+        txId = payload?.response.txid;
       }
     } catch (e) {
       throw new Error(`NFTokenMint failed: ${e}`);
@@ -62,10 +70,15 @@ export class VWBLXRPLProtocol {
     return nftokenID;
   }
 
-  async payMintFee(nftokenId: string, destination: string, amount: string, gasFee: string) {
+  async payMintFee(
+    nftokenId: string,
+    destination: string,
+    amount: string,
+    gasFee: string
+  ) {
     const accountInfo = await this.client.request({
       command: "account_info",
-      account: this.wallet.address,
+      account: this.walletAddress,
     });
     const sequence = accountInfo.result.account_data.Sequence;
 
@@ -77,7 +90,7 @@ export class VWBLXRPLProtocol {
 
     const paymentTxJson: SubmittableTransaction = {
       TransactionType: "Payment",
-      Account: this.wallet.address,
+      Account: this.walletAddress,
       Destination: destination,
       Amount: xrpToDrops(amount),
       Fee: xrpToDrops(gasFee),
