@@ -11,10 +11,11 @@ import {
   getDomainSeparator,
   TxParam,
 } from "../../../util/biconomyHelper";
+import { GrantViewPermissionMetaTxParam, MintForIPFSMetaTxParam, MintMetaTxParam } from "../../types";
 
 export class VWBLNFTMetaTx {
   private walletProvider: ethers.providers.Web3Provider | ethers.Wallet;
-  private ethersSigner: ethers.Signer;
+  protected ethersSigner: ethers.Signer;
   private nftAddress: string;
   private forwarderAddress: string;
   private biconomyAPIKey: string;
@@ -34,38 +35,50 @@ export class VWBLNFTMetaTx {
     this.forwarderAddress = forwarderAddress;
   }
 
-  async mintToken(decryptUrl: string, feeNumerator: number, documentId: string, mintApiId: string): Promise<number> {
+  async mintToken(mintParam: MintMetaTxParam): Promise<number> {
     const myAddress = await this.ethersSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTx.abi, this.ethersSigner);
-    const { data } = await vwblMetaTxContract.populateTransaction.mint(decryptUrl, feeNumerator, documentId);
+    const { data } = await vwblMetaTxContract.populateTransaction.mint(
+      mintParam.decryptUrl,
+      mintParam.feeNumerator,
+      mintParam.documentId
+    );
     const chainId = await this.ethersSigner.getChainId();
     const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
-    const receipt = await this.sendTransaction(txParam, sig, myAddress, domainSeparator, mintApiId, signatureType);
+    const receipt = await this.sendTransaction(
+      txParam,
+      sig,
+      myAddress,
+      domainSeparator,
+      mintParam.mintApiId,
+      signatureType
+    );
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);
     return tokenId;
   }
 
-  async mintTokenForIPFS(
-    metadataUrl: string,
-    decryptUrl: string,
-    feeNumerator: number,
-    documentId: string,
-    mintApiId: string
-  ): Promise<number> {
+  async mintTokenForIPFS(mintForIPFSParam: MintForIPFSMetaTxParam): Promise<number> {
     const myAddress = await this.ethersSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.mint(
-      metadataUrl,
-      decryptUrl,
-      feeNumerator,
-      documentId
+      mintForIPFSParam.metadataUrl,
+      mintForIPFSParam.decryptUrl,
+      mintForIPFSParam.feeNumerator,
+      mintForIPFSParam.documentId
     );
     const chainId = await this.ethersSigner.getChainId();
     const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
-    const receipt = await this.sendTransaction(txParam, sig, myAddress, domainSeparator, mintApiId, signatureType);
+    const receipt = await this.sendTransaction(
+      txParam,
+      sig,
+      myAddress,
+      domainSeparator,
+      mintForIPFSParam.mintApiId,
+      signatureType
+    );
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);
     return tokenId;
@@ -178,18 +191,28 @@ export class VWBLNFTMetaTx {
     console.log("transaction end");
   }
 
-  async grantViewPermission(tokenId: number, grantee: string, grantViewPermissionApiId: string): Promise<void> {
+  async grantViewPermission(grantParam: GrantViewPermissionMetaTxParam): Promise<void> {
     const myAddress = await this.ethersSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
-    const { data } = await vwblMetaTxContract.populateTransaction.grantViewPermission(tokenId, grantee);
+    const { data } = await vwblMetaTxContract.populateTransaction.grantViewPermission(
+      grantParam.tokenId,
+      grantParam.grantee
+    );
     const chainId = await this.ethersSigner.getChainId();
     const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
-    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, grantViewPermissionApiId, signatureType);
+    await this.sendTransaction(
+      txParam,
+      sig,
+      myAddress,
+      domainSeparator,
+      grantParam.grantViewPermissionApiId,
+      signatureType
+    );
     console.log("transaction end");
   }
 
-  private async constructMetaTx(myAddress: string, data: string, chainId: number) {
+  protected async constructMetaTx(myAddress: string, data: string, chainId: number) {
     console.log("estimate gas start");
     const gasLimit = await this.walletProvider.estimateGas({
       to: this.nftAddress,
@@ -224,7 +247,7 @@ export class VWBLNFTMetaTx {
     }
   }
 
-  private async sendTransaction(
+  protected async sendTransaction(
     request: TxParam,
     sig: any,
     myAddress: string,

@@ -112,7 +112,12 @@ export class VWBLMetaTx extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId, mintApiId);
+    const tokenId = await this.nft.mintToken({
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      mintApiId,
+    });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -254,13 +259,13 @@ export class VWBLMetaTx extends VWBLBase {
 
     // 5. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintTokenForIPFS(
-      metadataUrl as string,
-      vwblNetworkUrl,
+    const tokenId = await this.nft.mintTokenForIPFS({
+      metadataUrl: metadataUrl as string,
+      decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
-      mintApiId
-    );
+      mintApiId,
+    });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 6. set key to vwbl-network
@@ -304,7 +309,12 @@ export class VWBLMetaTx extends VWBLBase {
   mintToken = async (feeNumerator: number, mintApiId: string): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId, mintApiId);
+    return await this.nft.mintToken({
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      mintApiId,
+    });
   };
 
   /**
@@ -318,7 +328,13 @@ export class VWBLMetaTx extends VWBLBase {
   mintTokenForIPFS = async (metadataUrl: string, feeNumerator: number, mintApiId: string): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, feeNumerator, documentId, mintApiId);
+    return await this.nft.mintTokenForIPFS({
+      metadataUrl,
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      mintApiId,
+    });
   };
 
   /**
@@ -382,7 +398,11 @@ export class VWBLMetaTx extends VWBLBase {
    * @param grantViewPermissionApiId - The grantViewPermission api id of biconomy
    */
   grantViewPermission = async (tokenId: number, grantee: string, grantViewPermissionApiId: string): Promise<void> => {
-    await this.nft.grantViewPermission(tokenId, grantee, grantViewPermissionApiId);
+    await this.nft.grantViewPermission({
+      tokenId,
+      grantee,
+      grantViewPermissionApiId,
+    });
   };
 
   /**

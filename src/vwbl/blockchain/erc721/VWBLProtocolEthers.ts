@@ -3,10 +3,10 @@ import { ethers } from "ethers";
 import vwbl from "../../../contract/VWBLERC721ERC2981.json";
 import vwblIPFS from "../../../contract/VWBLERC721ERC2981ForMetadata.json";
 import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelper";
-import { GasSettings } from "../../types";
+import { GasSettings, GrantViewPermissionTxParam, MintForIPFSTxParam, MintTxParam } from "../../types";
 
 export class VWBLNFTEthers {
-  private ethersProvider: ethers.providers.BaseProvider;
+  protected ethersProvider: ethers.providers.BaseProvider;
   private ethersSigner: ethers.Signer;
   private contract: ethers.Contract;
 
@@ -23,17 +23,20 @@ export class VWBLNFTEthers {
       : new ethers.Contract(address, vwbl.abi, ethersSigner);
   }
 
-  async mintToken(decryptUrl: string, feeNumerator: number, documentId: string, gasSettings?: GasSettings) {
+  async mintToken(mintParam: MintTxParam) {
     const fee = await this.getFee();
     let txSettings: unknown;
-    if (gasSettings?.gasPrice) {
+    if (mintParam.gasSettings?.gasPrice) {
       txSettings = {
         value: fee,
-        gasPrice: gasSettings?.gasPrice,
+        gasPrice: mintParam.gasSettings?.gasPrice,
       };
     } else {
       const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
-        getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+        getFeeSettingsBasedOnEnvironment(
+          mintParam.gasSettings?.maxPriorityFeePerGas,
+          mintParam.gasSettings?.maxFeePerGas
+        );
       txSettings = {
         value: fee,
         maxPriorityFeePerGas: _maxPriorityFeePerGas,
@@ -41,30 +44,27 @@ export class VWBLNFTEthers {
       };
     }
     console.log("transaction start");
-    const tx = await this.contract.mint(decryptUrl, feeNumerator, documentId, txSettings);
+    const tx = await this.contract.mint(mintParam.decryptUrl, mintParam.feeNumerator, mintParam.documentId, txSettings);
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);
     return tokenId;
   }
 
-  async mintTokenForIPFS(
-    metadataUrl: string,
-    decryptUrl: string,
-    feeNumerator: number,
-    documentId: string,
-    gasSettings?: GasSettings
-  ) {
+  async mintTokenForIPFS(mintForIPFSParam: MintForIPFSTxParam) {
     const fee = await this.getFee();
     let txSettings: unknown;
-    if (gasSettings?.gasPrice) {
+    if (mintForIPFSParam.gasSettings?.gasPrice) {
       txSettings = {
         value: fee,
-        gasPrice: gasSettings?.gasPrice,
+        gasPrice: mintForIPFSParam.gasSettings?.gasPrice,
       };
     } else {
       const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
-        getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+        getFeeSettingsBasedOnEnvironment(
+          mintForIPFSParam.gasSettings?.maxPriorityFeePerGas,
+          mintForIPFSParam.gasSettings?.maxFeePerGas
+        );
       txSettings = {
         value: fee,
         maxPriorityFeePerGas: _maxPriorityFeePerGas,
@@ -72,7 +72,13 @@ export class VWBLNFTEthers {
       };
     }
     console.log("transaction start");
-    const tx = await this.contract.mint(metadataUrl, decryptUrl, feeNumerator, documentId, txSettings);
+    const tx = await this.contract.mint(
+      mintForIPFSParam.metadataUrl,
+      mintForIPFSParam.decryptUrl,
+      mintForIPFSParam.feeNumerator,
+      mintForIPFSParam.documentId,
+      txSettings
+    );
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);
@@ -198,21 +204,24 @@ export class VWBLNFTEthers {
     await this.ethersProvider.waitForTransaction(tx.hash);
   }
 
-  async grantViewPermission(tokenId: number, grantee: string, gasSettings?: GasSettings): Promise<void> {
+  async grantViewPermission(grantParam: GrantViewPermissionTxParam): Promise<void> {
     let txSettings: unknown;
-    if (gasSettings?.gasPrice) {
+    if (grantParam.gasSettings?.gasPrice) {
       txSettings = {
-        gasPrice: gasSettings?.gasPrice,
+        gasPrice: grantParam.gasSettings?.gasPrice,
       };
     } else {
       const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
-        getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+        getFeeSettingsBasedOnEnvironment(
+          grantParam.gasSettings?.maxPriorityFeePerGas,
+          grantParam.gasSettings?.maxFeePerGas
+        );
       txSettings = {
         maxPriorityFeePerGas: _maxPriorityFeePerGas,
         maxFeePerGas: _maxFeePerGas,
       };
     }
-    const tx = await this.contract.grantViewPermission(tokenId, grantee).send(txSettings);
+    const tx = await this.contract.grantViewPermission(grantParam.tokenId, grantParam.grantee).send(txSettings);
     await this.ethersProvider.waitForTransaction(tx.hash);
   }
 }
@@ -221,7 +230,7 @@ const range = (length: number) => {
   return Array.from(Array(length).keys());
 };
 
-const parseToTokenId = (receipt: ethers.providers.TransactionReceipt): number => {
+export const parseToTokenId = (receipt: ethers.providers.TransactionReceipt): number => {
   const eventInterface = new ethers.utils.Interface([
     "event nftDataRegistered(address contractAddress, uint256 tokenId)",
   ]);

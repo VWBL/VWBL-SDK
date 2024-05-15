@@ -101,7 +101,11 @@ export class VWBLEthers extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId);
+    const tokenId = await this.nft.mintToken({
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+    });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -247,7 +251,12 @@ export class VWBLEthers extends VWBLBase {
 
     // 5. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintTokenForIPFS(metadataUrl as string, vwblNetworkUrl, feeNumerator, documentId);
+    const tokenId = await this.nft.mintTokenForIPFS({
+      metadataUrl: metadataUrl as string,
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+    });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 6. set key to vwbl-network
@@ -296,7 +305,11 @@ export class VWBLEthers extends VWBLBase {
   mintToken = async (feeNumerator: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId);
+    return await this.nft.mintToken({
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+    });
   };
 
   /**
@@ -309,7 +322,12 @@ export class VWBLEthers extends VWBLBase {
   mintTokenForIPFS = async (metadataUrl: string, feeNumerator: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, feeNumerator, documentId);
+    return await this.nft.mintTokenForIPFS({
+      metadataUrl: metadataUrl,
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+    });
   };
 
   /**
@@ -370,7 +388,10 @@ export class VWBLEthers extends VWBLBase {
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    */
   grantViewPermission = async (tokenId: number, grantee: string): Promise<void> => {
-    await this.nft.grantViewPermission(tokenId, grantee);
+    await this.nft.grantViewPermission({
+      tokenId,
+      grantee,
+    });
   };
 
   /**
