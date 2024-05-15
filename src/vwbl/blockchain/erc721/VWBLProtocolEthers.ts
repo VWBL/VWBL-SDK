@@ -224,6 +224,24 @@ export class VWBLNFTEthers {
     const tx = await this.contract.grantViewPermission(grantParam.tokenId, grantParam.grantee).send(txSettings);
     await this.ethersProvider.waitForTransaction(tx.hash);
   }
+
+  async revokeViewPermission(tokenId: number, revoker: string, gasSettings?: GasSettings): Promise<void> {
+    let txSettings: unknown;
+    if (gasSettings?.gasPrice) {
+      txSettings = {
+        gasPrice: gasSettings?.gasPrice,
+      };
+    } else {
+      const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+        getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+      txSettings = {
+        maxPriorityFeePerGas: _maxPriorityFeePerGas,
+        maxFeePerGas: _maxFeePerGas,
+      };
+    }
+    const tx = await this.contract.revokeViewPermission(tokenId, revoker).send(txSettings);
+    await this.ethersProvider.waitForTransaction(tx.hash);
+  }
 }
 
 const range = (length: number) => {

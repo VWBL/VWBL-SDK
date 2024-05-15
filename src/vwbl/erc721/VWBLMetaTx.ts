@@ -406,6 +406,17 @@ export class VWBLMetaTx extends VWBLBase {
   };
 
   /**
+   * Revoke view permission
+   *
+   * @param tokenId - The ID of NFT
+   * @param revoker - The wallet address of revoker
+   * @param revokeViewPermisionApiId - The revokeViewPermission api id of biconomy
+   */
+  revokeViewPermission = async (tokenId: number, revoker: string, revokeViewPermisionApiId: string): Promise<void> => {
+    await this.nft.revokeViewPermission(tokenId, revoker, revokeViewPermisionApiId);
+  };
+
+  /**
    * Uplod Metadata
    *
    * @remarks

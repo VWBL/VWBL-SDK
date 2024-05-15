@@ -252,6 +252,28 @@ export class VWBLNFT {
     }
     await this.contract.methods.grantViewPermission(grantParam.tokenId, grantParam.grantee).send(txSettings);
   }
+
+  async revokeViewPermission(tokenId: number, revoker: string, gasSettings?: GasSettings): Promise<void> {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    let txSettings: unknown;
+    if (gasSettings?.gasPrice) {
+      const gas = await this.contract.methods.revokeViewPermission(tokenId, revoker).estimateGas({ from: myAddress });
+      txSettings = {
+        from: myAddress,
+        gasPrice: gasSettings?.gasPrice,
+        gas,
+      };
+    } else {
+      const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+        getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+      txSettings = {
+        from: myAddress,
+        maxPriorityFeePerGas: _maxPriorityFeePerGas,
+        maxFeePerGas: _maxFeePerGas,
+      };
+    }
+    await this.contract.methods.revokeViewPermission(tokenId, revoker).send(txSettings);
+  }
 }
 
 const range = (length: number) => {

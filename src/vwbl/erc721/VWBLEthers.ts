@@ -385,13 +385,22 @@ export class VWBLEthers extends VWBLBase {
    *
    * @param tokenId - The ID of NFT
    * @param grantee - The wallet address of a grantee
-   * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    */
   grantViewPermission = async (tokenId: number, grantee: string): Promise<void> => {
     await this.nft.grantViewPermission({
       tokenId,
       grantee,
     });
+  };
+
+  /**
+   * Revoke view permission
+   *
+   * @param tokenId - The ID of NFT
+   * @param revoker - The wallet address of revoker
+   */
+  revokeViewPermission = async (tokenId: number, revoker: string): Promise<void> => {
+    await this.nft.revokeViewPermission(tokenId, revoker);
   };
 
   /**

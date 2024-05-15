@@ -212,6 +212,17 @@ export class VWBLNFTMetaTx {
     console.log("transaction end");
   }
 
+  async revokeViewPermission(tokenId: number, revoker: string, revokeViewPermissionApiId: string): Promise<void> {
+    const myAddress = await this.ethersSigner.getAddress();
+    const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
+    const { data } = await vwblMetaTxContract.populateTransaction.revokeViewPermission(tokenId, revoker);
+    const chainId = await this.ethersSigner.getChainId();
+    const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
+    console.log("transaction start");
+    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, revokeViewPermissionApiId, signatureType);
+    console.log("transaction end");
+  }
+
   protected async constructMetaTx(myAddress: string, data: string, chainId: number) {
     console.log("estimate gas start");
     const gasLimit = await this.walletProvider.estimateGas({

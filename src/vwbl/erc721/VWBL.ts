@@ -440,6 +440,17 @@ export class VWBL extends VWBLBase {
   };
 
   /**
+   * Revoke view permission
+   *
+   * @param tokenId - The ID of NFT
+   * @param revoker - The wallet address of revoker
+   * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
+   */
+  revokeViewPermission = async (tokenId: number, revoker: string, gasSettings?: GasSettings): Promise<void> => {
+    await this.nft.revokeViewPermission(tokenId, revoker, gasSettings);
+  };
+
+  /**
    * Uplod Metadata
    *
    * @remarks
