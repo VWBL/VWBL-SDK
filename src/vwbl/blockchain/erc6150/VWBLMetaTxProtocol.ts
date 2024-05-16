@@ -6,7 +6,7 @@ import { GrantViewPermissionMetaTxParam, MintForIPFSMetaTxParam, MintMetaTxParam
 import { VWBLNFTMetaTx } from "../erc721/VWBLMetaTxProtocol";
 import { parseToTokenId } from "../erc721/VWBLProtocolEthers";
 
-export class VWBLERC6150MetaTx extends VWBLNFTMetaTx {
+export class VWBLERC6150MetaTxEthers extends VWBLNFTMetaTx {
   private erc6150Address: string;
 
   constructor(

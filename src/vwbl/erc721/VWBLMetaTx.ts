@@ -20,6 +20,9 @@ import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
   EncryptLogic,
   FileOrPath,
+  GrantViewPermissionMetaTx,
+  ManagedCreateTokenForIPFSMetaTx,
+  ManagedCreateTokenMetatx,
   MetaTxConstructorProps,
   ProgressSubscriber,
   StepStatus,
@@ -93,7 +96,7 @@ export class VWBLMetaTx extends VWBLBase {
    * @param subscriber - Optional: the subscriber for seeing progress
    * @returns
    */
-  managedCreateToken = async (
+  managedCreateToken: ManagedCreateTokenMetatx = async (
     name: string,
     description: string,
     plainFile: FileOrPath | FileOrPath[],
@@ -204,7 +207,7 @@ export class VWBLMetaTx extends VWBLBase {
    * @param subscriber - Optional: the subscriber for seeing progress
    * @returns
    */
-  managedCreateTokenForIPFS = async (
+  managedCreateTokenForIPFS: ManagedCreateTokenForIPFSMetaTx = async (
     name: string,
     description: string,
     plainFile: FileOrPath | FileOrPath[],
@@ -397,7 +400,11 @@ export class VWBLMetaTx extends VWBLBase {
    * @param grantee - The wallet address of a grantee
    * @param grantViewPermissionApiId - The grantViewPermission api id of biconomy
    */
-  grantViewPermission = async (tokenId: number, grantee: string, grantViewPermissionApiId: string): Promise<void> => {
+  grantViewPermission: GrantViewPermissionMetaTx = async (
+    tokenId: number,
+    grantee: string,
+    grantViewPermissionApiId: string
+  ): Promise<void> => {
     await this.nft.grantViewPermission({
       tokenId,
       grantee,

@@ -3,10 +3,10 @@ import { Web3 } from "web3";
 import vwblERC6150 from "../../../contract/VWBLERC6150ERC2981.json";
 import vwblERC6150IPFS from "../../../contract/VWBLERC6150ERC2981ForMetadata.json";
 import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelper";
-import { GrantViewPermissionTxParam, MintForIPFSTxParam, MintTxParam } from "../../types";
+import { GasSettings, GrantViewPermissionTxParam, MintForIPFSTxParam, MintTxParam } from "../../types";
 import { VWBLNFT } from "../erc721/VWBLProtocol";
 
-export class VWBLERC6150 extends VWBLNFT {
+export class VWBLERC6150Web3 extends VWBLNFT {
   private erc6150Contract: any; // eslint-disable-line
 
   constructor(web3: Web3, address: string, isIpfs: boolean) {
@@ -127,5 +127,29 @@ export class VWBLERC6150 extends VWBLNFT {
     await this.erc6150Contract.methods
       .grantViewPermission(grantParam.tokenId, grantParam.grantee, grantParam.toDir)
       .send(txSettings);
+  }
+
+  async revokeDirPermission(tokenId: number, revoker: string, gasSettings?: GasSettings): Promise<void> {
+    const myAddress = (await this.web3.eth.getAccounts())[0];
+    let txSettings: unknown;
+    if (gasSettings?.gasPrice) {
+      const gas = await this.erc6150Contract.methods
+        .revokeDirPermission(tokenId, revoker)
+        .estimateGas({ from: myAddress });
+      txSettings = {
+        from: myAddress,
+        gasPrice: gasSettings?.gasPrice,
+        gas,
+      };
+    } else {
+      const { maxPriorityFeePerGas: _maxPriorityFeePerGas, maxFeePerGas: _maxFeePerGas } =
+        getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
+      txSettings = {
+        from: myAddress,
+        maxPriorityFeePerGas: _maxPriorityFeePerGas,
+        maxFeePerGas: _maxFeePerGas,
+      };
+    }
+    await this.erc6150Contract.methods.revokeDirPermission(tokenId, revoker).send(txSettings);
   }
 }

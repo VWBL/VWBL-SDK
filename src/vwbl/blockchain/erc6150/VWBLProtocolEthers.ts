@@ -113,7 +113,7 @@ export class VWBLERC6150Ethers extends VWBLNFTEthers {
     await this.ethersProvider.waitForTransaction(tx.hash);
   }
 
-  async revokeDirPermission(tokenId: number, revoker: string, gasSettings: GasSettings): Promise<void> {
+  async revokeDirPermission(tokenId: number, revoker: string, gasSettings?: GasSettings): Promise<void> {
     let txSettings: unknown;
     if (gasSettings?.gasPrice) {
       txSettings = {

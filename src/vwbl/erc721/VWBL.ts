@@ -23,6 +23,9 @@ import {
   EthersConstructorProps,
   FileOrPath,
   GasSettings,
+  GrantViewPermission,
+  ManagedCreateToken,
+  ManagedCreateTokenForIPFS,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -100,7 +103,7 @@ export class VWBL extends VWBLBase {
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    * @returns
    */
-  managedCreateToken = async (
+  managedCreateToken: ManagedCreateToken = async (
     name: string,
     description: string,
     plainFile: FileOrPath | FileOrPath[],
@@ -216,7 +219,7 @@ export class VWBL extends VWBLBase {
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    * @returns
    */
-  managedCreateTokenForIPFS = async (
+  managedCreateTokenForIPFS: ManagedCreateTokenForIPFS = async (
     name: string,
     description: string,
     plainFile: FileOrPath | FileOrPath[],
@@ -431,7 +434,11 @@ export class VWBL extends VWBLBase {
    * @param grantee - The wallet address of a grantee
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    */
-  grantViewPermission = async (tokenId: number, grantee: string, gasSettings?: GasSettings): Promise<void> => {
+  grantViewPermission: GrantViewPermission = async (
+    tokenId: number,
+    grantee: string,
+    gasSettings?: GasSettings
+  ): Promise<void> => {
     await this.nft.grantViewPermission({
       tokenId,
       grantee,
