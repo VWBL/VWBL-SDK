@@ -563,30 +563,6 @@
             "internalType": "address",
             "name": "grantee",
             "type": "address"
-          }
-        ],
-        "name": "grantViewPermission",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "grantee",
-            "type": "address"
           },
           {
             "internalType": "bool",
