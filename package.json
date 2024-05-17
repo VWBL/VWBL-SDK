@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.23.3",
-    "@truffle/hdwallet-provider": "^2.1.11",
+    "@truffle/hdwallet-provider": "^2.1.15",
     "@types/chai": "^4.3.0",
     "@types/crypto-js": "^4.0.2",
     "@types/ethereumjs-abi": "^0.6.5",

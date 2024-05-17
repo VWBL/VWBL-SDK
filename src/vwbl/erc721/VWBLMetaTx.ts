@@ -24,6 +24,9 @@ import {
   ManagedCreateTokenForIPFSMetaTx,
   ManagedCreateTokenMetatx,
   MetaTxConstructorProps,
+  MintTokenForIPFS,
+  MintTokenForIPFSMetaTx,
+  MintTokenMetaTx,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -309,7 +312,7 @@ export class VWBLMetaTx extends VWBLBase {
    * @param mintApiId - The mint method api id of biconomy
    * @returns The ID of minted NFT
    */
-  mintToken = async (feeNumerator: number, mintApiId: string): Promise<number> => {
+  mintToken: MintTokenMetaTx = async (feeNumerator: number, mintApiId: string): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
     return await this.nft.mintToken({
@@ -328,7 +331,11 @@ export class VWBLMetaTx extends VWBLBase {
    * @param mintApiId - The mint method api id of biconomy
    * @returns The ID of minted NFT
    */
-  mintTokenForIPFS = async (metadataUrl: string, feeNumerator: number, mintApiId: string): Promise<number> => {
+  mintTokenForIPFS: MintTokenForIPFSMetaTx = async (
+    metadataUrl: string,
+    feeNumerator: number,
+    mintApiId: string
+  ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
     return await this.nft.mintTokenForIPFS({

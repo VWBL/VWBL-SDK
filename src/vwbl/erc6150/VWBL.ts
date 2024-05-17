@@ -14,6 +14,8 @@ import {
   GrantViewPermission,
   ManagedCreateToken,
   ManagedCreateTokenForIPFS,
+  MintToken,
+  MintTokenForIPFS,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -58,7 +60,7 @@ export class VWBLERC6150 extends VWBL {
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
    * @param subscriber - Optional: the subscriber for seeing progress
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
-   * @param parentId - Optional: The Id of parent token. If parendId param is undefined or 0, mint as root token(parentId=0)
+   * @param parentId - Optional: The Id of parent token. If parentId param is undefined or 0, mint as root token(parentId=0)
    * @returns
    */
   managedCreateToken: ManagedCreateToken = async (
@@ -178,7 +180,7 @@ export class VWBLERC6150 extends VWBL {
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param subscriber - Optional: the subscriber for seeing progress
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
-   * @param parentId - Optional: The Id of parent token. If parendId param is undefined or 0, mint as root token(parentId=0)
+   * @param parentId - Optional: The Id of parent token. If parentId param is undefined or 0, mint as root token(parentId=0)
    * @returns
    */
   managedCreateTokenForIPFS: ManagedCreateTokenForIPFS = async (
@@ -190,7 +192,7 @@ export class VWBLERC6150 extends VWBL {
     encryptLogic: EncryptLogic = "base64",
     subscriber?: ProgressSubscriber,
     gasSettings?: GasSettings,
-    parendId?: number
+    parentId?: number
   ) => {
     if (!this.signature) {
       throw "please sign first";
@@ -237,7 +239,7 @@ export class VWBLERC6150 extends VWBL {
 
     // 5. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const _parentId = typeof parendId !== "undefined" ? parendId : 0;
+    const _parentId = typeof parentId !== "undefined" ? parentId : 0;
     const tokenId = await this.erc6150.mintTokenForIPFS({
       metadataUrl: metadataUrl as string,
       decryptUrl: vwblNetworkUrl,
@@ -260,6 +262,61 @@ export class VWBLERC6150 extends VWBL {
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
+  };
+
+  /**
+   * Mint new ERC6150
+   *
+   * @param feeNumerator - This basis point of the sale price will be paid to the ERC6150 creator every time the ERC6150 is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
+   * @param parentId - Optional: The Id of parent token. If parentId param is undefined or 0, mint as root token(parentId=0)
+   * @returns The ID of minted ERC6150
+   */
+  mintToken: MintToken = async (
+    feeNumerator: number,
+    gasSettings?: GasSettings,
+    parentId?: number
+  ): Promise<number> => {
+    const { vwblNetworkUrl } = this.opts;
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    const _parentId = typeof parentId !== "undefined" ? parentId : 0;
+    return await this.erc6150.mintToken({
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      gasSettings,
+      parentId: _parentId,
+    });
+  };
+
+  /**
+   * Mint new ERC6150
+   *
+   * @param metadataUrl metadata url
+   * @param feeNumerator - This basis point of the sale price will be paid to the ERC6150 creator every time the ERC6150 is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
+   * @param parentId - Optional: The Id of parent token. If parentId param is undefined or 0, mint as root token(parentId=0)
+   * @returns The ID of minted ERC6150
+   */
+  mintTokenForIPFS: MintTokenForIPFS = async (
+    metadataUrl: string,
+    feeNumerator: number,
+    gasSettings?: GasSettings,
+    parentId?: number
+  ): Promise<number> => {
+    const { vwblNetworkUrl } = this.opts;
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    const _parentId = typeof parentId !== "undefined" ? parentId : 0;
+    return await this.erc6150.mintTokenForIPFS({
+      metadataUrl,
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      gasSettings,
+      parentId: _parentId,
+    });
   };
 
   /**

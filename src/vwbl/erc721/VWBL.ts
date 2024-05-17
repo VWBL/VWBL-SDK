@@ -26,6 +26,8 @@ import {
   GrantViewPermission,
   ManagedCreateToken,
   ManagedCreateTokenForIPFS,
+  MintToken,
+  MintTokenForIPFS,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -336,17 +338,14 @@ export class VWBL extends VWBLBase {
    * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns The ID of minted NFT
    */
-  mintToken = async (feeNumerator: number, gasSettings?: GasSettings): Promise<number> => {
+  mintToken: MintToken = async (feeNumerator: number, gasSettings?: GasSettings): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
     return await this.nft.mintToken({
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
-      gasSettings: {
-        maxPriorityFeePerGas: gasSettings?.maxPriorityFeePerGas,
-        maxFeePerGas: gasSettings?.maxFeePerGas,
-      },
+      gasSettings,
     });
   };
 
@@ -359,7 +358,11 @@ export class VWBL extends VWBLBase {
    * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns The ID of minted NFT
    */
-  mintTokenForIPFS = async (metadataUrl: string, feeNumerator: number, gasSettings?: GasSettings): Promise<number> => {
+  mintTokenForIPFS: MintTokenForIPFS = async (
+    metadataUrl: string,
+    feeNumerator: number,
+    gasSettings?: GasSettings
+  ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
     return await this.nft.mintTokenForIPFS({
@@ -367,10 +370,7 @@ export class VWBL extends VWBLBase {
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
-      gasSettings: {
-        maxPriorityFeePerGas: gasSettings?.maxPriorityFeePerGas,
-        maxFeePerGas: gasSettings?.maxFeePerGas,
-      },
+      gasSettings,
     });
   };
 

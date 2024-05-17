@@ -12,6 +12,8 @@ import {
   ManagedCreateTokenForIPFSMetaTx,
   ManagedCreateTokenMetatx,
   MetaTxConstructorProps,
+  MintTokenForIPFSMetaTx,
+  MintTokenMetaTx,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -56,7 +58,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
    * @param subscriber - Optional: the subscriber for seeing progress
-   * @param parentId - Optional: The Id of parent token. If parendId param is undefined or 0, mint as root token(parentId=0)
+   * @param parentId - Optional: The Id of parent token. If parentId param is undefined or 0, mint as root token(parentId=0)
    * @returns
    */
   managedCreateToken: ManagedCreateTokenMetatx = async (
@@ -171,7 +173,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
    * @param mintApiId - The mint method api id of biconomy
    * @param subscriber - Optional: the subscriber for seeing progress
-   * @param parentId - Optional: The Id of parent token. If parendId param is undefined or 0, mint as root token(parentId=0)
+   * @param parentId - Optional: The Id of parent token. If parentId param is undefined or 0, mint as root token(parentId=0)
    * @returns
    */
   managedCreateTokenForIPFS: ManagedCreateTokenForIPFSMetaTx = async (
@@ -248,6 +250,54 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
+  };
+
+  /**
+   * Mint new ERC6150
+   *
+   * @param feeNumerator - This basis point of the sale price will be paid to the ERC6150 creator every time the ERC6150 is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
+   * @param mintApiId - The mint method api id of biconomy
+   * @param parentId - Optional: The Id of parent token. If parentId param is undefined or 0, mint as root token(parentId=0)
+   * @returns The ID of minted ERC6150
+   */
+  mintToken: MintTokenMetaTx = async (feeNumerator: number, mintApiId: string, parentId?: number): Promise<number> => {
+    const { vwblNetworkUrl } = this.opts;
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    const _parentId = typeof parentId !== "undefined" ? parentId : 0;
+    return await this.nft.mintToken({
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      mintApiId,
+      parentId: _parentId,
+    });
+  };
+
+  /**
+   * Mint new ERC6150
+   *
+   * @param metadataUrl metadata url
+   * @param feeNumerator - This basis point of the sale price will be paid to the ERC6150 creator every time the ERC6150 is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
+   * @param mintApiId - The mint method api id of biconomy
+   * @param parentId - Optional: The Id of parent token. If parentId param is undefined or 0, mint as root token(parentId=0)
+   * @returns The ID of minted ERC6150
+   */
+  mintTokenForIPFS: MintTokenForIPFSMetaTx = async (
+    metadataUrl: string,
+    feeNumerator: number,
+    mintApiId: string,
+    parentId?: number
+  ): Promise<number> => {
+    const { vwblNetworkUrl } = this.opts;
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    const _parentId = typeof parentId !== "undefined" ? parentId : 0;
+    return await this.nft.mintTokenForIPFS({
+      metadataUrl,
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      mintApiId,
+    });
   };
 
   /**

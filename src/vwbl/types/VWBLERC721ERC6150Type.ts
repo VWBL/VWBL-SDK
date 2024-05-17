@@ -68,6 +68,22 @@ export type ManagedCreateTokenForIPFS = {
   ): Promise<number>;
 };
 
+export type MintToken = {
+  // Interface for ERC721
+  (feeNumerator: number, gasSettings?: GasSettings): Promise<number>;
+
+  // Interface for ERC6150
+  (feeNumerator: number, gasSettings?: GasSettings, parentId?: number): Promise<number>;
+};
+
+export type MintTokenForIPFS = {
+  // Interface for ERC721
+  (metadataUrl: string, feeNumerator: number, gasSettings?: GasSettings): Promise<number>;
+
+  // Interface for ERC6150
+  (metadataUrl: string, feeNumerator: number, gasSettings?: GasSettings, parentId?: number): Promise<number>;
+};
+
 export type GrantViewPermission = {
   // Interface for ERC721
   (tokenId: number, grantee: string, gasSettings?: GasSettings): Promise<void>;
@@ -134,6 +150,22 @@ export type ManagedCreateTokenForIPFSMetaTx = {
     subscriber?: ProgressSubscriber,
     parentId?: number
   ): Promise<number>;
+};
+
+export type MintTokenMetaTx = {
+  // Interface for ERC721
+  (feeNumerator: number, mintApiId: string): Promise<number>;
+
+  // Interface for ERC6150
+  (feeNumerator: number, mintApiId: string, parentId?: number): Promise<number>;
+};
+
+export type MintTokenForIPFSMetaTx = {
+  // Interface for ERC721
+  (metadataUrl: string, feeNumerator: number, mintApiId: string): Promise<number>;
+
+  // Interface for ERC6150
+  (metadataUrl: string, feeNumerator: number, mintApiId: string, parentId?: number): Promise<number>;
 };
 
 export type GrantViewPermissionMetaTx = {

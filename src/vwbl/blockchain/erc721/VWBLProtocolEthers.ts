@@ -221,7 +221,7 @@ export class VWBLNFTEthers {
         maxFeePerGas: _maxFeePerGas,
       };
     }
-    const tx = await this.contract.grantViewPermission(grantParam.tokenId, grantParam.grantee).send(txSettings);
+    const tx = await this.contract.grantViewPermission(grantParam.tokenId, grantParam.grantee, txSettings);
     await this.ethersProvider.waitForTransaction(tx.hash);
   }
 
@@ -239,7 +239,7 @@ export class VWBLNFTEthers {
         maxFeePerGas: _maxFeePerGas,
       };
     }
-    const tx = await this.contract.revokeViewPermission(tokenId, revoker).send(txSettings);
+    const tx = await this.contract.revokeViewPermission(tokenId, revoker, txSettings);
     await this.ethersProvider.waitForTransaction(tx.hash);
   }
 }

@@ -78,8 +78,8 @@ export class VWBLERC6150Ethers extends VWBLNFTEthers {
     console.log("transaction start");
     const tx = await this.erc6150Contract.mint(
       mintForIPFSParam.metadataUrl,
-      mintForIPFSParam.parentId,
       mintForIPFSParam.decryptUrl,
+      mintForIPFSParam.parentId,
       mintForIPFSParam.feeNumerator,
       mintForIPFSParam.documentId,
       txSettings
@@ -107,9 +107,12 @@ export class VWBLERC6150Ethers extends VWBLNFTEthers {
         maxFeePerGas: _maxFeePerGas,
       };
     }
-    const tx = await this.erc6150Contract
-      .grantViewPermission(grantParam.tokenId, grantParam.grantee, grantParam.toDir)
-      .send(txSettings);
+    const tx = await this.erc6150Contract.grantViewPermission(
+      grantParam.tokenId,
+      grantParam.grantee,
+      grantParam.toDir,
+      txSettings
+    );
     await this.ethersProvider.waitForTransaction(tx.hash);
   }
 
@@ -127,7 +130,7 @@ export class VWBLERC6150Ethers extends VWBLNFTEthers {
         maxFeePerGas: _maxFeePerGas,
       };
     }
-    const tx = await this.erc6150Contract.revokeDirPermission(tokenId, revoker).send(txSettings);
+    const tx = await this.erc6150Contract.revokeDirPermission(tokenId, revoker, txSettings);
     await this.ethersProvider.waitForTransaction(tx.hash);
   }
 }
