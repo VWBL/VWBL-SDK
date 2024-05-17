@@ -17,11 +17,11 @@ export type ManagedCreateToken = {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic,
-    uploadEncryptedFileCallback: UploadEncryptedFile | undefined,
-    uploadThumbnailCallback: UploadThumbnail | undefined,
-    uploadMetadataCallBack: UploadMetadata | undefined,
-    subscriber: ProgressSubscriber | undefined,
-    gasSettings: GasSettings | undefined
+    uploadEncryptedFileCallback?: UploadEncryptedFile,
+    uploadThumbnailCallback?: UploadThumbnail,
+    uploadMetadataCallBack?: UploadMetadata,
+    subscriber?: ProgressSubscriber,
+    gasSettings?: GasSettings
   ): Promise<number>;
 
   // Interface for ERC6150
@@ -32,12 +32,12 @@ export type ManagedCreateToken = {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic,
-    uploadEncryptedFileCallback: UploadEncryptedFile | undefined,
-    uploadThumbnailCallback: UploadThumbnail | undefined,
-    uploadMetadataCallBack: UploadMetadata | undefined,
-    subscriber: ProgressSubscriber | undefined,
-    gasSettings: GasSettings | undefined,
-    parentId: number | undefined
+    uploadEncryptedFileCallback?: UploadEncryptedFile,
+    uploadThumbnailCallback?: UploadThumbnail,
+    uploadMetadataCallBack?: UploadMetadata,
+    subscriber?: ProgressSubscriber,
+    gasSettings?: GasSettings,
+    parentId?: number
   ): Promise<number>;
 };
 
@@ -50,8 +50,8 @@ export type ManagedCreateTokenForIPFS = {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic,
-    subscriber: ProgressSubscriber | undefined,
-    gasSettings: GasSettings | undefined
+    subscriber?: ProgressSubscriber,
+    gasSettings?: GasSettings
   ): Promise<number>;
 
   // Interface for ERC6150
@@ -62,18 +62,18 @@ export type ManagedCreateTokenForIPFS = {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic,
-    subscriber: ProgressSubscriber | undefined,
-    gasSettings: GasSettings | undefined,
-    parentId: number | undefined
+    subscriber?: ProgressSubscriber,
+    gasSettings?: GasSettings,
+    parentId?: number
   ): Promise<number>;
 };
 
 export type GrantViewPermission = {
   // Interface for ERC721
-  (tokenId: number, grantee: string, gasSettings: GasSettings | undefined): Promise<void>;
+  (tokenId: number, grantee: string, gasSettings?: GasSettings): Promise<void>;
 
   // Interface for ERC6150
-  (tokenId: number, grantee: string, gasSettings: GasSettings | undefined, toDir: boolean | undefined): Promise<void>;
+  (tokenId: number, grantee: string, gasSettings?: GasSettings, toDir?: boolean): Promise<void>;
 };
 
 export type ManagedCreateTokenMetatx = {
@@ -86,10 +86,10 @@ export type ManagedCreateTokenMetatx = {
     feeNumerator: number,
     encryptLogic: EncryptLogic,
     mintApiId: string,
-    uploadEncryptedFileCallback: UploadEncryptedFile | undefined,
-    uploadThumbnailCallback: UploadThumbnail | undefined,
-    uploadMetadataCallBack: UploadMetadata | undefined,
-    subscriber: ProgressSubscriber | undefined
+    uploadEncryptedFileCallback?: UploadEncryptedFile,
+    uploadThumbnailCallback?: UploadThumbnail,
+    uploadMetadataCallBack?: UploadMetadata,
+    subscriber?: ProgressSubscriber
   ): Promise<number>;
 
   // Interface for ERC6150
@@ -101,11 +101,11 @@ export type ManagedCreateTokenMetatx = {
     feeNumerator: number,
     encryptLogic: EncryptLogic,
     mintApiId: string,
-    uploadEncryptedFileCallback: UploadEncryptedFile | undefined,
-    uploadThumbnailCallback: UploadThumbnail | undefined,
-    uploadMetadataCallBack: UploadMetadata | undefined,
-    subscriber: ProgressSubscriber | undefined,
-    parentId: number | undefined
+    uploadEncryptedFileCallback?: UploadEncryptedFile,
+    uploadThumbnailCallback?: UploadThumbnail,
+    uploadMetadataCallBack?: UploadMetadata,
+    subscriber?: ProgressSubscriber,
+    parentId?: number
   ): Promise<number>;
 };
 
@@ -119,7 +119,7 @@ export type ManagedCreateTokenForIPFSMetaTx = {
     feeNumerator: number,
     encryptLogic: EncryptLogic,
     mintApiId: string,
-    subscriber: ProgressSubscriber | undefined
+    subscriber?: ProgressSubscriber
   ): Promise<number>;
 
   // Interface for ERC6150
@@ -131,8 +131,8 @@ export type ManagedCreateTokenForIPFSMetaTx = {
     feeNumerator: number,
     encryptLogic: EncryptLogic,
     mintApiId: string,
-    subscriber: ProgressSubscriber | undefined,
-    parentId: number | undefined
+    subscriber?: ProgressSubscriber,
+    parentId?: number
   ): Promise<number>;
 };
 
@@ -141,5 +141,5 @@ export type GrantViewPermissionMetaTx = {
   (tokenId: number, grantee: string, grantViewPermissionApiId: string): Promise<void>;
 
   // Interface for ERC6150
-  (tokenId: number, grantee: string, grantViewPermissionApiId: string, toDir: boolean | undefined): Promise<void>;
+  (tokenId: number, grantee: string, grantViewPermissionApiId: string, toDir?: boolean): Promise<void>;
 };
