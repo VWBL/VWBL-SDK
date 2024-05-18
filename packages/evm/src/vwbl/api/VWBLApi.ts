@@ -1,5 +1,4 @@
 import axios from "axios";
-import { SubmittableTransaction } from "xrpl";
 
 export class VWBLApi {
   private instance;
@@ -26,24 +25,6 @@ export class VWBLApi {
     });
   }
 
-  async setXrplKey(
-    documentId: string,
-    xrplChainId: number,
-    key: string,
-    signatureTxBlob: string,
-    pubKey: string,
-    address?: string
-  ) {
-    await this.instance.post("xrpl-keys", {
-      document_id: documentId,
-      xrpl_chain_id: xrplChainId,
-      key,
-      signature_tx_blob: signatureTxBlob,
-      pub_key: pubKey,
-      address,
-    });
-  }
-
   async getKey(documentId: string, chainId: number, signature: string, address?: string): Promise<string> {
     const response = await this.instance.get(
       `/keys/${documentId}/${chainId}?signature=${signature}&address=${address}`
@@ -54,11 +35,5 @@ export class VWBLApi {
   async getSignMessage(contractAddress: string, chainId: number, address?: string): Promise<string> {
     const response = await this.instance.get(`/signature/${contractAddress}/${chainId}?address=${address}`);
     return response.data.signMessage;
-  }
-
-  async getXrplSignMessage(xrplChainId: number, address: string): Promise<SubmittableTransaction> {
-    const response = await this.instance.get(`/xrpl-signature/${xrplChainId}?address=${address}`);
-
-    return response.data.signTx;
   }
 }
