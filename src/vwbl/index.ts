@@ -3,6 +3,8 @@ export * from "./erc721/VWBLMetaTx";
 export * from "./erc721/VWBLEthers";
 export * from "./erc1155/VWBL";
 export * from "./erc1155/VWBLEthers";
+export * from "./erc6150/VWBL";
+export * from "./erc6150/VWBLMetaTx";
 export * from "./metadata";
 export * from "./types";
 export * from "./blockchain";
