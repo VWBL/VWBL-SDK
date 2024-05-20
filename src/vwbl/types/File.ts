@@ -23,7 +23,7 @@ type UploadMetadata = (
 
 type UploadEncryptedFileToIPFS = (encryptedContent: string | ArrayBuffer, ipfsConfig?: IPFSConfig) => Promise<string>;
 
-type UploadThumbnailToIPFS = (thumbnailImage: FileOrPath) => Promise<string>;
+type UploadThumbnailToIPFS = (thumbnailImage: FileOrPath, ipfsConfig?: IPFSConfig) => Promise<string>;
 
 type UploadMetadataToIPFS = (
   name: string,
