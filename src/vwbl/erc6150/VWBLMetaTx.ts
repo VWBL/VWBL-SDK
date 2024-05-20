@@ -264,7 +264,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
-    return await this.nft.mintToken({
+    return await this.erc6150.mintToken({
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
@@ -291,12 +291,13 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
-    return await this.nft.mintTokenForIPFS({
+    return await this.erc6150.mintTokenForIPFS({
       metadataUrl,
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
       mintApiId,
+      parentId: _parentId,
     });
   };
 
