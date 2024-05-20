@@ -1,65 +1,124 @@
-import { Blob, NFTStorage } from "nft.storage";
-import * as Stream from "stream";
+import axios from "axios";
 
-import { getMimeType } from "../../util";
-import { PlainMetadata } from "../../vwbl/metadata";
-import { EncryptLogic, FileOrPath } from "../../vwbl/types";
 import { IPFSConfig } from "./types";
+const pinataEndpoint = "https://api.pinata.cloud/pinning/pinFileToIPFS";
+import { EncryptLogic, FileOrPath } from "../../vwbl/types";
+// Pinataの認証テスト関数
+export const testPinataAuthentication = async (ipfsConfig: IPFSConfig): Promise<void> => {
+  // ヘッダーを動的に構築
+  const headers: Record<string, string | number | boolean> = {
+    pinata_api_key: ipfsConfig.apiKey,
+  };
 
+  // pinata_secret_api_key が undefined でない場合のみヘッダーに追加
+  if (ipfsConfig.apiSecret !== undefined) {
+    headers.pinata_secret_api_key = ipfsConfig.apiSecret;
+  }
+
+  // axios の config オブジェクトを設定
+  const config = {
+    headers: headers,
+  };
+
+  try {
+    const response = await axios.get("https://api.pinata.cloud/data/testAuthentication", config);
+    console.log("Pinata認証成功:", response.data);
+  } catch (err: any) {
+    console.error("Pinata認証失敗:", config.headers);
+    console.error("Pinata認証失敗:", err.message);
+    throw new Error(`Pinata authentication failed: ${err.message}`);
+  }
+};
+
+// 暗号化ファイルのアップロード関数
 export const uploadEncryptedFileToIPFS = async (
   encryptedContent: string | ArrayBuffer,
   ipfsConfig?: IPFSConfig
 ): Promise<string> => {
-  if (!ipfsConfig || !ipfsConfig.apiKey) {
-    throw new Error("NFT storage key is not specified.");
+  if (!ipfsConfig || !ipfsConfig.apiKey || !ipfsConfig.apiSecret) {
+    throw new Error("Pinata API key or secret is not specified.");
   }
-  const client = new NFTStorage({ token: ipfsConfig.apiKey });
+  console.error("uploadEncryptedFileToIPFS:", ipfsConfig);
+  await testPinataAuthentication(ipfsConfig); // 認証テスト
 
-  const encryptedContentData = new Blob([encryptedContent]);
+  const formData = new FormData();
+  formData.append("file", new Blob([encryptedContent], { type: "application/octet-stream" }));
 
-  let cid;
+  const config = {
+    headers: {
+      pinata_api_key: ipfsConfig.apiKey,
+      pinata_secret_api_key: ipfsConfig.apiSecret,
+      "Content-Type": "multipart/form-data",
+    },
+    onUploadProgress: (progressEvent: any) => {
+      const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+      console.log(`uploadEncryptedFileToPinataアップロード進行中: ${progress}%`);
+    },
+  };
+
   try {
-    cid = await client.storeBlob(encryptedContentData);
+    const response = await axios.post(pinataEndpoint, formData, config);
+    return `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
   } catch (err: any) {
-    throw new Error(err);
+    throw new Error(`Pinata upload failed: ${err.message}`);
   }
-
-  return `https://nftstorage.link/ipfs/${cid}`;
 };
 
 export const uploadThumbnailToIPFS = async (thumbnailImage: FileOrPath, ipfsConfig?: IPFSConfig): Promise<string> => {
-  if (!ipfsConfig || !ipfsConfig.apiKey) {
-    throw new Error("NFT storage key is not specified.");
+  if (!ipfsConfig || !ipfsConfig.apiKey || !ipfsConfig.apiSecret) {
+    throw new Error("Pinata API key or secret is not specified.");
   }
-  const client = new NFTStorage({ token: ipfsConfig.apiKey });
+  console.error("uploadThumbnailToIPFS:", ipfsConfig);
+  await testPinataAuthentication(ipfsConfig); // 認証テスト
 
-  const thumbnailFileType = getMimeType(thumbnailImage);
-  const thumbnailBlob = new Blob([thumbnailImage], { type: thumbnailFileType });
+  const formData = new FormData();
 
-  let cid;
+  if (thumbnailImage instanceof File) {
+    formData.append("file", thumbnailImage);
+  } else {
+    const response = await fetch(thumbnailImage);
+    const blob = await response.blob();
+    formData.append("file", new File([blob], "thumbnail", { type: blob.type }));
+  }
+
+  const config = {
+    headers: {
+      pinata_api_key: ipfsConfig.apiKey,
+      pinata_secret_api_key: ipfsConfig.apiSecret,
+      "Content-Type": "multipart/form-data",
+    },
+    onUploadProgress: (progressEvent: any) => {
+      const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+      console.log(`uploadThumbnailToPinataアップロード進行中: ${progress}%`);
+    },
+  };
+
   try {
-    cid = await client.storeBlob(thumbnailBlob);
+    const response = await axios.post(pinataEndpoint, formData, config);
+    return `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
   } catch (err: any) {
-    throw new Error(err);
+    throw new Error(`Pinata upload failed: ${err.message}`);
   }
-
-  return `https://nftstorage.link/ipfs/${cid}`;
 };
 
+// メタデータのアップロード関数
 export const uploadMetadataToIPFS = async (
   name: string,
   description: string,
   previewImageUrl: string,
   encryptedDataUrls: string[],
   mimeType: string,
-  encryptLogic: EncryptLogic,
+  encryptLogic: string,
   ipfsConfig?: IPFSConfig
 ): Promise<string> => {
-  if (!ipfsConfig || !ipfsConfig.apiKey) {
-    throw new Error("NFT storage key is not specified.");
+  if (!ipfsConfig || !ipfsConfig.apiKey || !ipfsConfig.apiSecret) {
+    throw new Error("Pinata API key or secret is not specified.");
   }
-  const client = new NFTStorage({ token: ipfsConfig.apiKey });
-  const metadata: PlainMetadata = {
+  console.error("uploadMetadataToIPFS:", ipfsConfig);
+
+  await testPinataAuthentication(ipfsConfig); // 認証テスト
+
+  const metadata = {
     name,
     description,
     image: previewImageUrl,
@@ -69,14 +128,27 @@ export const uploadMetadataToIPFS = async (
   };
 
   const metadataJSON = JSON.stringify(metadata);
-  const metaDataBlob = new Blob([metadataJSON]);
+  const metadataBlob = new Blob([metadataJSON], { type: "application/json" });
 
-  let cid;
+  const formData = new FormData();
+  formData.append("file", metadataBlob);
+
+  const config = {
+    headers: {
+      pinata_api_key: ipfsConfig.apiKey,
+      pinata_secret_api_key: ipfsConfig.apiSecret,
+      "Content-Type": "multipart/form-data",
+    },
+    onUploadProgress: (progressEvent: any) => {
+      const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+      console.log(`uploadMetadataToPinataアップロード進行中: ${progress}%`);
+    },
+  };
+
   try {
-    cid = await client.storeBlob(metaDataBlob);
+    const response = await axios.post(pinataEndpoint, formData, config);
+    return `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
   } catch (err: any) {
-    throw new Error(err);
+    throw new Error(`Pinata upload failed: ${err.message}`);
   }
-
-  return `https://nftstorage.link/ipfs/${cid}`;
 };
