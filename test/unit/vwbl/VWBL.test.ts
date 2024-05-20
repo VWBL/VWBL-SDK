@@ -21,7 +21,7 @@ const vwblApiStub = {
   setKey: sinon.stub(VWBLApi.prototype, "setKey"),
 };
 
-const providerUrl = "https://rpc-mumbai.maticvigil.com/";
+const providerUrl = "https://rpc-amoy.polygon.technology/";
 
 // preparation for web3.js
 const web3 = new Web3(providerUrl as string);
@@ -85,7 +85,7 @@ describe("VWBL with web3.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(1);
-    expect(vwblProtocolStub.mintToken.getCall(0).args[3]).equal(undefined);
+    expect(vwblProtocolStub.mintToken.getCall(0).args[0].gasSettings).equal(undefined);
     expect(vwblApiStub.setKey.callCount).equal(1);
     expect(uploadEncryptedFileStub.callCount).equal(1);
     expect(uploadFileStub.callCount).equal(1);
@@ -113,7 +113,7 @@ describe("VWBL with web3.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
-    expect(vwblProtocolStub.mintToken.getCall(1).args[3]).deep.equal({maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000});
+    expect(vwblProtocolStub.mintToken.getCall(1).args[0].gasSettings).deep.equal({maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000});
     expect(vwblApiStub.setKey.callCount).equal(2);
     expect(uploadEncryptedFileStub.callCount).equal(2);
     expect(uploadFileStub.callCount).equal(2);
@@ -141,7 +141,7 @@ describe("VWBL with web3.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(3);
-    expect(vwblProtocolStub.mintToken.getCall(2).args[3]).deep.equal({gasPrice: 1000});
+    expect(vwblProtocolStub.mintToken.getCall(2).args[0].gasSettings).deep.equal({gasPrice: 1000});
     expect(vwblApiStub.setKey.callCount).equal(3);
     expect(uploadEncryptedFileStub.callCount).equal(3);
     expect(uploadFileStub.callCount).equal(3);
@@ -322,7 +322,7 @@ describe("VWBL with ethers.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(1);
-    expect(vwblProtocolStub.mintToken.getCall(0).args[3]).equal(undefined);
+    expect(vwblProtocolStub.mintToken.getCall(0).args[0].gasSettings).equal(undefined);
     expect(vwblApiStub.setKey.callCount).equal(7);
     expect(uploadEncryptedFileStub.callCount).equal(1);
     expect(uploadFileStub.callCount).equal(1);
@@ -350,7 +350,7 @@ describe("VWBL with ethers.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
-    expect(vwblProtocolStub.mintToken.getCall(1).args[3]).deep.equal({maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000});
+    expect(vwblProtocolStub.mintToken.getCall(1).args[0].gasSettings).deep.equal({maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000});
     expect(vwblApiStub.setKey.callCount).equal(8);
     expect(uploadEncryptedFileStub.callCount).equal(2);
     expect(uploadFileStub.callCount).equal(2);
@@ -378,7 +378,7 @@ describe("VWBL with ethers.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(3);
-    expect(vwblProtocolStub.mintToken.getCall(2).args[3]).deep.equal({gasPrice: 1000});
+    expect(vwblProtocolStub.mintToken.getCall(2).args[0].gasSettings).deep.equal({gasPrice: 1000});
     expect(vwblApiStub.setKey.callCount).equal(9);
     expect(uploadEncryptedFileStub.callCount).equal(3);
     expect(uploadFileStub.callCount).equal(3);

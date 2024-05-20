@@ -1,3 +1,4 @@
+import * as abi from "ethereumjs-abi";
 import { ethers } from "ethers";
 
 const biconomyForwarderDomainData = {
@@ -88,4 +89,23 @@ export const getDomainSeparator = (forwarderAddress: string, chainId: number) =>
     )
   );
   return domainSeparator;
+};
+
+export const getDataToSignForPersonalSign = (request: TxParam) => {
+  const hashToSign = abi.soliditySHA3(
+    ["address", "address", "address", "uint256", "uint256", "uint256", "uint256", "uint256", "bytes32"],
+    [
+      request.from,
+      request.to,
+      request.token,
+      request.txGas,
+      request.tokenGasPrice,
+      request.batchId,
+      request.batchNonce,
+      request.deadline,
+      ethers.utils.keccak256(request.data),
+    ]
+  );
+
+  return hashToSign;
 };
