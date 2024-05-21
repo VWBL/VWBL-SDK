@@ -207,9 +207,9 @@ export class VWBLEthers extends VWBLBase {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
-    uploadEncryptedFileCallback?: UploadEncryptedFileToIPFS,
-    uploadThumbnailCallback?: UploadThumbnailToIPFS,
-    uploadMetadataCallBack?: UploadMetadataToIPFS,
+    uploadEncryptedFileCallback: UploadEncryptedFileToIPFS = uploadEncryptedFileToIPFS,
+    uploadThumbnailCallback: UploadThumbnailToIPFS = uploadThumbnailToIPFS,
+    uploadMetadataCallBack: UploadMetadataToIPFS = uploadMetadataToIPFS,
     subscriber?: ProgressSubscriber
   ) => {
     if (!this.signature) {
@@ -223,14 +223,7 @@ export class VWBLEthers extends VWBLBase {
     // 2. encrypt data
     console.log("encrypt data");
     const plainFileArray = [plainFile].flat();
-    const uploadEncryptedFunction = uploadEncryptedFileCallback
-      ? uploadEncryptedFileCallback
-      : (uploadEncryptedFileToIPFS as UploadEncryptedFileToIPFS);
 
-    const uploadThumbnailFunction = uploadThumbnailCallback ? uploadThumbnailCallback : uploadThumbnailToIPFS;
-    if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
-      throw new Error("please specify upload file type or give callback");
-    }
     subscriber?.kickStep(StepStatus.ENCRYPT_DATA);
 
     // 3. upload data
@@ -244,21 +237,17 @@ export class VWBLEthers extends VWBLBase {
           encryptLogic === "base64"
             ? encryptString(await toBase64FromBlob(plainFileBlob), key)
             : await encryptFile(plainFileBlob, key);
-        return await uploadEncryptedFunction(encryptedContent, ipfsConfig);
+        return await uploadEncryptedFileCallback(encryptedContent, ipfsConfig);
       })
     );
-    const thumbnailImageUrl = await uploadThumbnailFunction(thumbnailImage, ipfsConfig);
+    const thumbnailImageUrl = await uploadThumbnailCallback(thumbnailImage, ipfsConfig);
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
 
     // 4. upload metadata
     console.log("upload meta data");
-    const uploadMetadataFunction = uploadMetadataCallBack ? uploadMetadataCallBack : uploadMetadataToIPFS;
 
-    if (!uploadMetadataFunction) {
-      throw new Error("please specify upload metadata type or give callback");
-    }
     const mimeType = getMimeType(plainFileArray[0]);
-    const metadataUrl = await uploadMetadataFunction(
+    const metadataUrl = await uploadMetadataCallBack(
       name,
       description,
       thumbnailImageUrl,
