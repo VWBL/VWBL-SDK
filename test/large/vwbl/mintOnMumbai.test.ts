@@ -38,7 +38,7 @@ const ethSigner = new ethers.Wallet(privateKey, ethProvider);
 
 describe("VWBL with web3.js", () => {
   const vwbl = new VWBL({
-    ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: nftContractAddr,
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -112,7 +112,7 @@ describe("VWBL with web3.js", () => {
 
 describe("VWBL with ethers.js", () => {
   const vwbl = new VWBL({
-    ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: nftContractAddr,
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,

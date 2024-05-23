@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import { Web3 } from "web3";
 
+import { IPFSConfig } from "../../storage";
 import { AWSConfig } from "../../storage/aws/types";
 import { BiconomyConfig } from "./BiconomyConfigType";
 import { ManageKeyType } from "./ManageKeyType";
@@ -13,7 +14,7 @@ export type BaseConstructorProps = {
   uploadContentType?: UploadContentType;
   uploadMetadataType?: UploadMetadataType;
   awsConfig?: AWSConfig;
-  ipfsNftStorageKey?: string;
+  ipfsConfig?: IPFSConfig;
 };
 
 export type ConstructorProps = BaseConstructorProps & {

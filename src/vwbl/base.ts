@@ -2,7 +2,6 @@ import { ethers } from "ethers";
 import * as Stream from "stream";
 import { Web3 } from "web3";
 
-import { UploadToIPFS } from "../storage/ipfs";
 import {
   createRandomKey,
   decryptFile,
@@ -22,13 +21,11 @@ export class VWBLBase {
   protected api: VWBLApi;
   public signMsg?: string;
   public signature?: string;
-  protected uploadToIpfs?: UploadToIPFS;
   public contractAddress: string;
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(props: BaseConstructorProps) {
-    const { contractAddress, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl, ipfsNftStorageKey } =
-      props;
+    const { contractAddress, uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl, ipfsConfig } = props;
     this.contractAddress = contractAddress;
     this.api = new VWBLApi(vwblNetworkUrl);
     if (uploadContentType === UploadContentType.S3 || uploadMetadataType === UploadMetadataType.S3) {
@@ -36,10 +33,9 @@ export class VWBLBase {
         throw new Error("please specify S3 bucket.");
       }
     } else if (uploadContentType === UploadContentType.IPFS || uploadMetadataType === UploadMetadataType.IPFS) {
-      if (!ipfsNftStorageKey) {
+      if (!ipfsConfig) {
         throw new Error("please specify nftstorage config of IPFS.");
       }
-      this.uploadToIpfs = new UploadToIPFS(ipfsNftStorageKey);
     }
   }
 
