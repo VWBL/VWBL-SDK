@@ -45,7 +45,7 @@ export class VWBLBase {
    * @remarks
    * You need to call this method before you send a transaction（eg. mint NFT, decrypt NFT data）
    */
-  protected _sign = async (signer: Web3 | ethers.providers.JsonRpcSigner | ethers.Wallet, targetContract?: string) => {
+  protected _sign = async (signer: Web3 | ethers.Signer, targetContract?: string) => {
     //TODO: signerがWeb3 instanceかどうかを判断するロジックを切り出さないといけない signer instanceof Web3では意図した通り動かなかったため
     const castedSigner = signer as any;
     // eslint-disable-next-line
@@ -63,9 +63,7 @@ export class VWBLBase {
     console.log("signed");
   };
 
-  protected _getAddressBySigner = async (
-    signer: Web3 | ethers.providers.JsonRpcSigner | ethers.Wallet
-  ): Promise<string> => {
+  protected _getAddressBySigner = async (signer: Web3 | ethers.Signer): Promise<string> => {
     //TODO: signerがWeb3 instanceかどうかを判断するロジックを切り出さないといけない signer instanceof Web3では意図した通り動かなかったため
     const castedSigner = signer as any;
     // eslint-disable-next-line

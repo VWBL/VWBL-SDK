@@ -105,7 +105,11 @@ export class VWBLEthers extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId);
+    const tokenId = await this.nft.mintToken({
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+    });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -259,7 +263,12 @@ export class VWBLEthers extends VWBLBase {
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
     // 5. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, feeNumerator, documentId);
+    const tokenId = await this.nft.mintTokenForIPFS({
+      metadataUrl: metadataUrl as string,
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+    });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 6. set key to vwbl-network
@@ -308,7 +317,29 @@ export class VWBLEthers extends VWBLBase {
   mintToken = async (feeNumerator: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId);
+    return await this.nft.mintToken({
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+    });
+  };
+
+  /**
+   * Mint new NFT
+   *
+   * @param metadataUrl metadata url
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
+   * @returns The ID of minted NFT
+   */
+  mintTokenForIPFS = async (metadataUrl: string, feeNumerator: number): Promise<number> => {
+    const { vwblNetworkUrl } = this.opts;
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    return await this.nft.mintTokenForIPFS({
+      metadataUrl: metadataUrl,
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+    });
   };
 
   /**
@@ -359,6 +390,29 @@ export class VWBLEthers extends VWBLBase {
    */
   safeTransfer = async (to: string, tokenId: number): Promise<void> => {
     await this.nft.safeTransfer(to, tokenId);
+  };
+
+  /**
+   * Grant view permission
+   *
+   * @param tokenId - The ID of NFT
+   * @param grantee - The wallet address of a grantee
+   */
+  grantViewPermission = async (tokenId: number, grantee: string): Promise<void> => {
+    await this.nft.grantViewPermission({
+      tokenId,
+      grantee,
+    });
+  };
+
+  /**
+   * Revoke view permission
+   *
+   * @param tokenId - The ID of NFT
+   * @param revoker - The wallet address of revoker
+   */
+  revokeViewPermission = async (tokenId: number, revoker: string): Promise<void> => {
+    await this.nft.revokeViewPermission(tokenId, revoker);
   };
 
   /**
@@ -472,9 +526,12 @@ export class VWBLEthers extends VWBLBase {
    * @returns Token metadata and an address of NFT owner
    */
   getTokenById = async (tokenId: number): Promise<(ExtractMetadata | Metadata) & { owner: string }> => {
-    const isOwnerOrMinter = (await this.nft.isOwnerOf(tokenId)) || (await this.nft.isMinterOf(tokenId));
+    const canViewData =
+      (await this.nft.isOwnerOf(tokenId)) ||
+      (await this.nft.isMinterOf(tokenId)) ||
+      (await this.nft.isGranteeOf(tokenId));
     const owner = await this.nft.getOwner(tokenId);
-    const metadata = isOwnerOrMinter ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
+    const metadata = canViewData ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
     if (!metadata) {
       throw new Error("metadata not found");
     }

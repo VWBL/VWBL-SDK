@@ -21,7 +21,13 @@ import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
   EncryptLogic,
   FileOrPath,
+  GrantViewPermissionMetaTx,
+  ManagedCreateTokenForIPFSMetaTx,
+  ManagedCreateTokenMetatx,
   MetaTxConstructorProps,
+  MintTokenForIPFS,
+  MintTokenForIPFSMetaTx,
+  MintTokenMetaTx,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -39,7 +45,7 @@ import { VWBLViewer } from "../viewer";
 export class VWBLMetaTx extends VWBLBase {
   public opts: VWBLMetaTxOption;
   public nft: VWBLNFTMetaTx;
-  public signer: ethers.providers.JsonRpcSigner;
+  public signer: ethers.Signer;
   public viewer?: VWBLViewer;
 
   constructor(props: MetaTxConstructorProps) {
@@ -47,14 +53,16 @@ export class VWBLMetaTx extends VWBLBase {
 
     this.opts = props;
     const { bcProvider, contractAddress, biconomyConfig, dataCollectorAddress } = props;
-    const walletProvider = new ethers.providers.Web3Provider(bcProvider);
-    this.signer = walletProvider.getSigner();
+
+    const walletProvider = "address" in bcProvider ? bcProvider : new ethers.providers.Web3Provider(bcProvider);
+    this.signer = "address" in bcProvider ? bcProvider : (walletProvider as ethers.providers.Web3Provider).getSigner();
     this.nft = new VWBLNFTMetaTx(
       biconomyConfig.apiKey,
       walletProvider,
       contractAddress,
       biconomyConfig.forwarderAddress
     );
+
     if (dataCollectorAddress) {
       this.viewer = new VWBLViewer({
         provider: walletProvider,
@@ -95,7 +103,7 @@ export class VWBLMetaTx extends VWBLBase {
    * @param subscriber - Optional: the subscriber for seeing progress
    * @returns
    */
-  managedCreateToken = async (
+  managedCreateToken: ManagedCreateTokenMetatx = async (
     name: string,
     description: string,
     plainFile: FileOrPath | FileOrPath[],
@@ -114,7 +122,12 @@ export class VWBLMetaTx extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId, mintApiId);
+    const tokenId = await this.nft.mintToken({
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      mintApiId,
+    });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -204,8 +217,7 @@ export class VWBLMetaTx extends VWBLBase {
    * @param subscriber - Optional: the subscriber for seeing progress
    * @returns
    */
-
-  managedCreateTokenForIPFS = async (
+  managedCreateTokenForIPFS: ManagedCreateTokenForIPFSMetaTx = async (
     name: string,
     description: string,
     plainFile: FileOrPath | FileOrPath[],
@@ -268,7 +280,13 @@ export class VWBLMetaTx extends VWBLBase {
 
     // 5. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, feeNumerator, documentId, mintApiId);
+    const tokenId = await this.nft.mintTokenForIPFS({
+      metadataUrl: metadataUrl as string,
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      mintApiId,
+    });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 6. set key to vwbl-network
@@ -309,10 +327,39 @@ export class VWBLMetaTx extends VWBLBase {
    * @param mintApiId - The mint method api id of biconomy
    * @returns The ID of minted NFT
    */
-  mintToken = async (feeNumerator: number, mintApiId: string): Promise<number> => {
+  mintToken: MintTokenMetaTx = async (feeNumerator: number, mintApiId: string): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId, mintApiId);
+    return await this.nft.mintToken({
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      mintApiId,
+    });
+  };
+
+  /**
+   * Mint new NFT
+   *
+   * @param metadataUrl metadata url
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
+   * @param mintApiId - The mint method api id of biconomy
+   * @returns The ID of minted NFT
+   */
+  mintTokenForIPFS: MintTokenForIPFSMetaTx = async (
+    metadataUrl: string,
+    feeNumerator: number,
+    mintApiId: string
+  ): Promise<number> => {
+    const { vwblNetworkUrl } = this.opts;
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    return await this.nft.mintTokenForIPFS({
+      metadataUrl,
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      mintApiId,
+    });
   };
 
   /**
@@ -366,6 +413,36 @@ export class VWBLMetaTx extends VWBLBase {
    */
   safeTransfer = async (to: string, tokenId: number, safeTransferFromApiId: string): Promise<void> => {
     await this.nft.safeTransfer(to, tokenId, safeTransferFromApiId);
+  };
+
+  /**
+   * Grant view permission
+   *
+   * @param tokenId - The ID of NFT
+   * @param grantee - The wallet address of a grantee
+   * @param grantViewPermissionApiId - The grantViewPermission api id of biconomy
+   */
+  grantViewPermission: GrantViewPermissionMetaTx = async (
+    tokenId: number,
+    grantee: string,
+    grantViewPermissionApiId: string
+  ): Promise<void> => {
+    await this.nft.grantViewPermission({
+      tokenId,
+      grantee,
+      grantViewPermissionApiId,
+    });
+  };
+
+  /**
+   * Revoke view permission
+   *
+   * @param tokenId - The ID of NFT
+   * @param revoker - The wallet address of revoker
+   * @param revokeViewPermisionApiId - The revokeViewPermission api id of biconomy
+   */
+  revokeViewPermission = async (tokenId: number, revoker: string, revokeViewPermisionApiId: string): Promise<void> => {
+    await this.nft.revokeViewPermission(tokenId, revoker, revokeViewPermisionApiId);
   };
 
   /**
@@ -479,9 +556,12 @@ export class VWBLMetaTx extends VWBLBase {
    * @returns Token metadata and an address of NFT owner
    */
   getTokenById = async (tokenId: number): Promise<(ExtractMetadata | Metadata) & { owner: string }> => {
-    const isOwnerOrMinter = (await this.nft.isOwnerOf(tokenId)) || (await this.nft.isMinterOf(tokenId));
+    const canViewData =
+      (await this.nft.isOwnerOf(tokenId)) ||
+      (await this.nft.isMinterOf(tokenId)) ||
+      (await this.nft.isGranteeOf(tokenId));
     const owner = await this.nft.getOwner(tokenId);
-    const metadata = isOwnerOrMinter ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
+    const metadata = canViewData ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
     if (!metadata) {
       throw new Error("metadata not found");
     }

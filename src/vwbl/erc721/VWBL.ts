@@ -24,6 +24,11 @@ import {
   EthersConstructorProps,
   FileOrPath,
   GasSettings,
+  GrantViewPermission,
+  ManagedCreateToken,
+  ManagedCreateTokenForIPFS,
+  MintToken,
+  MintTokenForIPFS,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -104,7 +109,7 @@ export class VWBL extends VWBLBase {
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    * @returns
    */
-  managedCreateToken = async (
+  managedCreateToken: ManagedCreateToken = async (
     name: string,
     description: string,
     plainFile: FileOrPath | FileOrPath[],
@@ -123,7 +128,12 @@ export class VWBL extends VWBLBase {
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId, gasSettings);
+    const tokenId = await this.nft.mintToken({
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      gasSettings,
+    });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -218,7 +228,7 @@ export class VWBL extends VWBLBase {
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    * @returns
    */
-  managedCreateTokenForIPFS = async (
+  managedCreateTokenForIPFS: ManagedCreateTokenForIPFS = async (
     name: string,
     description: string,
     plainFile: FileOrPath | FileOrPath[],
@@ -281,7 +291,13 @@ export class VWBL extends VWBLBase {
 
     // 5. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
-    const tokenId = await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, feeNumerator, documentId, gasSettings);
+    const tokenId = await this.nft.mintTokenForIPFS({
+      metadataUrl: metadataUrl as string,
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      gasSettings,
+    });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 6. set key to vwbl-network
@@ -337,12 +353,14 @@ export class VWBL extends VWBLBase {
    * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns The ID of minted NFT
    */
-  mintToken = async (feeNumerator: number, gasSettings?: GasSettings): Promise<number> => {
+  mintToken: MintToken = async (feeNumerator: number, gasSettings?: GasSettings): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, feeNumerator, documentId, {
-      maxPriorityFeePerGas: gasSettings?.maxPriorityFeePerGas,
-      maxFeePerGas: gasSettings?.maxFeePerGas,
+    return await this.nft.mintToken({
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      gasSettings,
     });
   };
 
@@ -351,12 +369,24 @@ export class VWBL extends VWBLBase {
    *
    * @param metadataUrl metadata url
    * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
    * @returns The ID of minted NFT
    */
-  mintTokenForIPFS = async (metadataUrl: string, feeNumerator: number): Promise<number> => {
+  mintTokenForIPFS: MintTokenForIPFS = async (
+    metadataUrl: string,
+    feeNumerator: number,
+    gasSettings?: GasSettings
+  ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, feeNumerator, documentId);
+    return await this.nft.mintTokenForIPFS({
+      metadataUrl,
+      decryptUrl: vwblNetworkUrl,
+      feeNumerator,
+      documentId,
+      gasSettings,
+    });
   };
 
   /**
@@ -410,6 +440,36 @@ export class VWBL extends VWBLBase {
    */
   safeTransfer = async (to: string, tokenId: number, gasSettings?: GasSettings): Promise<void> => {
     await this.nft.safeTransfer(to, tokenId, gasSettings);
+  };
+
+  /**
+   * Grant view permission
+   *
+   * @param tokenId - The ID of NFT
+   * @param grantee - The wallet address of a grantee
+   * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
+   */
+  grantViewPermission: GrantViewPermission = async (
+    tokenId: number,
+    grantee: string,
+    gasSettings?: GasSettings
+  ): Promise<void> => {
+    await this.nft.grantViewPermission({
+      tokenId,
+      grantee,
+      gasSettings,
+    });
+  };
+
+  /**
+   * Revoke view permission
+   *
+   * @param tokenId - The ID of NFT
+   * @param revoker - The wallet address of revoker
+   * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
+   */
+  revokeViewPermission = async (tokenId: number, revoker: string, gasSettings?: GasSettings): Promise<void> => {
+    await this.nft.revokeViewPermission(tokenId, revoker, gasSettings);
   };
 
   /**
@@ -531,9 +591,12 @@ export class VWBL extends VWBLBase {
    * @returns Token metadata and an address of NFT owner
    */
   getTokenById = async (tokenId: number): Promise<(ExtractMetadata | Metadata) & { owner: string }> => {
-    const isOwnerOrMinter = (await this.nft.isOwnerOf(tokenId)) || (await this.nft.isMinterOf(tokenId));
+    const canViewData =
+      (await this.nft.isOwnerOf(tokenId)) ||
+      (await this.nft.isMinterOf(tokenId)) ||
+      (await this.nft.isGranteeOf(tokenId));
     const owner = await this.nft.getOwner(tokenId);
-    const metadata = isOwnerOrMinter ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
+    const metadata = canViewData ? await this.extractMetadata(tokenId) : await this.getMetadata(tokenId);
     if (!metadata) {
       throw new Error("metadata not found");
     }
