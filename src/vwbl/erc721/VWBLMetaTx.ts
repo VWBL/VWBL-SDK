@@ -281,7 +281,7 @@ export class VWBLMetaTx extends VWBLBase {
     // 5. mint token
     const documentId = utils.hexlify(utils.randomBytes(32));
     const tokenId = await this.nft.mintTokenForIPFS({
-      metadataUrl: metadataUrl as string,
+      metadataUrl: metadataUrl,
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
