@@ -267,9 +267,15 @@ export class VWBL extends VWBLBase {
           encryptLogic === "base64"
             ? encryptString(await toBase64FromBlob(plainFileBlob), key)
             : await encryptFile(plainFileBlob, key);
-        return await uploadEncryptedFileCallback(encryptedContent, ipfsConfig);
+
+        // stringまたはUint8ArrayからBufferへの変換
+        const bufferContent =
+          typeof encryptedContent === "string" ? Buffer.from(encryptedContent, "utf-8") : Buffer.from(encryptedContent);
+
+        return await uploadEncryptedFileCallback(bufferContent, ipfsConfig);
       })
     );
+
     const thumbnailImageUrl = await uploadThumbnailCallback(thumbnailImage, ipfsConfig);
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
 

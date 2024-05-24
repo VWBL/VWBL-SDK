@@ -1,21 +1,22 @@
 import axios from "axios";
+import FormData from "form-data";
+import fs from "fs";
 
-import { IPFSConfig } from "./types";
-const pinataEndpoint = "https://api.pinata.cloud/pinning/pinFileToIPFS";
 import { EncryptLogic, FileOrPath } from "../../vwbl/types";
+import { IPFSConfig } from "./types";
+
+const pinataEndpoint = "https://api.pinata.cloud/pinning/pinFileToIPFS";
+
 // Pinataの認証テスト関数
 export const testPinataAuthentication = async (ipfsConfig: IPFSConfig): Promise<void> => {
-  // ヘッダーを動的に構築
   const headers: Record<string, string | number | boolean> = {
     pinata_api_key: ipfsConfig.apiKey,
   };
 
-  // pinata_secret_api_key が undefined でない場合のみヘッダーに追加
   if (ipfsConfig.apiSecret !== undefined) {
     headers.pinata_secret_api_key = ipfsConfig.apiSecret;
   }
 
-  // axios の config オブジェクトを設定
   const config = {
     headers: headers,
   };
@@ -32,7 +33,7 @@ export const testPinataAuthentication = async (ipfsConfig: IPFSConfig): Promise<
 
 // 暗号化ファイルのアップロード関数
 export const uploadEncryptedFileToIPFS = async (
-  encryptedContent: string | ArrayBuffer,
+  encryptedContent: string | ArrayBuffer | Buffer,
   ipfsConfig?: IPFSConfig
 ): Promise<string> => {
   if (!ipfsConfig || !ipfsConfig.apiKey || !ipfsConfig.apiSecret) {
@@ -41,14 +42,24 @@ export const uploadEncryptedFileToIPFS = async (
   console.error("uploadEncryptedFileToIPFS:", ipfsConfig);
   await testPinataAuthentication(ipfsConfig); // 認証テスト
 
+  // encryptedContentをBufferに変換
+  let fileBuffer: Buffer;
+  if (typeof encryptedContent === "string") {
+    fileBuffer = Buffer.from(encryptedContent, "utf-8"); // UTF-8エンコーディングを想定
+  } else if (encryptedContent instanceof ArrayBuffer) {
+    fileBuffer = Buffer.from(encryptedContent);
+  } else {
+    fileBuffer = encryptedContent; // すでにBuffer型ならそのまま使用
+  }
+
   const formData = new FormData();
-  formData.append("file", new Blob([encryptedContent], { type: "application/octet-stream" }));
+  formData.append("file", fileBuffer, "encrypted-file");
 
   const config = {
     headers: {
       pinata_api_key: ipfsConfig.apiKey,
       pinata_secret_api_key: ipfsConfig.apiSecret,
-      "Content-Type": "multipart/form-data",
+      ...formData.getHeaders(),
     },
     onUploadProgress: (progressEvent: any) => {
       const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -68,24 +79,23 @@ export const uploadThumbnailToIPFS = async (thumbnailImage: FileOrPath, ipfsConf
   if (!ipfsConfig || !ipfsConfig.apiKey || !ipfsConfig.apiSecret) {
     throw new Error("Pinata API key or secret is not specified.");
   }
-  console.error("uploadThumbnailToIPFS:", ipfsConfig);
-  await testPinataAuthentication(ipfsConfig); // 認証テスト
 
   const formData = new FormData();
 
-  if (thumbnailImage instanceof File) {
-    formData.append("file", thumbnailImage);
+  if (Buffer.isBuffer(thumbnailImage)) {
+    formData.append("file", thumbnailImage, { filename: "thumbnail.png" });
+  } else if (typeof thumbnailImage === "string") {
+    const stream = fs.createReadStream(thumbnailImage);
+    formData.append("file", stream, { filename: "thumbnail.png" });
   } else {
-    const response = await fetch(thumbnailImage);
-    const blob = await response.blob();
-    formData.append("file", new File([blob], "thumbnail", { type: blob.type }));
+    throw new Error("Invalid type for thumbnailImage");
   }
 
   const config = {
     headers: {
       pinata_api_key: ipfsConfig.apiKey,
       pinata_secret_api_key: ipfsConfig.apiSecret,
-      "Content-Type": "multipart/form-data",
+      ...formData.getHeaders(),
     },
     onUploadProgress: (progressEvent: any) => {
       const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -114,9 +124,6 @@ export const uploadMetadataToIPFS = async (
   if (!ipfsConfig || !ipfsConfig.apiKey || !ipfsConfig.apiSecret) {
     throw new Error("Pinata API key or secret is not specified.");
   }
-  console.error("uploadMetadataToIPFS:", ipfsConfig);
-
-  await testPinataAuthentication(ipfsConfig); // 認証テスト
 
   const metadata = {
     name,
@@ -128,16 +135,17 @@ export const uploadMetadataToIPFS = async (
   };
 
   const metadataJSON = JSON.stringify(metadata);
-  const metadataBlob = new Blob([metadataJSON], { type: "application/json" });
-
   const formData = new FormData();
-  formData.append("file", metadataBlob);
+  formData.append("file", Buffer.from(metadataJSON), {
+    filename: "metadata.json",
+    contentType: "application/json",
+  });
 
   const config = {
     headers: {
       pinata_api_key: ipfsConfig.apiKey,
       pinata_secret_api_key: ipfsConfig.apiSecret,
-      "Content-Type": "multipart/form-data",
+      ...formData.getHeaders(),
     },
     onUploadProgress: (progressEvent: any) => {
       const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);

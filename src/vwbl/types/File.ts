@@ -21,7 +21,11 @@ type UploadMetadata = (
   encryptLogic: EncryptLogic
 ) => Promise<void>;
 
-type UploadEncryptedFileToIPFS = (encryptedContent: string | ArrayBuffer, ipfsConfig?: IPFSConfig) => Promise<string>;
+// type UploadEncryptedFileToIPFS = (encryptedContent: string | ArrayBuffer, ipfsConfig?: IPFSConfig) => Promise<string>;
+type UploadEncryptedFileToIPFS = (
+  encryptedContent: string | Uint8Array | Buffer,
+  ipfsConfig?: IPFSConfig
+) => Promise<string>;
 
 type UploadThumbnailToIPFS = (thumbnailImage: FileOrPath, ipfsConfig?: IPFSConfig) => Promise<string>;
 
