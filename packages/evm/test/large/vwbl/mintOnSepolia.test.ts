@@ -6,7 +6,7 @@ import {
   ManageKeyType,
   UploadContentType,
   UploadMetadataType,
-  VWBL,
+  VWBL
 } from "../../../src/vwbl";
 import HDWalletProvider from "@truffle/hdwallet-provider";
 import * as FileAPI from "file-api";
@@ -19,15 +19,15 @@ const networkUrl = "https://dev.vwbl.network/";
 // preparation for web3.js
 const hdWalletProvider = new HDWalletProvider({
   privateKeys: [process.env.PRIVATE_KEY as string],
-  providerOrUrl: providerUrl,
-});
+  providerOrUrl: providerUrl
+})
 const web3 = new Web3(hdWalletProvider as any);
 // preparation for ethers.js
 const privateKey = process.env.PRIVATE_KEY as string;
 const ethProvider = new ethers.providers.JsonRpcProvider(providerUrl);
 const ethSigner = new ethers.Wallet(privateKey, ethProvider);
-const maxPriorityFee_gwei = "1.5";
-const maxFee_gwei = "47.329387804";
+const maxPriorityFee_gwei = '1.5';
+const maxFee_gwei = '47.329387804';
 
 describe("VWBL with web3.js", () => {
   const vwbl = new VWBL({
@@ -48,10 +48,8 @@ describe("VWBL with web3.js", () => {
   it("mint token with maxPriorityFee and maxFee", async () => {
     await vwbl.sign();
 
-    const maxPriorityFee_wei = Number(
-      web3.utils.toWei(maxPriorityFee_gwei, "gwei")
-    );
-    const maxFee_wei = Number(web3.utils.toWei(maxFee_gwei, "gwei"));
+    const maxPriorityFee_wei = Number(web3.utils.toWei(maxPriorityFee_gwei, 'gwei'));
+    const maxFee_wei = Number(web3.utils.toWei(maxFee_gwei, 'gwei'));
 
     const tokenId = await vwbl.managedCreateTokenForIPFS(
       "test token",
@@ -69,7 +67,8 @@ describe("VWBL with web3.js", () => {
       10,
       "base64",
       testSubscriber,
-      { maxPriorityFeePerGas: maxPriorityFee_wei, maxFeePerGas: maxFee_wei }
+      {maxPriorityFeePerGas: maxPriorityFee_wei,
+        maxFeePerGas: maxFee_wei}
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
@@ -96,7 +95,7 @@ describe("VWBL with web3.js", () => {
       10,
       "base64",
       testSubscriber,
-      { gasPrice }
+      {gasPrice}
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
@@ -119,7 +118,7 @@ describe("VWBL with web3.js", () => {
         buffer: Buffer.alloc(100),
       }),
       10,
-      "base64"
+      "base64",
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
@@ -146,10 +145,8 @@ describe("VWBL with ethers.js", () => {
   it("mint token with maxPriorityFee and maxFee", async () => {
     await vwbl.sign();
 
-    const maxPriorityFee_wei = Number(
-      web3.utils.toWei(maxPriorityFee_gwei, "gwei")
-    );
-    const maxFee_wei = Number(web3.utils.toWei(maxFee_gwei, "gwei"));
+    const maxPriorityFee_wei = Number(web3.utils.toWei(maxPriorityFee_gwei, 'gwei'));
+    const maxFee_wei = Number(web3.utils.toWei(maxFee_gwei, 'gwei'));
 
     const tokenId = await vwbl.managedCreateTokenForIPFS(
       "test token",
@@ -167,7 +164,8 @@ describe("VWBL with ethers.js", () => {
       10,
       "base64",
       testSubscriber,
-      { maxPriorityFeePerGas: maxPriorityFee_wei, maxFeePerGas: maxFee_wei }
+      {maxPriorityFeePerGas: maxPriorityFee_wei,
+        maxFeePerGas: maxFee_wei}
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("number");
@@ -194,7 +192,7 @@ describe("VWBL with ethers.js", () => {
       10,
       "base64",
       testSubscriber,
-      { gasPrice }
+      {gasPrice}
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("number");
@@ -217,7 +215,7 @@ describe("VWBL with ethers.js", () => {
         buffer: Buffer.alloc(100),
       }),
       10,
-      "base64"
+      "base64",
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("number");

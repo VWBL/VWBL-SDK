@@ -9,10 +9,7 @@ const isEthersSigner = (signer: IEthersSigner): signer is IEthersSigner => {
   return signer.signMessage !== undefined;
 };
 
-export const signToProtocol = async (
-  signer: Web3 | ethers.providers.JsonRpcSigner | ethers.Wallet,
-  signMessage: string
-) => {
+export const signToProtocol = async (signer: Web3 | ethers.Signer, signMessage: string) => {
   if (isEthersSigner(signer as IEthersSigner)) {
     return await (signer as IEthersSigner).signMessage(signMessage);
   } else {
