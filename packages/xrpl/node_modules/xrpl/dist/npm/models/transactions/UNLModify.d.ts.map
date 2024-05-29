@@ -1,1 +1,0 @@
-{"version":3,"file":"UNLModify.d.ts","sourceRoot":"","sources":["../../../../src/models/transactions/UNLModify.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,UAAU,CAAA;AAO1C,MAAM,WAAW,SAAU,SAAQ,eAAe;IAChD,eAAe,EAAE,WAAW,CAAA;IAK5B,cAAc,EAAE,MAAM,CAAA;IAKtB,kBAAkB,EAAE,CAAC,GAAG,CAAC,CAAA;IAEzB,kBAAkB,EAAE,MAAM,CAAA;CAC3B"}
