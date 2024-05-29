@@ -1,1 +1,0 @@
-{"version":3,"file":"ConnectionManager.d.ts","sourceRoot":"","sources":["../../../src/client/ConnectionManager.ts"],"names":[],"mappings":"AAKA,MAAM,CAAC,OAAO,OAAO,iBAAiB;IACpC,OAAO,CAAC,0BAA0B,CAG3B;IAKA,kBAAkB,IAAI,IAAI;IAU1B,iBAAiB,CAAC,KAAK,EAAE,KAAK,GAAG,IAAI;IAU/B,eAAe,IAAI,OAAO,CAAC,IAAI,CAAC;CAK9C"}

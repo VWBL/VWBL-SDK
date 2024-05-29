@@ -1,1 +1,0 @@
-{"version":3,"file":"ledgerClosed.d.ts","sourceRoot":"","sources":["../../../../src/models/methods/ledgerClosed.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,WAAW,EAAE,YAAY,EAAE,MAAM,cAAc,CAAA;AAiBxD,MAAM,WAAW,mBAAoB,SAAQ,WAAW;IACtD,OAAO,EAAE,eAAe,CAAA;CACzB;AAOD,MAAM,WAAW,oBAAqB,SAAQ,YAAY;IACxD,MAAM,EAAE;QACN,WAAW,EAAE,MAAM,CAAA;QACnB,YAAY,EAAE,MAAM,CAAA;KACrB,CAAA;CACF"}
