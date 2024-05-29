@@ -1,13 +1,13 @@
 import axios from "axios";
-import FormData from "form-data";
+import FormData, { Readable } from "form-data";
 import fs from "fs";
+import * as Stream from "stream";
 
-import { EncryptLogic, FileOrPath } from "../../vwbl/types";
 import { IPFSConfig } from "./types";
 
 const pinataEndpoint = "https://api.pinata.cloud/pinning/pinFileToIPFS";
 
-// Pinataの認証テスト関数
+// Pinata Authentication Test Functions
 export const testPinataAuthentication = async (ipfsConfig: IPFSConfig): Promise<void> => {
   const headers: Record<string, string | number | boolean> = {
     pinata_api_key: ipfsConfig.apiKey,
@@ -22,85 +22,113 @@ export const testPinataAuthentication = async (ipfsConfig: IPFSConfig): Promise<
   };
 
   try {
-    const response = await axios.get("https://api.pinata.cloud/data/testAuthentication", config);
-    console.log("Pinata認証成功:", response.data);
+    const response = await axios.get(pinataEndpoint, config);
+    console.log("Pinata authentication succeeded:", response.data);
   } catch (err: any) {
-    console.error("Pinata認証失敗:", config.headers);
-    console.error("Pinata認証失敗:", err.message);
+    console.error("Pinata authentication failed:", config.headers);
+    console.error("Pinata authentication failed:", err.message);
     throw new Error(`Pinata authentication failed: ${err.message}`);
   }
 };
 
-// 暗号化ファイルのアップロード関数
+// Check if the environment in which it is running is Node.js
+function isNode() {
+  return typeof process !== "undefined" && process.versions != null && process.versions.node != null;
+}
+// Upload function for encrypted files
 export const uploadEncryptedFileToIPFS = async (
-  encryptedContent: string | ArrayBuffer | Buffer,
+  encryptedContent: string | Uint8Array | Stream.Readable,
   ipfsConfig?: IPFSConfig
 ): Promise<string> => {
   if (!ipfsConfig || !ipfsConfig.apiKey || !ipfsConfig.apiSecret) {
     throw new Error("Pinata API key or secret is not specified.");
   }
-  console.error("uploadEncryptedFileToIPFS:", ipfsConfig);
-  await testPinataAuthentication(ipfsConfig); // 認証テスト
-
-  // encryptedContentをBufferに変換
-  let fileBuffer: Buffer;
-  if (typeof encryptedContent === "string") {
-    fileBuffer = Buffer.from(encryptedContent, "utf-8"); // UTF-8エンコーディングを想定
-  } else if (encryptedContent instanceof ArrayBuffer) {
-    fileBuffer = Buffer.from(encryptedContent);
-  } else {
-    fileBuffer = encryptedContent; // すでにBuffer型ならそのまま使用
-  }
-
   const formData = new FormData();
-  formData.append("file", fileBuffer, "encrypted-file");
+  if (typeof encryptedContent === "string" || encryptedContent instanceof Uint8Array) {
+    // assuming encryptedContent is base64 string or Uint8Array for simplicity
+    formData.append("file", Buffer.from(encryptedContent), {
+      filename: "encrypted-file",
+      contentType: "application/octet-stream",
+    });
+  } else if (encryptedContent instanceof Readable) {
+    formData.append("file", encryptedContent, "encrypted-file");
+  }
 
   const config = {
     headers: {
+      ...formData.getHeaders(),
       pinata_api_key: ipfsConfig.apiKey,
       pinata_secret_api_key: ipfsConfig.apiSecret,
-      ...formData.getHeaders(),
     },
-    onUploadProgress: (progressEvent: any) => {
-      const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-      console.log(`uploadEncryptedFileToPinataアップロード進行中: ${progress}%`);
-    },
+    onUploadProgress: isNode()
+      ? undefined
+      : (progressEvent: any) => {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          console.log(`uploadEncryptedFileProgress: ${progress}%`);
+        },
   };
+
+  console.log("Uploading encrypted data to IPFS...");
 
   try {
     const response = await axios.post(pinataEndpoint, formData, config);
     return `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
   } catch (err: any) {
+    console.error("Pinata upload failed:", err.response ? err.response.data : err.message);
     throw new Error(`Pinata upload failed: ${err.message}`);
   }
 };
 
-export const uploadThumbnailToIPFS = async (thumbnailImage: FileOrPath, ipfsConfig?: IPFSConfig): Promise<string> => {
+// upload function for thumbnailImage
+export const uploadThumbnailToIPFS = async (
+  thumbnailImage: string | File | Blob,
+  ipfsConfig?: IPFSConfig
+): Promise<string> => {
   if (!ipfsConfig || !ipfsConfig.apiKey || !ipfsConfig.apiSecret) {
     throw new Error("Pinata API key or secret is not specified.");
   }
 
   const formData = new FormData();
 
-  if (Buffer.isBuffer(thumbnailImage)) {
-    formData.append("file", thumbnailImage, { filename: "thumbnail.png" });
-  } else if (typeof thumbnailImage === "string") {
-    const stream = fs.createReadStream(thumbnailImage);
-    formData.append("file", stream, { filename: "thumbnail.png" });
+  if (isNode()) {
+    // Node.js
+    if (typeof thumbnailImage === "string") {
+      const stream = fs.createReadStream(thumbnailImage);
+      formData.append("file", stream);
+    } else {
+      throw new Error("Invalid type for thumbnailImage in Node.js environment");
+    }
   } else {
-    throw new Error("Invalid type for thumbnailImage");
+    // Browser
+    if (thumbnailImage instanceof File || thumbnailImage instanceof Blob) {
+      formData.append("file", thumbnailImage);
+    } else if (typeof thumbnailImage === "string") {
+      const response = await fetch(thumbnailImage);
+      const blob = await response.blob();
+      formData.append("file", new File([blob], "thumbnail", { type: blob.type }));
+    } else {
+      throw new Error("Invalid type for thumbnailImage in browser environment");
+    }
+  }
+
+  const headers = {
+    pinata_api_key: ipfsConfig.apiKey,
+    pinata_secret_api_key: ipfsConfig.apiSecret,
+    "Content-Type": "multipart/form-data",
+  };
+
+  if (isNode()) {
+    Object.assign(headers, formData.getHeaders());
   }
 
   const config = {
-    headers: {
-      pinata_api_key: ipfsConfig.apiKey,
-      pinata_secret_api_key: ipfsConfig.apiSecret,
-      ...formData.getHeaders(),
-    },
-    onUploadProgress: (progressEvent: any) => {
-      const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-      console.log(`uploadThumbnailToPinataアップロード進行中: ${progress}%`);
-    },
+    headers: headers,
+    onUploadProgress: isNode()
+      ? undefined
+      : (progressEvent: any) => {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          console.log(`uploadThumbnailProgress: ${progress}%`);
+        },
   };
 
   try {
@@ -111,7 +139,7 @@ export const uploadThumbnailToIPFS = async (thumbnailImage: FileOrPath, ipfsConf
   }
 };
 
-// メタデータのアップロード関数
+// upload function for metadata
 export const uploadMetadataToIPFS = async (
   name: string,
   description: string,
@@ -135,22 +163,38 @@ export const uploadMetadataToIPFS = async (
   };
 
   const metadataJSON = JSON.stringify(metadata);
-  const formData = new FormData();
-  formData.append("file", Buffer.from(metadataJSON), {
-    filename: "metadata.json",
-    contentType: "application/json",
-  });
+  const formData = isNode() ? new (require("form-data"))() : new FormData();
+
+  if (isNode()) {
+    // Node.js
+    formData.append("file", Buffer.from(metadataJSON), {
+      filename: "metadata.json",
+      contentType: "application/json",
+    });
+  } else {
+    // Browser
+    const blob = new Blob([metadataJSON], { type: "application/json" });
+    formData.append("file", blob, "metadata.json");
+  }
+
+  const headers = {
+    pinata_api_key: ipfsConfig.apiKey,
+    pinata_secret_api_key: ipfsConfig.apiSecret,
+    "Content-Type": "multipart/form-data",
+  };
+
+  if (isNode()) {
+    Object.assign(headers, formData.getHeaders());
+  }
 
   const config = {
-    headers: {
-      pinata_api_key: ipfsConfig.apiKey,
-      pinata_secret_api_key: ipfsConfig.apiSecret,
-      ...formData.getHeaders(),
-    },
-    onUploadProgress: (progressEvent: any) => {
-      const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-      console.log(`uploadMetadataToPinataアップロード進行中: ${progress}%`);
-    },
+    headers: headers,
+    onUploadProgress: isNode()
+      ? undefined
+      : (progressEvent: any) => {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          console.log(`uploadMetadataProgress: ${progress}%`);
+        },
   };
 
   try {

@@ -56,18 +56,13 @@ AWSConfig(*1)
 | cloudFrontUrl | true     | string                              | cloudFront url connect to s3 which is uploaded content    |
 | bucketName    | true     | {content: string, metadata: string} | bucketName of metadata and content, it's ok they are same |
 
-export type IPFSConfig = {
-  apiKey: string;
-  apiSecret?: string;
-};
 
-
-IPFSConfig(*1)
+IPFSConfig(*2)
 
 | name          | required | type                                | description                                               |
 | ------------- | -------- | ----------------------------------- | --------------------------------------------------------- |
-| apiKey        | true     | string                              | API key region                                                |
-| apiSecret      | false     | string                              | API Secret key  S3-put-object                  |
+| apiKey        | true     | string                              | API key                                                |
+| apiSecret      | false     | string                              | API secret key                  |
 |
 ### sign to server
 

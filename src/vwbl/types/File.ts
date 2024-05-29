@@ -23,7 +23,8 @@ type UploadMetadata = (
 
 // type UploadEncryptedFileToIPFS = (encryptedContent: string | ArrayBuffer, ipfsConfig?: IPFSConfig) => Promise<string>;
 type UploadEncryptedFileToIPFS = (
-  encryptedContent: string | Uint8Array | Buffer,
+  // encryptedContent: string | Uint8Array | Buffer,
+  encryptedContent: string | Uint8Array | Stream.Readable,
   ipfsConfig?: IPFSConfig
 ) => Promise<string>;
 

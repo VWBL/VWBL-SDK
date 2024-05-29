@@ -245,20 +245,37 @@ export class VWBLMetaTx extends VWBLBase {
 
     subscriber?.kickStep(StepStatus.ENCRYPT_DATA);
 
+    // プリフィックスがあるかどうかをチェックする関数
+    const hasPrefix = (base64: any) => {
+      return base64.startsWith("data:");
+    };
+
+    // Base64エンコードされた文字列にプリフィックスを付加する関数
+    const toDataURL = (base64: any) => {
+      if (hasPrefix(base64)) {
+        return base64;
+      }
+      return `data:image/png;base64,${base64}`;
+    };
+
     // 3. upload data
     console.log("upload data");
+    const isRunningOnBrowser = typeof window !== "undefined";
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
         const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
         const filePath = file instanceof File ? file.name : file;
-        const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0];
         const encryptedContent =
           encryptLogic === "base64"
             ? encryptString(await toBase64FromBlob(plainFileBlob), key)
-            : await encryptFile(plainFileBlob, key);
+            : isRunningOnBrowser
+            ? await encryptFile(plainFileBlob, key)
+            : encryptStream(fs.createReadStream(filePath), key);
+        console.log("managedCreateTokenForIPFS>>>>>>", encryptedContent);
         return await uploadEncryptedFileCallback(encryptedContent, ipfsConfig);
       })
     );
+
     const thumbnailImageUrl = await uploadThumbnailCallback(thumbnailImage, ipfsConfig);
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
 
