@@ -1,5 +1,5 @@
 {
-  "name": "vwbl-sdk",
+  "name": "vwbl-sdk.js",
   "description": "VWBL SDK for TypeScript",
   "version": "1.0.0",
   "private": "true",
@@ -10,8 +10,12 @@
     "nohoist": ["**"]
   },
   "scripts": {
+    "format-all": "yarn workspace run lint --fix --quiet",
+    "format:evm": "yarn workspace evm run lint --fix --quiet",
+    "format:core": "yarn workspace vwbl-core run lint --fix --quiet",
     "lint-all": "yarn workspaces run lint",
     "lint:evm": "yarn workspace evm lint",
+    "lint:core": "yarn workspace vwbl-core lint",
     "test-all": "yarn workspaces run test",
     "test:evm": "yarn workspace evm test"
   },

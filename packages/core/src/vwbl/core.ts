@@ -1,7 +1,7 @@
 import * as Stream from "stream";
 
-import { UploadToIPFS } from "../storage/ipfs";
 import { AWSConfig, uploadMetadata } from "../storage";
+import { UploadToIPFS } from "../storage/ipfs";
 import {
   createRandomKey,
   decryptFile,
@@ -11,14 +11,7 @@ import {
   encryptString,
   toBase64FromBlob,
 } from "../util";
-
-import { 
-  EncryptLogic, 
-  UploadMetadata,
-  UploadMetadataType,
-  UploadContentType,
-  CoreConstructorProps,
-} from "./types";
+import { CoreConstructorProps, EncryptLogic, UploadContentType, UploadMetadata, UploadMetadataType } from "./types";
 
 export class VWBLCore {
   private uploadMetadataType: UploadMetadataType;
@@ -27,8 +20,7 @@ export class VWBLCore {
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(props: CoreConstructorProps) {
-    const { uploadContentType, uploadMetadataType, awsConfig, ipfsNftStorageKey } =
-      props;
+    const { uploadContentType, uploadMetadataType, awsConfig, ipfsNftStorageKey } = props;
     this.uploadMetadataType = uploadMetadataType;
     if (uploadContentType === UploadContentType.S3 || uploadMetadataType === UploadMetadataType.S3) {
       if (!awsConfig) {

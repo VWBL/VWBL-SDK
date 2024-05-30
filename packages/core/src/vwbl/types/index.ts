@@ -4,4 +4,4 @@ export * from "./UploadMetadataType";
 export * from "./File";
 export * from "./EncryptLogic";
 export * from "./ProgressSubscriber";
-export * from "./ConstructorPropsType"
+export * from "./ConstructorPropsType";
