@@ -2,7 +2,7 @@ import axios from "axios";
 import { utils } from "ethers";
 import * as fs from "fs";
 
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
+import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage";
 import {
   createRandomKey,
   decryptFile,
@@ -12,7 +12,7 @@ import {
   encryptStream,
   encryptString,
   getMimeType,
-  toBase64FromBlob,
+  toBase64FromFile,
 } from "../../util";
 import { VWBLBase } from "../base";
 import { VWBLNFT, VWBLNFTEthers } from "../blockchain";
@@ -48,7 +48,7 @@ export class VWBL extends VWBLBase {
         ? new VWBLNFT(props.web3, props.contractAddress, props.uploadMetadataType === UploadMetadataType.IPFS)
         : new VWBLNFTEthers(
             props.contractAddress,
-            props.uploadMetadataType === UploadMetadataType.IPFS,
+            props.uploadMetadataType === UploadMetadataType.S3,
             props.ethersProvider,
             props.ethersSigner
           );
@@ -149,7 +149,7 @@ export class VWBL extends VWBLBase {
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
+            ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : isRunningOnBrowser
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
@@ -243,7 +243,7 @@ export class VWBL extends VWBLBase {
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
+            ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : await encryptFile(plainFileBlob, key);
         return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent);
       })

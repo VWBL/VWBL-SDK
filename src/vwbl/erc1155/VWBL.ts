@@ -12,7 +12,7 @@ import {
   encryptStream,
   encryptString,
 } from "../../util/cryptoHelper";
-import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
+import { getMimeType, toBase64FromFile } from "../../util/fileHelper";
 import { VWBLBase } from "../base";
 import { VWBLERC1155Contract, VWBLERC1155EthersContract } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
@@ -154,7 +154,7 @@ export class VWBLERC1155 extends VWBLBase {
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
+            ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : isRunningOnBrowser
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
@@ -251,7 +251,7 @@ export class VWBLERC1155 extends VWBLBase {
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
+            ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : await encryptFile(plainFileBlob, key);
         return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent);
       })
