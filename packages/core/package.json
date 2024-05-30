@@ -1,60 +1,57 @@
 {
-    "name": "vwbl-core",
-    "description": "VWBL core tools for sub-package",
-    "version": "0.1.16",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "engines": {
-      "node": ">=20.0.0"
-    },
-    "files": [
-      "dist"
-    ],
-    "license": "MIT",
-    "publishConfig": {
-      "access": "public"
-    },
-    "repository": {
-      "type": "git",
-      "url": "git://github.com/VWBL/VWBL-SDK.git"
-    },
-    "scripts": {
-      "build": "tsc",
-      "format": "eslint --fix --quiet './src/**/*.ts*'",
-      "lint": "eslint './src/**/*.ts*'",
-      "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-      "mocha": "mocha-parallel-tests -r ts-node/register  --exit"
-    },
-    "devDependencies": {
-      "@types/crypto-js": "^4.0.2",
-      "@types/uuid": "^8.3.3",
-      "@types/mime-types": "^2.1.4",
-      "typescript": "^5.3.3"
-    },
-    "dependencies": {
-      "@aws-sdk/client-s3": "^3.338.0",
-      "@aws-sdk/credential-providers": "^3.338.0",
-      "@aws-sdk/lib-storage": "^3.338.0",
-      "crypto": "^1.0.1",
-      "crypto-js": "^4.1.1",
-      "mime-types": "^2.1.35",
-      "uuid": "^8.3.2",
-      "nft.storage": "^7.0.0"
-    },
-    "browser": {
-      "crypto": false,
-      "filereader": false,
-      "fs": false,
-      "os": false,
-      "path": false
-    },
-    "react-native": {
-      "fs": false,
-      "path": false,
-      "os": false,
-      "filereader": false,
-      "crypto": false,
-      "nft.storage": false
-    }
+  "name": "vwbl-core",
+  "description": "VWBL core tools for sub-package",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/VWBL/VWBL-SDK.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "format": "eslint --fix --quiet './src/**/*.ts*'",
+    "lint": "eslint './src/**/*.ts*'"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.0.2",
+    "@types/mime-types": "^2.1.4",
+    "@types/uuid": "^8.3.3",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.338.0",
+    "@aws-sdk/credential-providers": "^3.338.0",
+    "@aws-sdk/lib-storage": "^3.338.0",
+    "crypto": "^1.0.1",
+    "crypto-js": "^4.1.1",
+    "mime-types": "^2.1.35",
+    "nft.storage": "^7.0.0",
+    "uuid": "^8.3.2"
+  },
+  "browser": {
+    "crypto": false,
+    "filereader": false,
+    "fs": false,
+    "os": false,
+    "path": false
+  },
+  "react-native": {
+    "fs": false,
+    "path": false,
+    "os": false,
+    "filereader": false,
+    "crypto": false,
+    "nft.storage": false
+  }
 }
-  
