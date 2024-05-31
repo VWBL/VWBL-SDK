@@ -8,7 +8,6 @@ import { IPFSConfig } from "./types";
 
 const pinataEndpoint = "https://api.pinata.cloud/pinning/pinFileToIPFS";
 
-// Pinata Authentication Test Functions
 function isNode() {
   return typeof process !== "undefined" && process.versions != null && process.versions.node != null;
 }
@@ -40,6 +39,7 @@ function createConfig(headers: { [key: string]: any }, progressType: string): an
   };
 }
 
+// Pinata Authentication Test Functions
 export const testPinataAuthentication = async (ipfsConfig: IPFSConfig): Promise<void> => {
   const headers = createHeaders(ipfsConfig);
 
