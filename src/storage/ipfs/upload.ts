@@ -1,40 +1,61 @@
 import axios from "axios";
-import FormData, { Readable } from "form-data";
+import { Buffer } from "buffer";
+import FormData from "form-data";
 import fs from "fs";
-import * as Stream from "stream";
+import { Readable } from "stream";
 
 import { IPFSConfig } from "./types";
 
 const pinataEndpoint = "https://api.pinata.cloud/pinning/pinFileToIPFS";
 
 // Pinata Authentication Test Functions
-export const testPinataAuthentication = async (ipfsConfig: IPFSConfig): Promise<void> => {
-  const headers: Record<string, string | number | boolean> = {
+function isNode() {
+  return typeof process !== "undefined" && process.versions != null && process.versions.node != null;
+}
+
+function createHeaders(ipfsConfig: IPFSConfig, formData?: FormData): { [key: string]: any } {
+  const headers: { [key: string]: any } = {
     pinata_api_key: ipfsConfig.apiKey,
+    pinata_secret_api_key: ipfsConfig.apiSecret,
   };
 
-  if (ipfsConfig.apiSecret !== undefined) {
-    headers.pinata_secret_api_key = ipfsConfig.apiSecret;
+  if (isNode() && formData) {
+    Object.assign(headers, formData.getHeaders());
+  } else {
+    headers["Content-Type"] = "multipart/form-data";
   }
+
+  return headers;
+}
+
+function createConfig(headers: { [key: string]: any }, progressType: string): any {
+  return {
+    headers: headers,
+    onUploadProgress: !isNode()
+      ? (progressEvent: any) => {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          console.log(`${progressType} Progress: ${progress}%`);
+        }
+      : undefined,
+  };
+}
+
+export const testPinataAuthentication = async (ipfsConfig: IPFSConfig): Promise<void> => {
+  const headers = createHeaders(ipfsConfig);
 
   const config = {
     headers: headers,
   };
 
   try {
-    const response = await axios.get(pinataEndpoint, config);
+    const response = await axios.get("https://api.pinata.cloud/data/testAuthentication", config);
     console.log("Pinata authentication succeeded:", response.data);
   } catch (err: any) {
-    console.error("Pinata authentication failed:", config.headers);
-    console.error("Pinata authentication failed:", err.message);
+    console.error("Pinata authentication failed:", headers);
     throw new Error(`Pinata authentication failed: ${err.message}`);
   }
 };
 
-// Check if the environment in which it is running is Node.js
-function isNode() {
-  return typeof process !== "undefined" && process.versions != null && process.versions.node != null;
-}
 // Upload function for encrypted files
 export const uploadEncryptedFileToIPFS = async (
   encryptedContent: string | Uint8Array | Readable,
@@ -66,30 +87,13 @@ export const uploadEncryptedFileToIPFS = async (
     formData.append("file", encryptedContent, { filename: "encrypted-file" });
   }
 
-  const headers: { [key: string]: any } = {
-    pinata_api_key: ipfsConfig.apiKey,
-    pinata_secret_api_key: ipfsConfig.apiSecret,
-  };
-
-  if (isNode()) {
-    headers["Content-Type"] = `multipart/form-data; boundary=${formData.getBoundary()}`;
-  }
-
-  const config = {
-    headers,
-    onUploadProgress: !isNode()
-      ? (progressEvent: any) => {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          console.log(`uploadEncryptedFileProgress: ${progress}%`);
-        }
-      : undefined,
-  };
+  const headers = createHeaders(ipfsConfig, formData);
+  const config = createConfig(headers, "uploadMetadataToIPFS");
 
   try {
     const response = await axios.post(pinataEndpoint, formData, config);
     return `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
   } catch (err: any) {
-    console.error("Pinata upload failed:", err.response ? err.response.data : err.message);
     throw new Error(`Pinata upload failed: ${err.message}`);
   }
 };
@@ -106,15 +110,15 @@ export const uploadThumbnailToIPFS = async (
   const formData = new FormData();
 
   if (isNode()) {
-    // Node.js
     if (typeof thumbnailImage === "string") {
       const stream = fs.createReadStream(thumbnailImage);
       formData.append("file", stream);
+    } else if (thumbnailImage instanceof Buffer) {
+      formData.append("file", thumbnailImage, "thumbnail");
     } else {
       throw new Error("Invalid type for thumbnailImage in Node.js environment");
     }
   } else {
-    // Browser
     if (thumbnailImage instanceof File || thumbnailImage instanceof Blob) {
       formData.append("file", thumbnailImage);
     } else if (typeof thumbnailImage === "string") {
@@ -126,25 +130,8 @@ export const uploadThumbnailToIPFS = async (
     }
   }
 
-  const headers = {
-    pinata_api_key: ipfsConfig.apiKey,
-    pinata_secret_api_key: ipfsConfig.apiSecret,
-    "Content-Type": "multipart/form-data",
-  };
-
-  if (isNode()) {
-    Object.assign(headers, formData.getHeaders());
-  }
-
-  const config = {
-    headers: headers,
-    onUploadProgress: isNode()
-      ? undefined
-      : (progressEvent: any) => {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          console.log(`uploadThumbnailProgress: ${progress}%`);
-        },
-  };
+  const headers = createHeaders(ipfsConfig, formData);
+  const config = createConfig(headers, "uploadThumbnailToIPFS");
 
   try {
     const response = await axios.post(pinataEndpoint, formData, config);
@@ -190,26 +177,8 @@ export const uploadMetadataToIPFS = async (
     formData.append("file", blob, "metadata.json");
   }
 
-  const headers: { [key: string]: any } = {
-    pinata_api_key: ipfsConfig.apiKey,
-    pinata_secret_api_key: ipfsConfig.apiSecret,
-  };
-
-  if (isNode()) {
-    Object.assign(headers, formData.getHeaders());
-  } else {
-    headers["Content-Type"] = "multipart/form-data";
-  }
-
-  const config = {
-    headers: headers,
-    onUploadProgress: !isNode()
-      ? (progressEvent: any) => {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          console.log(`uploadMetadataProgress: ${progress}%`);
-        }
-      : undefined,
-  };
+  const headers = createHeaders(ipfsConfig, formData);
+  const config = createConfig(headers, "uploadMetadataToIPFS");
 
   try {
     const response = await axios.post(pinataEndpoint, formData, config);
