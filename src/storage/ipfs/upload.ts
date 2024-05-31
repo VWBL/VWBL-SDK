@@ -37,38 +37,53 @@ function isNode() {
 }
 // Upload function for encrypted files
 export const uploadEncryptedFileToIPFS = async (
-  encryptedContent: string | Uint8Array | Stream.Readable,
+  encryptedContent: string | Uint8Array | Readable,
   ipfsConfig?: IPFSConfig
 ): Promise<string> => {
   if (!ipfsConfig || !ipfsConfig.apiKey || !ipfsConfig.apiSecret) {
     throw new Error("Pinata API key or secret is not specified.");
   }
-  const formData = new FormData();
-  if (typeof encryptedContent === "string" || encryptedContent instanceof Uint8Array) {
-    // assuming encryptedContent is base64 string or Uint8Array for simplicity
-    formData.append("file", Buffer.from(encryptedContent), {
-      filename: "encrypted-file",
-      contentType: "application/octet-stream",
-    });
+
+  let formData: any;
+
+  if (isNode()) {
+    formData = new FormData();
+  } else {
+    formData = new window.FormData();
+  }
+
+  if (typeof encryptedContent === "string") {
+    const blob = isNode()
+      ? Buffer.from(encryptedContent)
+      : new Blob([encryptedContent], { type: "application/octet-stream" });
+    formData.append("file", blob, "encrypted-file");
+  } else if (encryptedContent instanceof Uint8Array) {
+    const blob = isNode()
+      ? Buffer.from(encryptedContent)
+      : new Blob([encryptedContent], { type: "application/octet-stream" });
+    formData.append("file", blob, "encrypted-file");
   } else if (encryptedContent instanceof Readable) {
-    formData.append("file", encryptedContent, "encrypted-file");
+    formData.append("file", encryptedContent, { filename: "encrypted-file" });
+  }
+
+  const headers: { [key: string]: any } = {
+    pinata_api_key: ipfsConfig.apiKey,
+    pinata_secret_api_key: ipfsConfig.apiSecret,
+  };
+
+  if (isNode()) {
+    headers["Content-Type"] = `multipart/form-data; boundary=${formData.getBoundary()}`;
   }
 
   const config = {
-    headers: {
-      ...formData.getHeaders(),
-      pinata_api_key: ipfsConfig.apiKey,
-      pinata_secret_api_key: ipfsConfig.apiSecret,
-    },
-    onUploadProgress: isNode()
-      ? undefined
-      : (progressEvent: any) => {
+    headers,
+    onUploadProgress: !isNode()
+      ? (progressEvent: any) => {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           console.log(`uploadEncryptedFileProgress: ${progress}%`);
-        },
+        }
+      : undefined,
   };
-
-  console.log("Uploading encrypted data to IPFS...");
 
   try {
     const response = await axios.post(pinataEndpoint, formData, config);
@@ -163,38 +178,37 @@ export const uploadMetadataToIPFS = async (
   };
 
   const metadataJSON = JSON.stringify(metadata);
-  const formData = isNode() ? new (require("form-data"))() : new FormData();
+  const formData = new FormData();
 
   if (isNode()) {
-    // Node.js
     formData.append("file", Buffer.from(metadataJSON), {
       filename: "metadata.json",
       contentType: "application/json",
     });
   } else {
-    // Browser
     const blob = new Blob([metadataJSON], { type: "application/json" });
     formData.append("file", blob, "metadata.json");
   }
 
-  const headers = {
+  const headers: { [key: string]: any } = {
     pinata_api_key: ipfsConfig.apiKey,
     pinata_secret_api_key: ipfsConfig.apiSecret,
-    "Content-Type": "multipart/form-data",
   };
 
   if (isNode()) {
     Object.assign(headers, formData.getHeaders());
+  } else {
+    headers["Content-Type"] = "multipart/form-data";
   }
 
   const config = {
     headers: headers,
-    onUploadProgress: isNode()
-      ? undefined
-      : (progressEvent: any) => {
+    onUploadProgress: !isNode()
+      ? (progressEvent: any) => {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           console.log(`uploadMetadataProgress: ${progress}%`);
-        },
+        }
+      : undefined,
   };
 
   try {

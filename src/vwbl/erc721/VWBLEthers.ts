@@ -13,7 +13,7 @@ import {
   encryptStream,
   encryptString,
   getMimeType,
-  toBase64FromBlob,
+  toBase64FromFile,
 } from "../../util";
 import { VWBLBase } from "../base";
 import { VWBLNFTEthers } from "../blockchain";
@@ -139,7 +139,7 @@ export class VWBLEthers extends VWBLBase {
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
+            ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : isRunningOnBrowser
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
@@ -239,7 +239,7 @@ export class VWBLEthers extends VWBLBase {
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
+            ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : await encryptFile(plainFileBlob, key);
         return await uploadEncryptedFileCallback(encryptedContent, ipfsConfig);
       })

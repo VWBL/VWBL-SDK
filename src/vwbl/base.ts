@@ -9,7 +9,7 @@ import {
   encryptFile,
   encryptStream,
   encryptString,
-  toBase64FromBlob,
+  toBase64FromFile,
 } from "../util";
 import { VWBLApi } from "./api";
 import { signToProtocol } from "./blockchain";
@@ -129,7 +129,7 @@ export class VWBLBase {
    * @returns Encrypted file data
    */
   encryptDataViaBase64 = async (plainData: File, key: string): Promise<string> => {
-    const content = await toBase64FromBlob(plainData);
+    const content = await toBase64FromFile(plainData);
     return encryptString(content, key);
   };
 

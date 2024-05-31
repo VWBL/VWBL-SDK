@@ -3,7 +3,7 @@ import * as fs from "fs";
 
 import { uploadEncryptedFileToIPFS, uploadMetadataToIPFS, uploadThumbnailToIPFS } from "../../storage";
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
-import { createRandomKey, encryptFile, encryptStream, encryptString, getMimeType, toBase64FromBlob } from "../../util";
+import { createRandomKey, encryptFile, encryptStream, encryptString, getMimeType, toBase64FromFile } from "../../util";
 import { VWBLERC6150MetaTxEthers } from "../blockchain";
 import { VWBLMetaTx } from "../erc721/VWBLMetaTx";
 import {
@@ -122,7 +122,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
+            ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : isRunningOnBrowser
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
@@ -217,7 +217,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
+            ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : await encryptFile(plainFileBlob, key);
         return await uploadEncryptedFileCallback(encryptedContent, ipfsConfig);
       })
