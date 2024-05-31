@@ -1,4 +1,5 @@
-/** 
+"use strict";
+/**
 import { SubmittableTransaction, Wallet } from "xrpl";
  
 import { UploadToIPFS } from "../../storage";

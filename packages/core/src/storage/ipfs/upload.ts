@@ -16,7 +16,7 @@ export class UploadToIPFS {
     let cid;
     try {
       cid = await this.client.storeBlob(encryptedContentData);
-    } catch (err: any) {
+    } catch (err: any) { // eslint-disable-line
       throw new Error(err);
     }
 
@@ -30,7 +30,7 @@ export class UploadToIPFS {
     let cid;
     try {
       cid = await this.client.storeBlob(thumbnailblob);
-    } catch (err: any) {
+    } catch (err: any) { // eslint-disable-line
       throw new Error(err);
     }
 
@@ -60,7 +60,7 @@ export class UploadToIPFS {
     let cid;
     try {
       cid = await this.client.storeBlob(metaDataBlob);
-    } catch (err: any) {
+    } catch (err: any) { // eslint-disable-line
       throw new Error(err);
     }
 

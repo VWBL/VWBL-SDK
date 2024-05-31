@@ -16,6 +16,7 @@ export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
           resolve(result);
         }
       };
+      // eslint-disable-next-line
       reader.onerror = (error: any) => reject(error);
     });
   }
@@ -41,6 +42,7 @@ export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
           resolve(result);
         }
       };
+      // eslint-disable-next-line
       reader.onerror = (error: any) => reject(error);
     });
   }
