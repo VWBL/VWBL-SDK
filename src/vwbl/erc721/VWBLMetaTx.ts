@@ -245,19 +245,6 @@ export class VWBLMetaTx extends VWBLBase {
 
     subscriber?.kickStep(StepStatus.ENCRYPT_DATA);
 
-    // プリフィックスがあるかどうかをチェックする関数
-    const hasPrefix = (base64: any) => {
-      return base64.startsWith("data:");
-    };
-
-    // Base64エンコードされた文字列にプリフィックスを付加する関数
-    const toDataURL = (base64: any) => {
-      if (hasPrefix(base64)) {
-        return base64;
-      }
-      return `data:image/png;base64,${base64}`;
-    };
-
     // 3. upload data
     console.log("upload data");
     const isRunningOnBrowser = typeof window !== "undefined";
