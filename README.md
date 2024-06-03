@@ -45,9 +45,9 @@ Constructor Options
 | uploadContentType  | flase                                                    | UploadContentType                          | where to upload content, you can choose from <br> S3 <br> IPFS <br> CUSTOM                                                                            |
 | uploadMetadataType | flase                                                    | UploadMetadataType                         | where to upload content, you can choose from <br> S3 <br> IPFS <br> CUSTOM                                                                            |
 | awsConfig          | true if you choose to upload content or metadata to S3   | AWSConfig                                  | AWSConfig \*1                                                                                                                                         |
-| ipfsNftStorageKey  | true if you choose to upload content or metadata to IPFS | string                                     | api key that given by nftstorage                                                                                                                      |
+| ipfsConfig  | true if you choose to upload content or metadata to IPFS | IPFSConfig                                     | IPFSConfig \*2                                                                                                                     |
 
-AWSConfig
+AWSConfig(*1)
 
 | name          | required | type                                | description                                               |
 | ------------- | -------- | ----------------------------------- | --------------------------------------------------------- |
@@ -56,6 +56,14 @@ AWSConfig
 | cloudFrontUrl | true     | string                              | cloudFront url connect to s3 which is uploaded content    |
 | bucketName    | true     | {content: string, metadata: string} | bucketName of metadata and content, it's ok they are same |
 
+
+IPFSConfig(*2)
+
+| name          | required | type                                | description                                               |
+| ------------- | -------- | ----------------------------------- | --------------------------------------------------------- |
+| apiKey        | true     | string                              | API key                                                |
+| apiSecret      | false     | string                              | API secret key                  |
+|
 ### sign to server
 
 Signing is necessary before creating token or viewing contents.

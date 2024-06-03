@@ -68,7 +68,6 @@ export const uploadThumbnail = async (
 
   const key = `data/${uuid}-${fileName}`;
   const type = getMimeType(thumbnailImage);
-  const isRunningOnBrowser = typeof window !== "undefined";
   const uploadCommand = new PutObjectCommand({
     Bucket: awsConfig.bucketName.content,
     Key: key,

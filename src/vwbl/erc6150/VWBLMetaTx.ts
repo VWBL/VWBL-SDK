@@ -1,8 +1,10 @@
 import { ethers, utils } from "ethers";
 import * as fs from "fs";
 
+import { uploadEncryptedFileToIPFS, uploadMetadataToIPFS, uploadThumbnailToIPFS } from "../../storage";
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
-import { createRandomKey, encryptFile, encryptStream, encryptString, getMimeType, toBase64FromBlob } from "../../util";
+import { createRandomKey, encryptFile, encryptStream, encryptString, getMimeType, toBase64FromFile } from "../../util";
+import { isRunningOnBrowser } from "../../util/envUtil";
 import { VWBLERC6150MetaTxEthers } from "../blockchain";
 import { VWBLMetaTx } from "../erc721/VWBLMetaTx";
 import {
@@ -18,9 +20,12 @@ import {
   StepStatus,
   UploadContentType,
   UploadEncryptedFile,
+  UploadEncryptedFileToIPFS,
   UploadMetadata,
+  UploadMetadataToIPFS,
   UploadMetadataType,
   UploadThumbnail,
+  UploadThumbnailToIPFS,
 } from "../types";
 
 export class VWBLERC6150MetaTx extends VWBLMetaTx {
@@ -110,7 +115,6 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
 
     // 4. upload data
     console.log("upload data");
-    const isRunningOnBrowser = typeof window !== "undefined";
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
         const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
@@ -118,8 +122,8 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
-            : isRunningOnBrowser
+            ? encryptString(await toBase64FromFile(plainFileBlob), key)
+            : isRunningOnBrowser()
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
         return await uploadEncryptedFunction(fileName, encryptedContent, uuid, awsConfig);
@@ -184,13 +188,17 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     mintApiId: string,
+    uploadEncryptedFileCallback: UploadEncryptedFileToIPFS = uploadEncryptedFileToIPFS,
+    uploadThumbnailCallback: UploadThumbnailToIPFS = uploadThumbnailToIPFS,
+    uploadMetadataCallBack: UploadMetadataToIPFS = uploadMetadataToIPFS,
     subscriber?: ProgressSubscriber,
     parentId?: number
   ) => {
     if (!this.signature) {
       throw "please sign first";
     }
-    const { vwblNetworkUrl } = this.opts;
+    const { ipfsConfig, vwblNetworkUrl } = this.opts;
+
     // 1. create key in frontend
     const key = createRandomKey();
     subscriber?.kickStep(StepStatus.CREATE_KEY);
@@ -209,24 +217,25 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
+            ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : await encryptFile(plainFileBlob, key);
-        return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent);
+        return await uploadEncryptedFileCallback(encryptedContent, ipfsConfig);
       })
     );
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
-
-    const thumbnailImageUrl = await this.uploadToIpfs?.uploadThumbnail(thumbnailImage);
+    const thumbnailImageUrl = await uploadThumbnailCallback(thumbnailImage, ipfsConfig);
+    subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
     // 4. upload metadata
     console.log("upload meta data");
     const mimeType = getMimeType(plainFileArray[0]);
-    const metadataUrl = await this.uploadToIpfs?.uploadMetadata(
+    const metadataUrl = await uploadMetadataCallBack(
       name,
       description,
-      thumbnailImageUrl as string,
-      encryptedDataUrls as string[],
+      thumbnailImageUrl,
+      encryptedDataUrls,
       mimeType,
-      encryptLogic
+      encryptLogic,
+      ipfsConfig
     );
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
@@ -234,7 +243,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     const documentId = utils.hexlify(utils.randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
     const tokenId = await this.erc6150.mintTokenForIPFS({
-      metadataUrl: metadataUrl as string,
+      metadataUrl: metadataUrl,
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
