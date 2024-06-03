@@ -15,6 +15,7 @@ import {
   getMimeType,
   toBase64FromFile,
 } from "../../util";
+import { isRunningOnBrowser } from "../../util/envUtil";
 import { VWBLBase } from "../base";
 import { VWBLNFT, VWBLNFTEthers } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
@@ -155,7 +156,6 @@ export class VWBL extends VWBLBase {
 
     // 4. upload data
     console.log("upload data");
-    const isRunningOnBrowser = typeof window !== "undefined";
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
         const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
@@ -164,7 +164,7 @@ export class VWBL extends VWBLBase {
         const encryptedContent =
           encryptLogic === "base64"
             ? encryptString(await toBase64FromFile(plainFileBlob), key)
-            : isRunningOnBrowser
+            : isRunningOnBrowser()
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
         return await uploadEncryptedFunction(fileName, encryptedContent, uuid, awsConfig);
@@ -677,18 +677,17 @@ export class VWBL extends VWBLBase {
         : await this._getAddressBySigner(this.opts.ethersSigner);
     const decryptKey = await this.api.getKey(documentId, chainId, this.signature, signerAddress);
     const encryptedDataUrls = metadata.encrypted_data;
-    const isRunningOnBrowser = typeof window !== "undefined";
     const encryptLogic = metadata.encrypt_logic ?? "base64";
     const ownDataArray = await Promise.all(
       encryptedDataUrls.map(async (encryptedDataUrl) => {
         const encryptedData = (
           await axios.get(encryptedDataUrl, {
-            responseType: encryptLogic === "base64" ? "text" : isRunningOnBrowser ? "arraybuffer" : "stream",
+            responseType: encryptLogic === "base64" ? "text" : isRunningOnBrowser() ? "arraybuffer" : "stream",
           })
         ).data;
         return encryptLogic === "base64"
           ? decryptString(encryptedData, decryptKey)
-          : isRunningOnBrowser
+          : isRunningOnBrowser()
           ? await decryptFile(encryptedData, decryptKey)
           : decryptStream(encryptedData, decryptKey);
       })

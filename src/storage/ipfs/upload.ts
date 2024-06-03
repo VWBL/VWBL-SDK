@@ -4,13 +4,10 @@ import FormData from "form-data";
 import fs from "fs";
 import { Readable } from "stream";
 
+import { isRunningOnNode } from "../../util/envUtil";
 import { IPFSConfig } from "./types";
 
 const pinataEndpoint = "https://api.pinata.cloud/pinning/pinFileToIPFS";
-
-function isNode() {
-  return typeof process !== "undefined" && process.versions != null && process.versions.node != null;
-}
 
 function createHeaders(ipfsConfig: IPFSConfig, formData?: FormData): { [key: string]: any } {
   const headers: { [key: string]: any } = {
@@ -18,7 +15,7 @@ function createHeaders(ipfsConfig: IPFSConfig, formData?: FormData): { [key: str
     pinata_secret_api_key: ipfsConfig.apiSecret,
   };
 
-  if (isNode() && formData) {
+  if (isRunningOnNode() && formData) {
     Object.assign(headers, formData.getHeaders());
   } else {
     headers["Content-Type"] = "multipart/form-data";
@@ -30,7 +27,7 @@ function createHeaders(ipfsConfig: IPFSConfig, formData?: FormData): { [key: str
 function createConfig(headers: { [key: string]: any }, progressType: string): any {
   return {
     headers: headers,
-    onUploadProgress: !isNode()
+    onUploadProgress: !isRunningOnNode()
       ? (progressEvent: any) => {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           console.log(`${progressType} Progress: ${progress}%`);
@@ -67,19 +64,19 @@ export const uploadEncryptedFileToIPFS = async (
 
   let formData: any;
 
-  if (isNode()) {
+  if (isRunningOnNode()) {
     formData = new FormData();
   } else {
     formData = new window.FormData();
   }
 
   if (typeof encryptedContent === "string") {
-    const blob = isNode()
+    const blob = isRunningOnNode()
       ? Buffer.from(encryptedContent)
       : new Blob([encryptedContent], { type: "application/octet-stream" });
     formData.append("file", blob, "encrypted-file");
   } else if (encryptedContent instanceof Uint8Array) {
-    const blob = isNode()
+    const blob = isRunningOnNode()
       ? Buffer.from(encryptedContent)
       : new Blob([encryptedContent], { type: "application/octet-stream" });
     formData.append("file", blob, "encrypted-file");
@@ -109,7 +106,7 @@ export const uploadThumbnailToIPFS = async (
 
   const formData = new FormData();
 
-  if (isNode()) {
+  if (isRunningOnNode()) {
     if (typeof thumbnailImage === "string") {
       const stream = fs.createReadStream(thumbnailImage);
       formData.append("file", stream);
@@ -167,7 +164,7 @@ export const uploadMetadataToIPFS = async (
   const metadataJSON = JSON.stringify(metadata);
   const formData = new FormData();
 
-  if (isNode()) {
+  if (isRunningOnNode()) {
     formData.append("file", Buffer.from(metadataJSON), {
       filename: "metadata.json",
       contentType: "application/json",

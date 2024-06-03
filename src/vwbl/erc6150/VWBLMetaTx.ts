@@ -4,6 +4,7 @@ import * as fs from "fs";
 import { uploadEncryptedFileToIPFS, uploadMetadataToIPFS, uploadThumbnailToIPFS } from "../../storage";
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
 import { createRandomKey, encryptFile, encryptStream, encryptString, getMimeType, toBase64FromFile } from "../../util";
+import { isRunningOnBrowser } from "../../util/envUtil";
 import { VWBLERC6150MetaTxEthers } from "../blockchain";
 import { VWBLMetaTx } from "../erc721/VWBLMetaTx";
 import {
@@ -114,7 +115,6 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
 
     // 4. upload data
     console.log("upload data");
-    const isRunningOnBrowser = typeof window !== "undefined";
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
         const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
@@ -123,7 +123,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
         const encryptedContent =
           encryptLogic === "base64"
             ? encryptString(await toBase64FromFile(plainFileBlob), key)
-            : isRunningOnBrowser
+            : isRunningOnBrowser()
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
         return await uploadEncryptedFunction(fileName, encryptedContent, uuid, awsConfig);

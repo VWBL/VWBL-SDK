@@ -15,6 +15,7 @@ import {
   getMimeType,
   toBase64FromFile,
 } from "../../util";
+import { isRunningOnBrowser } from "../../util/envUtil";
 import { VWBLBase } from "../base";
 import { VWBLERC1155EthersContract } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
@@ -123,7 +124,6 @@ export class VWBLERC1155Ethers extends VWBLBase {
 
     // 4. upload data
     console.log("upload data");
-    const isRunningOnBrowser = typeof window !== "undefined";
 
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
@@ -133,7 +133,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
         const encryptedContent =
           encryptLogic === "base64"
             ? encryptString(await toBase64FromFile(plainFileBlob), key)
-            : isRunningOnBrowser
+            : isRunningOnBrowser()
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
         return await uploadEncryptedFunction(fileName, encryptedContent, uuid, awsConfig);
@@ -527,18 +527,18 @@ export class VWBLERC1155Ethers extends VWBLBase {
       await this._getAddressBySigner(this.opts.ethersSigner)
     );
     const encryptedDataUrls = metadata.encrypted_data;
-    const isRunningOnBrowser = typeof window !== "undefined";
+
     const encryptLogic = metadata.encrypt_logic ?? "base64";
     const ownDataArray = await Promise.all(
       encryptedDataUrls.map(async (encryptedDataUrl) => {
         const encryptedData = (
           await axios.get(encryptedDataUrl, {
-            responseType: encryptLogic === "base64" ? "text" : isRunningOnBrowser ? "arraybuffer" : "stream",
+            responseType: encryptLogic === "base64" ? "text" : isRunningOnBrowser() ? "arraybuffer" : "stream",
           })
         ).data;
         return encryptLogic === "base64"
           ? decryptString(encryptedData, decryptKey)
-          : isRunningOnBrowser
+          : isRunningOnBrowser()
           ? await decryptFile(encryptedData, decryptKey)
           : decryptStream(encryptedData, decryptKey);
       })

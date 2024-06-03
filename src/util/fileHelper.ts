@@ -1,10 +1,10 @@
 import mime from "mime-types";
 
 import { FileOrPath } from "../vwbl";
-const isRunningOnBrowser = typeof window !== "undefined";
+import { isRunningOnBrowser } from "./envUtil";
 
 export const toBase64FromFile = async (file: File): Promise<string> => {
-  if (isRunningOnBrowser) {
+  if (isRunningOnBrowser()) {
     return new Promise((resolve, reject) => {
       const reader = new window.FileReader();
       reader.readAsDataURL(file);
@@ -31,7 +31,7 @@ export const getMimeType = (file: FileOrPath): string => {
 };
 
 export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
-  if (isRunningOnBrowser) {
+  if (isRunningOnBrowser()) {
     return new Promise((resolve, reject) => {
       const reader = new window.FileReader();
       reader.readAsArrayBuffer(blob);
