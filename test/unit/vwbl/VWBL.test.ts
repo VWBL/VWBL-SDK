@@ -40,7 +40,7 @@ describe("VWBL with web3.js", () => {
   };
 
   const vwbl = new VWBL({
-    ipfsNftStorageKey: "set nftstorage api key",
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: "0x2c7e967093d7fe0eeb5440bf49e5D148417B0412",
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -156,7 +156,7 @@ describe("VWBLERC1155 with web3.js", () => {
   };
 
   const vwbl = new VWBLERC1155({
-    ipfsNftStorageKey: "set nftstorage api key",
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: "0x2c7e967093d7fe0eeb5440bf49e5D148417B0412",
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -276,7 +276,7 @@ describe("VWBL with ethers.js", () => {
   };
 
   const vwbl = new VWBL({
-    ipfsNftStorageKey: "set nftstorage api key",
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: "0x2c7e967093d7fe0eeb5440bf49e5D148417B0412",
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -393,7 +393,7 @@ describe("VWBLERC1155 with ethers.js", () => {
   };
 
   const vwbl = new VWBLERC1155({
-    ipfsNftStorageKey: "set nftstorage api key",
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: "0x2c7e967093d7fe0eeb5440bf49e5D148417B0412",
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
