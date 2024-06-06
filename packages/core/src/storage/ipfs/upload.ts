@@ -24,8 +24,7 @@ const createHeadersOnNode = (
   ipfsConfig: IPFSConfig, 
   formData: FormData
 ): { [key: string]: any } => { // eslint-disable-line
-  // eslint-disable-next-line
-  const headers: { [key: string]: any } = {
+  const headers: { [key: string]: any } = { // eslint-disable-line
     pinata_api_key: ipfsConfig.apiKey,
     pinata_secret_api_key: ipfsConfig.apiSecret as string,
   };
