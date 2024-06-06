@@ -1,7 +1,8 @@
 import * as Stream from "stream";
 
 import { AWSConfig, uploadMetadata } from "../storage";
-import { UploadToIPFS } from "../storage/ipfs";
+import { IPFSConfig } from "../storage/ipfs";
+import { uploadMetadataToIPFS } from "../storage/ipfs";
 import {
   createRandomKey,
   decryptFile,
@@ -9,18 +10,18 @@ import {
   encryptFile,
   encryptStream,
   encryptString,
-  toBase64FromBlob,
+  toBase64FromFile,
 } from "../util";
 import { CoreConstructorProps, EncryptLogic, UploadContentType, UploadMetadata, UploadMetadataType } from "./types";
 
 export class VWBLCore {
   private uploadMetadataType: UploadMetadataType;
   private awsConfig?: AWSConfig;
-  protected uploadToIpfs?: UploadToIPFS;
-
+  private ipfsConfig?: IPFSConfig;
+  
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(props: CoreConstructorProps) {
-    const { uploadContentType, uploadMetadataType, awsConfig, ipfsNftStorageKey } = props;
+    const { uploadContentType, uploadMetadataType, awsConfig, ipfsConfig } = props;
     this.uploadMetadataType = uploadMetadataType;
     if (uploadContentType === UploadContentType.S3 || uploadMetadataType === UploadMetadataType.S3) {
       if (!awsConfig) {
@@ -28,10 +29,10 @@ export class VWBLCore {
       }
       this.awsConfig = awsConfig;
     } else if (uploadContentType === UploadContentType.IPFS || uploadMetadataType === UploadMetadataType.IPFS) {
-      if (!ipfsNftStorageKey) {
-        throw new Error("please specify nftstorage config of IPFS.");
+      if (!ipfsConfig) {
+        throw new Error("please specify pinata config of IPFS.");
       }
-      this.uploadToIpfs = new UploadToIPFS(ipfsNftStorageKey);
+      this.ipfsConfig = ipfsConfig;
     }
   }
 
@@ -100,13 +101,14 @@ export class VWBLCore {
     mimeType: string,
     encryptLogic: EncryptLogic
   ): Promise<string> => {
-    const metadataUrl = await this.uploadToIpfs?.uploadMetadata(
+    const metadataUrl = await uploadMetadataToIPFS(
       name,
       description,
       thumbnailImageUrl,
       encryptedDataUrls,
       mimeType,
-      encryptLogic
+      encryptLogic,
+      this.ipfsConfig
     );
     return metadataUrl as string;
   };
@@ -128,7 +130,7 @@ export class VWBLCore {
    * @returns Encrypted file data
    */
   encryptDataViaBase64 = async (plainData: File, key: string): Promise<string> => {
-    const content = await toBase64FromBlob(plainData);
+    const content = await toBase64FromFile(plainData);
     return encryptString(content, key);
   };
 

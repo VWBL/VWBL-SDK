@@ -1,12 +1,17 @@
 import {
+  GasSettings
+} from "./index";
+import {
   EncryptLogic,
   FileOrPath,
-  GasSettings,
   ProgressSubscriber,
   UploadEncryptedFile,
+  UploadEncryptedFileToIPFS,
   UploadMetadata,
+  UploadMetadataToIPFS,
   UploadThumbnail,
-} from "./index";
+  UploadThumbnailToIPFS,
+} from "vwbl-core";
 
 export type ManagedCreateToken = {
   // Interface for ERC721
@@ -50,6 +55,9 @@ export type ManagedCreateTokenForIPFS = {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic,
+    uploadEncryptedFileCallback: UploadEncryptedFileToIPFS,
+    uploadThumbnailCallback: UploadThumbnailToIPFS,
+    uploadMetadataCallBack: UploadMetadataToIPFS,
     subscriber?: ProgressSubscriber,
     gasSettings?: GasSettings
   ): Promise<number>;
@@ -62,6 +70,9 @@ export type ManagedCreateTokenForIPFS = {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic,
+    uploadEncryptedFileCallback: UploadEncryptedFileToIPFS,
+    uploadThumbnailCallback: UploadThumbnailToIPFS,
+    uploadMetadataCallBack: UploadMetadataToIPFS,
     subscriber?: ProgressSubscriber,
     gasSettings?: GasSettings,
     parentId?: number
@@ -135,6 +146,9 @@ export type ManagedCreateTokenForIPFSMetaTx = {
     feeNumerator: number,
     encryptLogic: EncryptLogic,
     mintApiId: string,
+    uploadEncryptedFileCallback: UploadEncryptedFileToIPFS,
+    uploadThumbnailCallback: UploadThumbnailToIPFS,
+    uploadMetadataCallBack: UploadMetadataToIPFS,
     subscriber?: ProgressSubscriber
   ): Promise<number>;
 
@@ -147,6 +161,9 @@ export type ManagedCreateTokenForIPFSMetaTx = {
     feeNumerator: number,
     encryptLogic: EncryptLogic,
     mintApiId: string,
+    uploadEncryptedFileCallback: UploadEncryptedFileToIPFS,
+    uploadThumbnailCallback: UploadThumbnailToIPFS,
+    uploadMetadataCallBack: UploadMetadataToIPFS,
     subscriber?: ProgressSubscriber,
     parentId?: number
   ): Promise<number>;

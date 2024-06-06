@@ -2,8 +2,8 @@
   "name": "vwbl-sdk",
   "description": "VWBL SDK for EVM",
   "version": "0.1.16",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/packages/evm/src/index.js",
+  "types": "dist/packages/evm/src/index.d.ts",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -67,7 +67,8 @@
     "nft.storage": "^7.0.0",
     "typescript": "^5.3.3",
     "uuid": "^8.3.2",
-    "web3": "^4.3.0"
+    "web3": "^4.3.0",
+    "vwbl-core": "^0.1.0"
   },
   "browser": {
     "crypto": false,

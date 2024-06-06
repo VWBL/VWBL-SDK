@@ -1,20 +1,13 @@
 import { ethers } from "ethers";
 import { Web3 } from "web3";
 
-import { AWSConfig } from "../../storage/aws/types";
+import { CoreConstructorProps, ManageKeyType } from "vwbl-core";
 import { BiconomyConfig } from "./BiconomyConfigType";
-import { ManageKeyType } from "./ManageKeyType";
-import { UploadContentType } from "./UploadContentType";
-import { UploadMetadataType } from "./UploadMetadataType";
 
 export type BaseConstructorProps = {
   contractAddress: string;
   vwblNetworkUrl: string;
-  uploadContentType?: UploadContentType;
-  uploadMetadataType?: UploadMetadataType;
-  awsConfig?: AWSConfig;
-  ipfsNftStorageKey?: string;
-};
+} & CoreConstructorProps;
 
 export type ConstructorProps = BaseConstructorProps & {
   web3: Web3;

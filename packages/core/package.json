@@ -2,8 +2,8 @@
   "name": "vwbl-core",
   "description": "VWBL core tools for sub-package",
   "version": "0.1.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/packages/core/src/index.js",
+  "types": "dist/packages/core/src/index.d.ts",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -36,7 +36,6 @@
     "crypto": "^1.0.1",
     "crypto-js": "^4.1.1",
     "mime-types": "^2.1.35",
-    "nft.storage": "^7.0.0",
     "uuid": "^8.3.2"
   },
   "browser": {
@@ -51,7 +50,6 @@
     "path": false,
     "os": false,
     "filereader": false,
-    "crypto": false,
-    "nft.storage": false
+    "crypto": false
   }
 }

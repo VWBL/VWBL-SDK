@@ -2,8 +2,28 @@ import axios from "axios";
 import { utils } from "ethers";
 import * as fs from "fs";
 
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
 import {
+  ExtractMetadata, 
+  Metadata, 
+  PlainMetadata,
+  EncryptLogic,
+  FileOrPath,
+  ProgressSubscriber,
+  StepStatus,
+  UploadContentType,
+  UploadEncryptedFile,
+  UploadEncryptedFileToIPFS,
+  UploadMetadata,
+  UploadMetadataToIPFS,
+  UploadMetadataType,
+  UploadThumbnail,
+  UploadThumbnailToIPFS,
+  uploadEncryptedFile,
+  uploadEncryptedFileToIPFS,
+  uploadThumbnail,
+  uploadThumbnailToIPFS,
+  uploadMetadata,
+  uploadMetadataToIPFS,
   createRandomKey,
   decryptFile,
   decryptStream,
@@ -11,24 +31,16 @@ import {
   encryptFile,
   encryptStream,
   encryptString,
-} from "../../util/cryptoHelper";
-import { getMimeType, toBase64FromBlob } from "../../util/fileHelper";
+  getMimeType,
+  toBase64FromFile,
+  isRunningOnBrowser
+} from "vwbl-core";
 import { VWBLBase } from "../base";
 import { VWBLERC1155Contract, VWBLERC1155EthersContract } from "../blockchain";
-import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
 import {
   ConstructorProps,
-  EncryptLogic,
   EthersConstructorProps,
-  FileOrPath,
   GasSettings,
-  ProgressSubscriber,
-  StepStatus,
-  UploadContentType,
-  UploadEncryptedFile,
-  UploadMetadata,
-  UploadMetadataType,
-  UploadThumbnail,
   VWBLEthersOption,
   VWBLOption,
 } from "../types";
@@ -146,7 +158,6 @@ export class VWBLERC1155 extends VWBLBase {
 
     // 4. upload data
     console.log("upload data");
-    const isRunningOnBrowser = typeof window !== "undefined";
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
         const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
@@ -154,8 +165,8 @@ export class VWBLERC1155 extends VWBLBase {
         const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
-            : isRunningOnBrowser
+            ? encryptString(await toBase64FromFile(plainFileBlob), key)
+            : isRunningOnBrowser()
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
         return await uploadEncryptedFunction(fileName, encryptedContent, uuid, awsConfig);
@@ -214,6 +225,9 @@ export class VWBLERC1155 extends VWBLBase {
    * @param thumbnailImage - The NFT image
    * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
+   * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
+   * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
+   * @param uploadMetadataCallBack - Optional: the function for uploading metadata
    * @param subscriber - Optional: the subscriber for seeing progress
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    * @returns
@@ -226,13 +240,16 @@ export class VWBLERC1155 extends VWBLBase {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
+    uploadEncryptedFileCallback: UploadEncryptedFileToIPFS = uploadEncryptedFileToIPFS,
+    uploadThumbnailCallback: UploadThumbnailToIPFS = uploadThumbnailToIPFS,
+    uploadMetadataCallBack: UploadMetadataToIPFS = uploadMetadataToIPFS,
     subscriber?: ProgressSubscriber,
     gasSettings?: GasSettings
   ) => {
     if (!this.signature) {
       throw "please sign first";
     }
-    const { vwblNetworkUrl } = this.opts;
+    const { ipfsConfig, vwblNetworkUrl } = this.opts;
     // 1. create key in frontend
     const key = createRandomKey();
     subscriber?.kickStep(StepStatus.CREATE_KEY);
@@ -247,28 +264,29 @@ export class VWBLERC1155 extends VWBLBase {
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
         const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
-        const filePath = file instanceof File ? file.name : file;
-        const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
+            ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : await encryptFile(plainFileBlob, key);
-        return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent);
+        const bufferContent =
+          typeof encryptedContent === "string" ? Buffer.from(encryptedContent, "utf-8") : Buffer.from(encryptedContent);
+        return await uploadEncryptedFileCallback(bufferContent, ipfsConfig);
       })
     );
-    const thumbnailImageUrl = await this.uploadToIpfs?.uploadThumbnail(thumbnailImage);
+    const thumbnailImageUrl = await uploadThumbnailCallback(thumbnailImage, ipfsConfig);
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
 
     // 4. upload metadata
     console.log("upload meta data");
     const mimeType = getMimeType(plainFileArray[0]);
-    const metadataUrl = await this.uploadToIpfs?.uploadMetadata(
+    const metadataUrl = await uploadMetadataCallBack(
       name,
       description,
-      thumbnailImageUrl as string,
-      encryptedDataUrls as string[],
+      thumbnailImageUrl,
+      encryptedDataUrls,
       mimeType,
-      encryptLogic
+      encryptLogic,
+      ipfsConfig
     );
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
@@ -355,83 +373,6 @@ export class VWBLERC1155 extends VWBLBase {
 
   getOwner = async (tokenId: number) => {
     return await this.nft.getOwner(tokenId);
-  };
-
-  /**
-   * Uplod Metadata
-   *
-   * @remarks
-   * By default, metadata will be uploaded to Amazon S3.
-   * You need to pass `uploadMetadataCallBack` if you upload metadata to a storage other than Amazon S3.
-   *
-   * @param tokenId - The ID of NFT
-   * @param name - The NFT name
-   * @param description - The NFT description
-   * @param thumbnailImageUrl - The URL of the thumbnail image
-   * @param encryptedDataUrls - The URL of the encrypted file data
-   * @param mimeType - The mime type of encrypted file data
-   * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
-   * @param uploadMetadataCallBack - Optional: the function for uploading metadata
-   */
-  uploadMetadata = async (
-    tokenId: number,
-    name: string,
-    description: string,
-    thumbnailImageUrl: string,
-    encryptedDataUrls: string[],
-    mimeType: string,
-    encryptLogic: EncryptLogic,
-    uploadMetadataCallBack?: UploadMetadata
-  ): Promise<void> => {
-    const { uploadMetadataType, awsConfig } = this.opts;
-    const uploadMetadataFunction =
-      uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
-    if (!uploadMetadataFunction) {
-      throw new Error("please specify upload metadata type or give callback");
-    }
-    await uploadMetadataFunction(
-      tokenId,
-      name,
-      description,
-      thumbnailImageUrl,
-      encryptedDataUrls,
-      mimeType,
-      encryptLogic,
-      awsConfig
-    );
-  };
-
-  /**
-   * Uplod Metadata to IPFS
-   *
-   * @remarks
-   * Metadata will be uploaded to IPFS.
-   *
-   * @param tokenId - The ID of NFT
-   * @param name - The NFT name
-   * @param description - The NFT description
-   * @param thumbnailImageUrl - The URL of the thumbnail image
-   * @param encryptedDataUrls - The URL of the encrypted file data
-   * @param mimeType - The mime type of encrypted file data
-   * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
-   */
-  uploadMetadataToIPFS = async (
-    name: string,
-    description: string,
-    thumbnailImageUrl: string,
-    encryptedDataUrls: string[],
-    mimeType: string,
-    encryptLogic: EncryptLogic
-  ): Promise<string> => {
-    const metadataUrl = await this.uploadToIpfs?.uploadMetadata(
-      name,
-      description,
-      thumbnailImageUrl,
-      encryptedDataUrls,
-      mimeType,
-      encryptLogic
-    );
-    return metadataUrl as string;
   };
 
   /**
@@ -568,18 +509,17 @@ export class VWBLERC1155 extends VWBLBase {
         : await this._getAddressBySigner(this.opts.ethersSigner);
     const decryptKey = await this.api.getKey(documentId, chainId, this.signature, signerAddress);
     const encryptedDataUrls = metadata.encrypted_data;
-    const isRunningOnBrowser = typeof window !== "undefined";
     const encryptLogic = metadata.encrypt_logic ?? "base64";
     const ownDataArray = await Promise.all(
       encryptedDataUrls.map(async (encryptedDataUrl) => {
         const encryptedData = (
           await axios.get(encryptedDataUrl, {
-            responseType: encryptLogic === "base64" ? "text" : isRunningOnBrowser ? "arraybuffer" : "stream",
+            responseType: encryptLogic === "base64" ? "text" : isRunningOnBrowser() ? "arraybuffer" : "stream",
           })
         ).data;
         return encryptLogic === "base64"
           ? decryptString(encryptedData, decryptKey)
-          : isRunningOnBrowser
+          : isRunningOnBrowser()
           ? await decryptFile(encryptedData, decryptKey)
           : decryptStream(encryptedData, decryptKey);
       })
