@@ -32,10 +32,17 @@ const createHeadersOnNode = (
   return headers;
 }
 
+type ConfigType = {
+  headers: {
+      [key: string]: any; // eslint-disable-line
+  };
+  onUploadProgress: ((progressEvent: any) => void) | undefined; // eslint-disable-line
+};
+
 const createConfig = (
   headers: { [key: string]: any }, // eslint-disable-line
   progressType: string
-) => {
+): ConfigType => {
   return {
     headers: headers,
     onUploadProgress: isRunningOnBrowser()
@@ -46,13 +53,6 @@ const createConfig = (
       : undefined,
   };
 }
-
-type ConfigType = {
-  headers: {
-      [key: string]: any; // eslint-disable-line
-  };
-  onUploadProgress: ((progressEvent: any) => void) | undefined; // eslint-disable-line
-};
 
 const uploadFile = async (
   formData: FormData | globalThis.FormData,
