@@ -42,6 +42,8 @@ type UploadMetadataToIPFS = (
 
 type FileOrPath = File | string;
 
+type Base64DataUrl = `data:${string};base64,${string}`;
+
 export {
   UploadMetadata,
   UploadEncryptedFile,
@@ -50,4 +52,5 @@ export {
   UploadMetadataToIPFS,
   UploadEncryptedFileToIPFS,
   UploadThumbnailToIPFS,
+  Base64DataUrl,
 };
