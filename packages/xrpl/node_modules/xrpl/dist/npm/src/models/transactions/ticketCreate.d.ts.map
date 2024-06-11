@@ -1,0 +1,1 @@
+{"version":3,"file":"ticketCreate.d.ts","sourceRoot":"","sources":["../../../../../src/models/transactions/ticketCreate.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,eAAe,EAA2B,MAAM,UAAU,CAAA;AAQnE,MAAM,WAAW,YAAa,SAAQ,eAAe;IACnD,eAAe,EAAE,cAAc,CAAA;IAM/B,WAAW,EAAE,MAAM,CAAA;CACpB;AAUD,wBAAgB,oBAAoB,CAAC,EAAE,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAqBtE"}
