@@ -9,6 +9,7 @@
     },
     "scripts": {
       "build": "tsc",
+      "format": "eslint --fix --quiet './src/**/*.ts*'",
       "lint": "eslint './src/**/*.ts'"
     }
 }

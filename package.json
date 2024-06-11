@@ -14,11 +14,19 @@
     ]
   },
   "scripts": {
+    "build:all": "nx run-many --target=build --all",
     "build:core": "nx build vwbl-core",
     "build:evm": "nx build vwbl-sdk",
     "build:xrpl": "nx build vwbl-sdk-xrpl",
-    "test-all": "yarn workspaces run test",
-    "test:evm": "yarn workspace evm test"
+    "lint:all": "npm run lint -ws",
+    "lint:core":  "npm run lint -w vwbl-core",
+    "lint:evm": "npm run lint -w vwbl-sdk",
+    "lint:xrpl": "npm run lint -w vwbl-sdk-xrpl",
+    "format:all": "npm run lint -ws",
+    "format:core":  "npm run format -w vwbl-core",
+    "format:evm": "npm run format -w vwbl-sdk",
+    "format:xrpl": "npm run format -w vwbl-sdk-xrpl",
+    "test:evm": "npm run test -w vwbl-sdk"
   },
   "devDependencies": {
     "@eslint/js": "^9.4.0",
