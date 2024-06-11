@@ -6,8 +6,11 @@ import {
   ManageKeyType,
   UploadContentType,
   UploadMetadataType,
-  VWBL,
-} from "../../../src/vwbl";
+  uploadEncryptedFileToIPFS,
+  uploadThumbnailToIPFS,
+  uploadMetadataToIPFS,
+} from "vwbl-core";
+import { VWBL } from "../../../src/vwbl";
 import HDWalletProvider from "@truffle/hdwallet-provider";
 import * as FileAPI from "file-api";
 const File = FileAPI.File;
@@ -38,7 +41,7 @@ const ethSigner = new ethers.Wallet(privateKey, ethProvider);
 
 describe("VWBL with web3.js", () => {
   const vwbl = new VWBL({
-    ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: nftContractAddr,
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -78,6 +81,9 @@ describe("VWBL with web3.js", () => {
       }),
       10,
       "base64",
+      uploadEncryptedFileToIPFS,
+      uploadThumbnailToIPFS,
+      uploadMetadataToIPFS,
       testSubscriber,
       {maxPriorityFeePerGas: maxPriorityFee_wei,
         maxFeePerGas: maxFee_wei}
@@ -104,6 +110,9 @@ describe("VWBL with web3.js", () => {
       }),
       10,
       "base64",
+      uploadEncryptedFileToIPFS,
+      uploadThumbnailToIPFS,
+      uploadMetadataToIPFS,
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
@@ -112,7 +121,7 @@ describe("VWBL with web3.js", () => {
 
 describe("VWBL with ethers.js", () => {
   const vwbl = new VWBL({
-    ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: nftContractAddr,
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -153,6 +162,9 @@ describe("VWBL with ethers.js", () => {
       }),
       10,
       "base64",
+      uploadEncryptedFileToIPFS,
+      uploadThumbnailToIPFS,
+      uploadMetadataToIPFS,
       testSubscriber,
       {maxPriorityFeePerGas: maxPriorityFee_wei,
         maxFeePerGas: maxFee_wei}
@@ -179,6 +191,9 @@ describe("VWBL with ethers.js", () => {
       }),
       10,
       "base64",
+      uploadEncryptedFileToIPFS,
+      uploadThumbnailToIPFS,
+      uploadMetadataToIPFS,
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("number");
