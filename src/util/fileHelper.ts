@@ -12,9 +12,9 @@ export const toBase64FromFile = async (file: File): Promise<Base64DataUrl> => {
       reader.onload = () => {
         const result = reader.result;
         if (!result || typeof result !== "string") {
-          reject(new Error("cannot convert to base64 string"));
+          reject("cannot convert to base64 string");
         } else {
-          resolve(result as Base64DataUrl);
+          resolve(<Base64DataUrl>result);
         }
       };
       reader.onerror = (error) => reject(error);
