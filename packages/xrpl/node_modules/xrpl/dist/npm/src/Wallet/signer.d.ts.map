@@ -1,0 +1,1 @@
+{"version":3,"file":"signer.d.ts","sourceRoot":"","sources":["../../../../src/Wallet/signer.ts"],"names":[],"mappings":"AAQA,OAAO,EAAE,WAAW,EAAY,MAAM,wBAAwB,CAAA;AAc9D,iBAAS,SAAS,CAAC,YAAY,EAAE,KAAK,CAAC,WAAW,GAAG,MAAM,CAAC,GAAG,MAAM,CAiCpE;AAYD,iBAAS,eAAe,CACtB,EAAE,EAAE,WAAW,GAAG,MAAM,EACxB,SAAS,CAAC,EAAE,MAAM,GACjB,OAAO,CAqBT;AAuED,OAAO,EAAE,eAAe,EAAE,SAAS,EAAE,CAAA"}
