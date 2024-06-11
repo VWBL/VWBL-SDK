@@ -1,1 +1,0 @@
-{"version":3,"file":"setRegularKey.d.ts","sourceRoot":"","sources":["../../../../src/models/transactions/setRegularKey.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,eAAe,EAA2B,MAAM,UAAU,CAAA;AAQnE,MAAM,WAAW,aAAc,SAAQ,eAAe;IACpD,eAAe,EAAE,eAAe,CAAA;IAMhC,UAAU,CAAC,EAAE,MAAM,CAAA;CACpB;AAQD,wBAAgB,qBAAqB,CAAC,EAAE,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAMvE"}

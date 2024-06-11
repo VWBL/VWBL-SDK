@@ -1,1 +1,0 @@
-{"version":3,"file":"offerCancel.d.ts","sourceRoot":"","sources":["../../../../src/models/transactions/offerCancel.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,eAAe,EAA2B,MAAM,UAAU,CAAA;AAOnE,MAAM,WAAW,WAAY,SAAQ,eAAe;IAClD,eAAe,EAAE,aAAa,CAAA;IAO9B,aAAa,EAAE,MAAM,CAAA;CACtB;AAQD,wBAAgB,mBAAmB,CAAC,EAAE,EAAE,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC,GAAG,IAAI,CAUrE"}

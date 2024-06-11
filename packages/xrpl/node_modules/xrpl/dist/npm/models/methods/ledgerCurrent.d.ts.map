@@ -1,1 +1,0 @@
-{"version":3,"file":"ledgerCurrent.d.ts","sourceRoot":"","sources":["../../../../src/models/methods/ledgerCurrent.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,WAAW,EAAE,YAAY,EAAE,MAAM,cAAc,CAAA;AAgBxD,MAAM,WAAW,oBAAqB,SAAQ,WAAW;IACvD,OAAO,EAAE,gBAAgB,CAAA;CAC1B;AAOD,MAAM,WAAW,qBAAsB,SAAQ,YAAY;IACzD,MAAM,EAAE;QAEN,oBAAoB,EAAE,MAAM,CAAA;KAC7B,CAAA;CACF"}
