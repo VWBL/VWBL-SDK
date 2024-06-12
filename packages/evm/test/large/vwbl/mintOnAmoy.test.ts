@@ -22,14 +22,14 @@ type GasInfo = {
   blockNumber: number
 }
 
-const providerUrl = "https://rpc-mumbai.maticvigil.com/"
-const nftContractAddr = "0x5af2D607242f604C8f5e04e8B648741EE59ac847"; //mumbai
+const providerUrl = "https://rpc-amoy.polygon.technology/";
+const nftContractAddr = "0x5af2D607242f604C8f5e04e8B648741EE59ac847"; // amoy
 const networkUrl = "https://dev.vwbl.network/";
 // preparation for web3.js
 const hdWalletProvider = new HDWalletProvider({
   privateKeys: [process.env.PRIVATE_KEY as string],
-  providerOrUrl: providerUrl
-})
+  providerOrUrl: providerUrl,
+});
 const web3 = new Web3(hdWalletProvider as any);
 // preparation for ethers.js
 const privateKey = process.env.PRIVATE_KEY as string;
@@ -38,7 +38,7 @@ const ethSigner = new ethers.Wallet(privateKey, ethProvider);
 
 describe("VWBL with web3.js", () => {
   const vwbl = new VWBL({
-    ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: nftContractAddr,
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -60,8 +60,15 @@ describe("VWBL with web3.js", () => {
       throw Error('failed to fetch gas information about polygon')
     }
     console.log(gasInfo.standard);
-    const maxPriorityFee_wei = Number(web3.utils.toWei(String(gasInfo.standard.maxPriorityFee.toFixed(9)), 'gwei'));
-    const maxFee_wei = Number(web3.utils.toWei(String(gasInfo.standard.maxFee.toFixed(9)), 'gwei'));
+    const maxPriorityFee_wei = Number(
+      web3.utils.toWei(
+        String(gasInfo.standard.maxPriorityFee.toFixed(9)),
+        "gwei"
+      )
+    );
+    const maxFee_wei = Number(
+      web3.utils.toWei(String(gasInfo.standard.maxFee.toFixed(9)), "gwei")
+    );
 
     const tokenId = await vwbl.managedCreateTokenForIPFS(
       "test token",
@@ -78,6 +85,9 @@ describe("VWBL with web3.js", () => {
       }),
       10,
       "base64",
+      undefined,
+      undefined,
+      undefined,
       testSubscriber,
       {maxPriorityFeePerGas: maxPriorityFee_wei,
         maxFeePerGas: maxFee_wei}
@@ -112,7 +122,7 @@ describe("VWBL with web3.js", () => {
 
 describe("VWBL with ethers.js", () => {
   const vwbl = new VWBL({
-    ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: nftContractAddr,
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -153,6 +163,9 @@ describe("VWBL with ethers.js", () => {
       }),
       10,
       "base64",
+      undefined,
+      undefined,
+      undefined,
       testSubscriber,
       {maxPriorityFeePerGas: maxPriorityFee_wei,
         maxFeePerGas: maxFee_wei}

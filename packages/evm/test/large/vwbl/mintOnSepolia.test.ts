@@ -31,7 +31,7 @@ const maxFee_gwei = '47.329387804';
 
 describe("VWBL with web3.js", () => {
   const vwbl = new VWBL({
-    ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: nftContractAddr,
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -66,6 +66,9 @@ describe("VWBL with web3.js", () => {
       }),
       10,
       "base64",
+      undefined,
+      undefined,
+      undefined,
       testSubscriber,
       {maxPriorityFeePerGas: maxPriorityFee_wei,
         maxFeePerGas: maxFee_wei}
@@ -94,6 +97,9 @@ describe("VWBL with web3.js", () => {
       }),
       10,
       "base64",
+      undefined,
+      undefined,
+      undefined,
       testSubscriber,
       {gasPrice}
     );
@@ -127,7 +133,7 @@ describe("VWBL with web3.js", () => {
 
 describe("VWBL with ethers.js", () => {
   const vwbl = new VWBL({
-    ipfsNftStorageKey: process.env.NFT_STORAGE_KEY,
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: nftContractAddr,
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -163,6 +169,9 @@ describe("VWBL with ethers.js", () => {
       }),
       10,
       "base64",
+      undefined,
+      undefined,
+      undefined,
       testSubscriber,
       {maxPriorityFeePerGas: maxPriorityFee_wei,
         maxFeePerGas: maxFee_wei}
@@ -191,6 +200,9 @@ describe("VWBL with ethers.js", () => {
       }),
       10,
       "base64",
+      undefined,
+      undefined,
+      undefined,
       testSubscriber,
       {gasPrice}
     );

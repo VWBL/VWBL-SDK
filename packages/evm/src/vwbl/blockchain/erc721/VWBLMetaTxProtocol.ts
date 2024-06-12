@@ -266,31 +266,38 @@ export class VWBLNFTMetaTx {
     methodApiId: string,
     signatureType: string
   ): Promise<ethers.providers.TransactionReceipt> {
-    const params = typeof domainSeparator === "undefined" ? [request, sig] : [request, domainSeparator, sig];
     try {
       const headers = {
         "x-api-key": this.biconomyAPIKey,
         "Content-Type": "application/json;charset=utf-8",
       };
-      const { data } = await axios.post(
-        `https://api.biconomy.io/api/v2/meta-tx/native`,
-        {
-          to: this.nftAddress,
-          apiId: methodApiId,
-          params: params,
-          from: myAddress,
-          signatureType: signatureType,
-        },
-        { headers: headers }
-      );
-      console.log("post meta tx resp", data);
+
+      const body = {
+        to: this.nftAddress,
+        apiId: methodApiId,
+        params: typeof domainSeparator === "undefined" ? [request, sig] : [request, domainSeparator, sig],
+        from: myAddress,
+        signatureType: signatureType,
+      };
+
+      const response = await axios.post(`https://api.biconomy.io/api/v2/meta-tx/native`, body, { headers: headers });
+      if (response.data.error || response.status !== 200) {
+        console.error("API Error:", response.data.message || "Unknown error");
+        throw new Error(`post meta tx error: ${response.data.message || "Unknown error"}`);
+      }
+
+      if (!response.data.txHash) {
+        throw new Error("No transaction hash returned from API");
+      }
+
       const receipt = isWeb3Provider(this.walletProvider as IWeb3Provider)
-        ? (this.walletProvider as ethers.providers.Web3Provider).waitForTransaction(data.txHash)
-        : (this.walletProvider as ethers.Wallet).provider.waitForTransaction(data.txHash);
-      console.log("confirmed:", data.txHash);
+        ? await (this.walletProvider as ethers.providers.Web3Provider).waitForTransaction(response.data.txHash)
+        : await (this.walletProvider as ethers.Wallet).provider.waitForTransaction(response.data.txHash);
+      console.log("Transaction confirmed, hash:", response.data.txHash);
       return receipt;
     } catch (error) {
-      throw new Error("post meta tx error");
+      console.error("Error during transaction send:", error);
+      throw new Error(`post meta tx error: ${error?.toString()}`);
     }
   }
 }
@@ -307,7 +314,10 @@ const parseToTokenId = (receipt: ethers.providers.TransactionReceipt): number =>
   receipt.logs.forEach((log) => {
     // check whether topic is nftDataRegistered(address contractAddress, uint256 tokenId)
     if (log.topics[0] === "0x957e0e652e4d598197f2c5b25940237e404f3899238efb6f64df2377e9aaf36c") {
-      const description = eventInterface.parseLog({ topics: log.topics, data: log.data });
+      const description = eventInterface.parseLog({
+        topics: log.topics,
+        data: log.data,
+      });
       tokenId = description.args[1].toNumber();
     }
   });
