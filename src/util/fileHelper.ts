@@ -11,20 +11,12 @@ export const toBase64FromFile = async (file: File): Promise<Base64DataUrl> => {
       reader.readAsDataURL(file);
       reader.onload = () => {
         const result = reader.result;
-        if (typeof result === "string") {
-          const [prefix, base64Data] = result.split(",");
-          if (prefix.startsWith("data:") && base64Data) {
-            const mimetype = file.type || "";
-            const dataUrl: Base64DataUrl = `data:${mimetype};base64,${base64Data}`;
-            resolve(dataUrl);
-          } else {
-            reject("Invalid data URL format");
-          }
+        if (!result || typeof result !== "string") {
+          reject("cannot convert to base64 string");
         } else {
-          reject(new Error("Failed to convert to base64 string"));
+          resolve(result as Base64DataUrl);
         }
       };
-      reader.onerror = (error) => reject(error);
     });
   } else {
     return new Promise<Base64DataUrl>((resolve, reject) => {
