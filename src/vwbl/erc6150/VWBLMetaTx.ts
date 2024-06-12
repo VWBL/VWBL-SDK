@@ -222,11 +222,10 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
           encryptLogic === "base64"
             ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : await encryptFile(plainFileBlob, key);
-        // ｃonversion from string or Uint8Array to Buffer
-        const bufferContent =
-          typeof encryptedContent === "string" ? Buffer.from(encryptedContent, "utf-8") : Buffer.from(encryptedContent);
-
-        return await uploadEncryptedFileCallback(bufferContent, ipfsConfig);
+            return await uploadEncryptedFileCallback(
+              encryptedContent,
+              ipfsConfig
+            );
       })
     );
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
