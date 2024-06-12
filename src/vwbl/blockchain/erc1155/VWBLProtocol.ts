@@ -84,7 +84,6 @@ export class VWBLERC1155Contract {
       };
     }
     console.log("transaction start");
-    getFeeSettingsBasedOnEnvironment(gasSettings?.maxPriorityFeePerGas, gasSettings?.maxFeePerGas);
     const receipt = await this.contract.methods
       .mintBatch(decryptUrl, amount, feeNumerator, documentId)
       .send(txSettings);

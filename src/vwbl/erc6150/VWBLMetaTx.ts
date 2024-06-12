@@ -225,7 +225,6 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     );
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
     const thumbnailImageUrl = await uploadThumbnailCallback(thumbnailImage, ipfsConfig);
-    subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
     // 4. upload metadata
     console.log("upload meta data");
     const mimeType = getMimeType(plainFileArray[0]);
