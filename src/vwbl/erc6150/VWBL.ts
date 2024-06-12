@@ -224,10 +224,13 @@ export class VWBLERC6150 extends VWBL {
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
         const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
+        const filePath = file instanceof File ? file.name : file;
         const encryptedContent =
           encryptLogic === "base64"
             ? encryptString(await toBase64FromFile(plainFileBlob), key)
-            : await encryptFile(plainFileBlob, key);
+            : isRunningOnBrowser()
+            ? await encryptFile(plainFileBlob, key)
+            : encryptStream(fs.createReadStream(filePath), key);
         return await uploadEncryptedFileCallback(encryptedContent, ipfsConfig);
       })
     );
