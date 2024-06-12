@@ -236,7 +236,12 @@ export class VWBLERC1155Ethers extends VWBLBase {
           encryptLogic === "base64"
             ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : await encryptFile(plainFileBlob, key);
-        return await uploadEncryptedFileCallback(encryptedContent, ipfsConfig);
+
+        // ｃonversion from string or Uint8Array to Buffer
+        const bufferContent =
+          typeof encryptedContent === "string" ? Buffer.from(encryptedContent, "utf-8") : Buffer.from(encryptedContent);
+
+        return await uploadEncryptedFileCallback(bufferContent, ipfsConfig);
       })
     );
     const thumbnailImageUrl = await uploadThumbnailCallback(thumbnailImage, ipfsConfig);

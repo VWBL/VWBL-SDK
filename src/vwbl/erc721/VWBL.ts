@@ -268,7 +268,7 @@ export class VWBL extends VWBLBase {
             ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : await encryptFile(plainFileBlob, key);
 
-        // stringまたはUint8ArrayからBufferへの変換
+        // ｃonversion from string or Uint8Array to Buffer
         const bufferContent =
           typeof encryptedContent === "string" ? Buffer.from(encryptedContent, "utf-8") : Buffer.from(encryptedContent);
 

@@ -257,7 +257,12 @@ export class VWBLMetaTx extends VWBLBase {
             : isRunningOnBrowser()
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
-        return await uploadEncryptedFileCallback(encryptedContent, ipfsConfig);
+
+        // ｃonversion from string or Uint8Array to Buffer
+        const bufferContent =
+          typeof encryptedContent === "string" ? Buffer.from(encryptedContent, "utf-8") : Buffer.from(encryptedContent);
+
+        return await uploadEncryptedFileCallback(bufferContent, ipfsConfig);
       })
     );
 
