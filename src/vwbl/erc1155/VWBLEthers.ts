@@ -23,6 +23,8 @@ import {
   EncryptLogic,
   EthersConstructorProps,
   FileOrPath,
+  GasSettings,
+  MintTokenForIPFS,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -288,6 +290,27 @@ export class VWBLERC1155Ethers extends VWBLBase {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
     return await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId);
+  };
+
+  /**
+   * Mint new ERC1155 NFT
+   *
+   * @param amount - The amount of erc1155 tokens to be minted
+   * @param metadataUrl metadata url
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
+   * @param maxPriorityFeePerGas - Optional: the maxPriorityFeePerGas field in EIP-1559
+   * @param maxFeePerGas - Optional: the maxFeePerGas field in EIP-1559
+   * @returns The ID of minted NFT
+   */
+  mintTokenForIPFS = async (
+    amount: number,
+    metadataUrl: string,
+    feeNumerator: number,
+    gasSettings?: GasSettings
+  ): Promise<number> => {
+    const { vwblNetworkUrl } = this.opts;
+    const documentId = utils.hexlify(utils.randomBytes(32));
+    return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, amount, feeNumerator, documentId, gasSettings);
   };
 
   /**
