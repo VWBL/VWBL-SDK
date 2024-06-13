@@ -68,6 +68,9 @@ describe("VWBL with web3.js", () => {
       }),
       10,
       "base64",
+      undefined,
+      undefined,
+      undefined,
       testSubscriber,
       { maxPriorityFeePerGas: maxPriorityFee_wei, maxFeePerGas: maxFee_wei }
     );
@@ -95,6 +98,9 @@ describe("VWBL with web3.js", () => {
       }),
       10,
       "base64",
+      undefined,
+      undefined,
+      undefined,
       testSubscriber,
       { gasPrice }
     );
@@ -166,6 +172,9 @@ describe("VWBL with ethers.js", () => {
       }),
       10,
       "base64",
+      undefined,
+      undefined,
+      undefined,
       testSubscriber,
       { maxPriorityFeePerGas: maxPriorityFee_wei, maxFeePerGas: maxFee_wei }
     );
@@ -193,6 +202,9 @@ describe("VWBL with ethers.js", () => {
       }),
       10,
       "base64",
+      undefined,
+      undefined,
+      undefined,
       testSubscriber,
       { gasPrice }
     );

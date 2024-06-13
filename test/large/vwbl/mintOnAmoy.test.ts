@@ -14,22 +14,21 @@ const File = FileAPI.File;
 dotenv.config();
 
 type GasInfo = {
-  safeLow: { maxPriorityFee: number, maxFee: number },
-  standard: { maxPriorityFee: number, maxFee: number },
-  fast: { maxPriorityFee: number, maxFee: number },
-  estimatedBaseFee: number,
-  blockTime: number,
-  blockNumber: number
-}
-
-const providerUrl = "https://rpc-mumbai.maticvigil.com/"
-const nftContractAddr = "0x5af2D607242f604C8f5e04e8B648741EE59ac847"; //mumbai
+  safeLow: { maxPriorityFee: number; maxFee: number };
+  standard: { maxPriorityFee: number; maxFee: number };
+  fast: { maxPriorityFee: number; maxFee: number };
+  estimatedBaseFee: number;
+  blockTime: number;
+  blockNumber: number;
+};
+const providerUrl = "https://rpc-amoy.polygon.technology/";
+const nftContractAddr = "0x5af2D607242f604C8f5e04e8B648741EE59ac847"; // amoy
 const networkUrl = "https://dev.vwbl.network/";
 // preparation for web3.js
 const hdWalletProvider = new HDWalletProvider({
   privateKeys: [process.env.PRIVATE_KEY as string],
-  providerOrUrl: providerUrl
-})
+  providerOrUrl: providerUrl,
+});
 const web3 = new Web3(hdWalletProvider as any);
 // preparation for ethers.js
 const privateKey = process.env.PRIVATE_KEY as string;
@@ -56,12 +55,19 @@ describe("VWBL with web3.js", () => {
     await vwbl.sign();
 
     const gasInfo = await fetchGasInfo();
-    if(!gasInfo){
-      throw Error('failed to fetch gas information about polygon')
+    if (!gasInfo) {
+      throw Error("failed to fetch gas information about polygon");
     }
     console.log(gasInfo.standard);
-    const maxPriorityFee_wei = Number(web3.utils.toWei(String(gasInfo.standard.maxPriorityFee.toFixed(9)), 'gwei'));
-    const maxFee_wei = Number(web3.utils.toWei(String(gasInfo.standard.maxFee.toFixed(9)), 'gwei'));
+    const maxPriorityFee_wei = Number(
+      web3.utils.toWei(
+        String(gasInfo.standard.maxPriorityFee.toFixed(9)),
+        "gwei"
+      )
+    );
+    const maxFee_wei = Number(
+      web3.utils.toWei(String(gasInfo.standard.maxFee.toFixed(9)), "gwei")
+    );
 
     const tokenId = await vwbl.managedCreateTokenForIPFS(
       "test token",
@@ -78,9 +84,11 @@ describe("VWBL with web3.js", () => {
       }),
       10,
       "base64",
+      undefined,
+      undefined,
+      undefined,
       testSubscriber,
-      {maxPriorityFeePerGas: maxPriorityFee_wei,
-        maxFeePerGas: maxFee_wei}
+      { maxPriorityFeePerGas: maxPriorityFee_wei, maxFeePerGas: maxFee_wei }
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
@@ -103,7 +111,7 @@ describe("VWBL with web3.js", () => {
         buffer: Buffer.alloc(100),
       }),
       10,
-      "base64",
+      "base64"
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
@@ -131,12 +139,19 @@ describe("VWBL with ethers.js", () => {
     await vwbl.sign();
 
     const gasInfo = await fetchGasInfo();
-    if(!gasInfo){
-      throw Error('failed to fetch gas information about polygon')
+    if (!gasInfo) {
+      throw Error("failed to fetch gas information about polygon");
     }
     console.log(gasInfo.standard);
-    const maxPriorityFee_wei = Number(web3.utils.toWei(String(gasInfo.standard.maxPriorityFee.toFixed(9)), 'gwei'));
-    const maxFee_wei = Number(web3.utils.toWei(String(gasInfo.standard.maxFee.toFixed(9)), 'gwei'));
+    const maxPriorityFee_wei = Number(
+      web3.utils.toWei(
+        String(gasInfo.standard.maxPriorityFee.toFixed(9)),
+        "gwei"
+      )
+    );
+    const maxFee_wei = Number(
+      web3.utils.toWei(String(gasInfo.standard.maxFee.toFixed(9)), "gwei")
+    );
 
     const tokenId = await vwbl.managedCreateTokenForIPFS(
       "test token",
@@ -153,9 +168,11 @@ describe("VWBL with ethers.js", () => {
       }),
       10,
       "base64",
+      undefined,
+      undefined,
+      undefined,
       testSubscriber,
-      {maxPriorityFeePerGas: maxPriorityFee_wei,
-        maxFeePerGas: maxFee_wei}
+      { maxPriorityFeePerGas: maxPriorityFee_wei, maxFeePerGas: maxFee_wei }
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("number");
@@ -178,22 +195,22 @@ describe("VWBL with ethers.js", () => {
         buffer: Buffer.alloc(100),
       }),
       10,
-      "base64",
+      "base64"
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("number");
   });
 });
 
-async function fetchGasInfo():Promise<GasInfo | undefined>{
-  try{
-    const response = await fetch('https://gasstation-mainnet.matic.network/v2')
+async function fetchGasInfo(): Promise<GasInfo | undefined> {
+  try {
+    const response = await fetch("https://gasstation-mainnet.matic.network/v2");
     const gasInfo = await response.json();
     console.log(gasInfo);
 
     return gasInfo;
-  }catch(error){
+  } catch (error) {
     console.log(error);
-    throw Error('failed to execute fetchGasInfo()')
+    throw Error("failed to execute fetchGasInfo()");
   }
 }

@@ -34,7 +34,7 @@ export class VWBLBase {
       }
     } else if (uploadContentType === UploadContentType.IPFS || uploadMetadataType === UploadMetadataType.IPFS) {
       if (!ipfsConfig) {
-        throw new Error("please specify nftstorage config of IPFS.");
+        throw new Error("please specify pinata config of IPFS.");
       }
     }
   }
