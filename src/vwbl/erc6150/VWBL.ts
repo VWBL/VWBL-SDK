@@ -182,6 +182,9 @@ export class VWBLERC6150 extends VWBL {
    * @param thumbnailImage - The ERC6150 image
    * @param feeNumerator - This basis point of the sale price will be paid to the ERC6150 creator every time the ERC6150 is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
+   * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
+   * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
+   * @param uploadMetadataCallBack - Optional: the function for uploading metadata
    * @param subscriber - Optional: the subscriber for seeing progress
    * @param gasSettings - Optional: the object whose keys are maxPriorityFeePerGas, maxFeePerGas and gasPrice
    * @param parentId - Optional: The Id of parent token. If parentId param is undefined or 0, mint as root token(parentId=0)
@@ -222,11 +225,12 @@ export class VWBLERC6150 extends VWBL {
       plainFileArray.map(async (file) => {
         const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
         const filePath = file instanceof File ? file.name : file;
-        const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
             ? encryptString(await toBase64FromFile(plainFileBlob), key)
-            : await encryptFile(plainFileBlob, key);
+            : isRunningOnBrowser()
+            ? await encryptFile(plainFileBlob, key)
+            : encryptStream(fs.createReadStream(filePath), key);
         return await uploadEncryptedFileCallback(encryptedContent, ipfsConfig);
       })
     );
