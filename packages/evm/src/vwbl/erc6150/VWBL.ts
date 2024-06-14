@@ -1,23 +1,9 @@
 import { utils } from "ethers";
 import * as fs from "fs";
 
-import { uploadEncryptedFileToIPFS, uploadMetadataToIPFS, uploadThumbnailToIPFS } from "../../storage";
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
-import { createRandomKey, encryptFile, encryptStream, encryptString, getMimeType, toBase64FromFile } from "../../util";
-import { isRunningOnBrowser } from "../../util/envUtil";
-import { VWBLERC6150Ethers, VWBLERC6150Web3 } from "../blockchain/";
-import { VWBL } from "../erc721/VWBL";
 import {
-  ConstructorProps,
   EncryptLogic,
-  EthersConstructorProps,
   FileOrPath,
-  GasSettings,
-  GrantViewPermission,
-  ManagedCreateToken,
-  ManagedCreateTokenForIPFS,
-  MintToken,
-  MintTokenForIPFS,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -28,6 +14,31 @@ import {
   UploadMetadataType,
   UploadThumbnail,
   UploadThumbnailToIPFS,
+  uploadEncryptedFile,
+  uploadEncryptedFileToIPFS,
+  uploadThumbnail,
+  uploadThumbnailToIPFS,
+  uploadMetadata,
+  uploadMetadataToIPFS,
+  createRandomKey,
+  encryptFile,
+  encryptStream,
+  encryptString,
+  getMimeType,
+  toBase64FromFile,
+  isRunningOnBrowser
+} from "vwbl-core";
+import { VWBLERC6150Ethers, VWBLERC6150Web3 } from "../blockchain/";
+import { VWBL } from "../erc721/VWBL";
+import {
+  ConstructorProps,
+  EthersConstructorProps,
+  GasSettings,
+  GrantViewPermission,
+  ManagedCreateToken,
+  ManagedCreateTokenForIPFS,
+  MintToken,
+  MintTokenForIPFS,
 } from "../types";
 
 export class VWBLERC6150 extends VWBL {

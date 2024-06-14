@@ -2,29 +2,12 @@ import axios from "axios";
 import { utils } from "ethers";
 import * as fs from "fs";
 
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
-import { uploadEncryptedFileToIPFS, uploadMetadataToIPFS, uploadThumbnailToIPFS } from "../../storage/ipfs";
 import {
-  createRandomKey,
-  decryptFile,
-  decryptStream,
-  decryptString,
-  encryptFile,
-  encryptStream,
-  encryptString,
-  getMimeType,
-  toBase64FromFile,
-} from "../../util";
-import { isRunningOnBrowser } from "../../util/envUtil";
-import { VWBLBase } from "../base";
-import { VWBLERC1155EthersContract } from "../blockchain";
-import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
-import {
+  ExtractMetadata, 
+  Metadata, 
+  PlainMetadata,
   EncryptLogic,
-  EthersConstructorProps,
   FileOrPath,
-  GasSettings,
-  MintTokenForIPFS,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -35,6 +18,28 @@ import {
   UploadMetadataType,
   UploadThumbnail,
   UploadThumbnailToIPFS,
+  uploadEncryptedFile,
+  uploadEncryptedFileToIPFS,
+  uploadThumbnail,
+  uploadThumbnailToIPFS,
+  uploadMetadata,
+  uploadMetadataToIPFS,
+  createRandomKey,
+  decryptFile,
+  decryptStream,
+  decryptString,
+  encryptFile,
+  encryptStream,
+  encryptString,
+  getMimeType,
+  toBase64FromFile,
+  isRunningOnBrowser
+} from "vwbl-core";
+import { VWBLBase } from "../base";
+import { VWBLERC1155EthersContract } from "../blockchain";
+import {
+  GasSettings,
+  EthersConstructorProps,
   VWBLEthersOption,
 } from "../types";
 

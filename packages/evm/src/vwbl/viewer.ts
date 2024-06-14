@@ -3,7 +3,7 @@ import axios from "axios";
 import { ethers } from "ethers";
 
 import vwblDataCollector from "../contract/VWBLDataCollector.json";
-import { ExtendedMetadeta, PlainMetadata } from "./metadata";
+import { ExtendedMetadeta, PlainMetadata } from "vwbl-core";
 import { ViewerConstructorProps, ViewerOption } from "./types";
 
 type TokenInfo = {

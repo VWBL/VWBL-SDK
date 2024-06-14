@@ -1,21 +1,9 @@
 import { ethers, utils } from "ethers";
 import * as fs from "fs";
 
-import { uploadEncryptedFileToIPFS, uploadMetadataToIPFS, uploadThumbnailToIPFS } from "../../storage";
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
-import { createRandomKey, encryptFile, encryptStream, encryptString, getMimeType, toBase64FromFile } from "../../util";
-import { isRunningOnBrowser } from "../../util/envUtil";
-import { VWBLERC6150MetaTxEthers } from "../blockchain";
-import { VWBLMetaTx } from "../erc721/VWBLMetaTx";
 import {
   EncryptLogic,
   FileOrPath,
-  GrantViewPermissionMetaTx,
-  ManagedCreateTokenForIPFSMetaTx,
-  ManagedCreateTokenMetatx,
-  MetaTxConstructorProps,
-  MintTokenForIPFSMetaTx,
-  MintTokenMetaTx,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -26,6 +14,29 @@ import {
   UploadMetadataType,
   UploadThumbnail,
   UploadThumbnailToIPFS,
+  uploadEncryptedFile,
+  uploadEncryptedFileToIPFS,
+  uploadThumbnail,
+  uploadThumbnailToIPFS,
+  uploadMetadata,
+  uploadMetadataToIPFS,
+  createRandomKey,
+  encryptFile,
+  encryptStream,
+  encryptString,
+  getMimeType,
+  toBase64FromFile,
+  isRunningOnBrowser
+} from "vwbl-core";
+import { VWBLERC6150MetaTxEthers } from "../blockchain";
+import { VWBLMetaTx } from "../erc721/VWBLMetaTx";
+import {
+  GrantViewPermissionMetaTx,
+  ManagedCreateTokenForIPFSMetaTx,
+  ManagedCreateTokenMetatx,
+  MetaTxConstructorProps,
+  MintTokenForIPFSMetaTx,
+  MintTokenMetaTx,
 } from "../types";
 
 export class VWBLERC6150MetaTx extends VWBLMetaTx {

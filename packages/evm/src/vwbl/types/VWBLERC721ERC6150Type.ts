@@ -1,7 +1,6 @@
 import {
   EncryptLogic,
   FileOrPath,
-  GasSettings,
   ProgressSubscriber,
   UploadEncryptedFile,
   UploadEncryptedFileToIPFS,
@@ -9,7 +8,8 @@ import {
   UploadMetadataToIPFS,
   UploadThumbnail,
   UploadThumbnailToIPFS,
-} from "./index";
+} from "vwbl-core";
+import { GasSettings } from "./index";
 
 export type ManagedCreateToken = {
   // Interface for ERC721
