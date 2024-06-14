@@ -3,8 +3,3 @@ node_modules
 dist
 .env
 .DS_Store
-
-# yarn
-.yarn/*
-!.yarn/releases
-!.yarn/plugins
