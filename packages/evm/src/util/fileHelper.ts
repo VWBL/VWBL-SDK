@@ -1,35 +1,53 @@
 import mime from "mime-types";
+import path from "path";
 
-import { FileOrPath } from "../vwbl";
-const isRunningOnBrowser = typeof window !== "undefined";
+import { Base64DataUrl, FileOrPath } from "../vwbl";
+import { isRunningOnBrowser } from "./envUtil";
 
-export const toBase64FromBlob = async (blob: Blob): Promise<string> => {
-  if (isRunningOnBrowser) {
+export const toBase64FromFile = async (file: File): Promise<Base64DataUrl> => {
+  if (isRunningOnBrowser()) {
     return new Promise((resolve, reject) => {
       const reader = new window.FileReader();
-      reader.readAsDataURL(blob);
+      reader.readAsDataURL(file);
       reader.onload = () => {
         const result = reader.result;
         if (!result || typeof result !== "string") {
           reject("cannot convert to base64 string");
         } else {
-          resolve(result);
+          resolve(result as Base64DataUrl);
         }
       };
-      reader.onerror = (error: any) => reject(error);
+    });
+  } else {
+    return new Promise<Base64DataUrl>((resolve, reject) => {
+      try {
+        const arrayBuffer = file.arrayBuffer();
+        arrayBuffer
+          .then((buffer) => {
+            const base64 = Buffer.from(buffer).toString("base64");
+            const mimetype = getMimeType(file.name);
+            const dataUrl: Base64DataUrl = `data:${mimetype};base64,${base64}`;
+            resolve(dataUrl);
+          })
+          .catch(reject);
+      } catch (error) {
+        reject(error);
+      }
     });
   }
-  const arrayBuffer = await blob.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  return buffer.toString("base64");
 };
 
 export const getMimeType = (file: FileOrPath): string => {
-  return file instanceof File ? file.type : mime.lookup(file) || "";
+  if (typeof file === "string") {
+    const fileExtension = path.extname(file);
+    return mime.lookup(fileExtension) || "";
+  } else {
+    return file.type || "";
+  }
 };
 
 export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
-  if (isRunningOnBrowser) {
+  if (isRunningOnBrowser()) {
     return new Promise((resolve, reject) => {
       const reader = new window.FileReader();
       reader.readAsArrayBuffer(blob);

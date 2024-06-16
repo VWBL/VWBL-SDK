@@ -7,14 +7,14 @@ import { GasSettings } from "../../types";
 
 export class VWBLERC1155EthersContract {
   private ethersProvider: ethers.providers.BaseProvider;
-  private ethersSigner: ethers.providers.JsonRpcSigner | ethers.Wallet;
+  private ethersSigner: ethers.Signer;
   private contract: ethers.Contract;
 
   constructor(
     address: string,
     isIpfs: boolean,
     ethersProvider: ethers.providers.BaseProvider,
-    ethersSigner: ethers.providers.JsonRpcSigner | ethers.Wallet
+    ethersSigner: ethers.Signer
   ) {
     this.ethersProvider = ethersProvider;
     this.ethersSigner = ethersSigner;

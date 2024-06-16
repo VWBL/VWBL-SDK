@@ -41,7 +41,7 @@ describe("VWBL with web3.js", () => {
   };
 
   const vwbl = new VWBL({
-    ipfsNftStorageKey: "set nftstorage api key",
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: "0x2c7e967093d7fe0eeb5440bf49e5D148417B0412",
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -88,7 +88,7 @@ describe("VWBL with web3.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(1);
-    expect(vwblProtocolStub.mintToken.getCall(0).args[3]).equal(undefined);
+    expect(vwblProtocolStub.mintToken.getCall(0).args[0].gasSettings).equal(undefined);
     expect(vwblApiStub.setKey.callCount).equal(1);
     expect(uploadEncryptedFileStub.callCount).equal(1);
     expect(uploadFileStub.callCount).equal(1);
@@ -116,10 +116,14 @@ describe("VWBL with web3.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
+<<<<<<< HEAD:packages/evm/test/unit/vwbl/VWBL.test.ts
     expect(vwblProtocolStub.mintToken.getCall(1).args[3]).deep.equal({
       maxPriorityFeePerGas: 40000000000,
       maxFeePerGas: 41000000000,
     });
+=======
+    expect(vwblProtocolStub.mintToken.getCall(1).args[0].gasSettings).deep.equal({maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000});
+>>>>>>> 1becdef891c09b02dad3dbfac2937fdafadb3e4c:test/unit/vwbl/VWBL.test.ts
     expect(vwblApiStub.setKey.callCount).equal(2);
     expect(uploadEncryptedFileStub.callCount).equal(2);
     expect(uploadFileStub.callCount).equal(2);
@@ -147,9 +151,13 @@ describe("VWBL with web3.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(3);
+<<<<<<< HEAD:packages/evm/test/unit/vwbl/VWBL.test.ts
     expect(vwblProtocolStub.mintToken.getCall(2).args[3]).deep.equal({
       gasPrice: 1000,
     });
+=======
+    expect(vwblProtocolStub.mintToken.getCall(2).args[0].gasSettings).deep.equal({gasPrice: 1000});
+>>>>>>> 1becdef891c09b02dad3dbfac2937fdafadb3e4c:test/unit/vwbl/VWBL.test.ts
     expect(vwblApiStub.setKey.callCount).equal(3);
     expect(uploadEncryptedFileStub.callCount).equal(3);
     expect(uploadFileStub.callCount).equal(3);
@@ -164,7 +172,7 @@ describe("VWBLERC1155 with web3.js", () => {
   };
 
   const vwbl = new VWBLERC1155({
-    ipfsNftStorageKey: "set nftstorage api key",
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: "0x2c7e967093d7fe0eeb5440bf49e5D148417B0412",
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -291,7 +299,7 @@ describe("VWBL with ethers.js", () => {
   };
 
   const vwbl = new VWBL({
-    ipfsNftStorageKey: "set nftstorage api key",
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: "0x2c7e967093d7fe0eeb5440bf49e5D148417B0412",
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,
@@ -339,7 +347,7 @@ describe("VWBL with ethers.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(1);
-    expect(vwblProtocolStub.mintToken.getCall(0).args[3]).equal(undefined);
+    expect(vwblProtocolStub.mintToken.getCall(0).args[0].gasSettings).equal(undefined);
     expect(vwblApiStub.setKey.callCount).equal(7);
     expect(uploadEncryptedFileStub.callCount).equal(1);
     expect(uploadFileStub.callCount).equal(1);
@@ -367,10 +375,14 @@ describe("VWBL with ethers.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(2);
+<<<<<<< HEAD:packages/evm/test/unit/vwbl/VWBL.test.ts
     expect(vwblProtocolStub.mintToken.getCall(1).args[3]).deep.equal({
       maxPriorityFeePerGas: 40000000000,
       maxFeePerGas: 41000000000,
     });
+=======
+    expect(vwblProtocolStub.mintToken.getCall(1).args[0].gasSettings).deep.equal({maxPriorityFeePerGas: 40000000000, maxFeePerGas: 41000000000});
+>>>>>>> 1becdef891c09b02dad3dbfac2937fdafadb3e4c:test/unit/vwbl/VWBL.test.ts
     expect(vwblApiStub.setKey.callCount).equal(8);
     expect(uploadEncryptedFileStub.callCount).equal(2);
     expect(uploadFileStub.callCount).equal(2);
@@ -398,9 +410,13 @@ describe("VWBL with ethers.js", () => {
     );
 
     expect(vwblProtocolStub.mintToken.callCount).equal(3);
+<<<<<<< HEAD:packages/evm/test/unit/vwbl/VWBL.test.ts
     expect(vwblProtocolStub.mintToken.getCall(2).args[3]).deep.equal({
       gasPrice: 1000,
     });
+=======
+    expect(vwblProtocolStub.mintToken.getCall(2).args[0].gasSettings).deep.equal({gasPrice: 1000});
+>>>>>>> 1becdef891c09b02dad3dbfac2937fdafadb3e4c:test/unit/vwbl/VWBL.test.ts
     expect(vwblApiStub.setKey.callCount).equal(9);
     expect(uploadEncryptedFileStub.callCount).equal(3);
     expect(uploadFileStub.callCount).equal(3);
@@ -415,7 +431,7 @@ describe("VWBLERC1155 with ethers.js", () => {
   };
 
   const vwbl = new VWBLERC1155({
-    ipfsNftStorageKey: "set nftstorage api key",
+    ipfsConfig: undefined,
     awsConfig: undefined,
     contractAddress: "0x2c7e967093d7fe0eeb5440bf49e5D148417B0412",
     manageKeyType: ManageKeyType.VWBL_NETWORK_SERVER,

@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import { Web3 } from "web3";
 
+import { IPFSConfig } from "../../storage";
 import { AWSConfig } from "../../storage/aws/types";
 import { BiconomyConfig } from "./BiconomyConfigType";
 import { ManageKeyType } from "./ManageKeyType";
@@ -13,7 +14,7 @@ export type BaseConstructorProps = {
   uploadContentType?: UploadContentType;
   uploadMetadataType?: UploadMetadataType;
   awsConfig?: AWSConfig;
-  ipfsNftStorageKey?: string;
+  ipfsConfig?: IPFSConfig;
 };
 
 export type ConstructorProps = BaseConstructorProps & {
@@ -26,7 +27,7 @@ export type VWBLOption = ConstructorProps;
 
 export type EthersConstructorProps = BaseConstructorProps & {
   ethersProvider: ethers.providers.BaseProvider;
-  ethersSigner: ethers.providers.JsonRpcSigner | ethers.Wallet;
+  ethersSigner: ethers.Signer;
   manageKeyType?: ManageKeyType;
   dataCollectorAddress?: string;
 };
@@ -34,7 +35,7 @@ export type EthersConstructorProps = BaseConstructorProps & {
 export type VWBLEthersOption = EthersConstructorProps;
 
 export type MetaTxConstructorProps = BaseConstructorProps & {
-  bcProvider: ethers.providers.ExternalProvider | ethers.providers.JsonRpcFetchFunc;
+  bcProvider: ethers.providers.ExternalProvider | ethers.providers.JsonRpcFetchFunc | ethers.Wallet;
   biconomyConfig: BiconomyConfig;
   manageKeyType?: ManageKeyType;
   dataCollectorAddress?: string;
@@ -43,7 +44,7 @@ export type MetaTxConstructorProps = BaseConstructorProps & {
 export type VWBLMetaTxOption = MetaTxConstructorProps;
 
 export type ViewerConstructorProps = {
-  provider: Web3 | ethers.providers.BaseProvider;
+  provider: Web3 | ethers.providers.BaseProvider | ethers.Wallet;
   dataCollectorAddress: string;
 };
 
