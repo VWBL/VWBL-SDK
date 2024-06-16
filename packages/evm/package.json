@@ -1,5 +1,5 @@
 {
-  "name": "evm",
+  "name": "@vwbl-sdk/evm",
   "description": "VWBL SDK for EVM",
   "version": "0.1.16",
   "main": "dist/index.js",

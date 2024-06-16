@@ -1,16 +1,11 @@
-import { Client, SubmittableTransaction, Wallet, xrpToDrops } from "xrpl";
-import { XummSdk } from "xumm-sdk";
-import { XummJsonTransaction } from "xumm-sdk/dist/src/types";
+import { Client, SubmittableTransaction, xrpToDrops } from "xrpl";
+import { NFTokenMintMetadata } from "xrpl/dist/npm/models/transactions/NFTokenMint";
+import { PaymentMetadata } from "xrpl/dist/npm/models/transactions/payment";
 
 export class VWBLXRPLProtocol {
-  private xumm: XummSdk;
   private client: Client;
-  private walletAddress: string;
 
-  constructor(xrplChainId: number, walletAddress: string, xumm: XummSdk) {
-    this.xumm = xumm;
-    this.walletAddress = walletAddress;
-
+  constructor(xrplChainId: number) {
     let publicServerUrl: string;
     switch (xrplChainId) {
       case 0:
@@ -37,48 +32,34 @@ export class VWBLXRPLProtocol {
     await this.client.disconnect();
   }
 
-  async mintToken(
-    transferRoyalty: number,
-    isTransferable: boolean,
-    isBurnable: boolean
-  ) {
-    const TagId = 11451419;
-    const mintTxJson: XummJsonTransaction = {
-      TransactionType: "NFTokenMint",
-      Account: this.walletAddress,
-      NFTokenTaxon: TagId,
-      SourceTag: TagId,
-      TransferFee: transferRoyalty,
-      Flags: {
-        tfTransferable: isTransferable,
-        tfBurnable: isBurnable,
-      },
-    };
+  async mint(signedMintTx: string) {
+    this.connect();
 
-    let txId: string | null | undefined;
-    let nftokenID: string | undefined;
+    let tokenId: string;
     try {
-      const response = await this.xumm.payload.create({ txjson: mintTxJson });
-      if (response) {
-        const payload = await this.xumm.payload.get(response);
-        txId = payload?.response.txid;
+      const response = await this.client.submitAndWait(signedMintTx);
+
+      const txMetadata = response.result.meta as NFTokenMintMetadata;
+      if (txMetadata.nftoken_id) {
+        tokenId = txMetadata.nftoken_id;
+      } else {
+        throw Error("nftoken_id is empty");
       }
     } catch (e) {
-      throw new Error(`NFTokenMint failed: ${e}`);
+      throw Error("failed to submit NFTokenMint tx");
+    } finally {
+      this.disconnect();
     }
 
-    return nftokenID;
+    return tokenId;
   }
 
-  async payMintFee(
-    nftokenId: string,
-    destination: string,
-    amount: string,
-    gasFee: string
-  ) {
+  async generatePaymentTx(tokenId: string, senderAddress: string) {
+    this.connect();
+
     const accountInfo = await this.client.request({
       command: "account_info",
-      account: this.walletAddress,
+      account: senderAddress,
     });
     const sequence = accountInfo.result.account_data.Sequence;
 
@@ -87,31 +68,46 @@ export class VWBLXRPLProtocol {
       ledger_index: "validated",
     });
     const currentLedgerIndex = ledger.result.ledger_index;
+    this.disconnect();
 
     const paymentTxJson: SubmittableTransaction = {
       TransactionType: "Payment",
-      Account: this.walletAddress,
-      Destination: destination,
-      Amount: xrpToDrops(amount),
-      Fee: xrpToDrops(gasFee),
+      Account: senderAddress,
+      Destination: "", // TODO
+      Amount: xrpToDrops("0.16"),
+      Fee: xrpToDrops("0.0000000001"),
       LastLedgerSequence: currentLedgerIndex + 4,
       Sequence: sequence,
       Memos: [
         {
           Memo: {
-            MemoData: nftokenId,
+            MemoData: tokenId,
           },
         },
       ],
     };
 
-    // const signedPaymentTx = this.wallet.sign(paymentTxJson);
-    // try {
-    //   const response = await this.client.submitAndWait(signedPaymentTx.tx_blob);
+    return paymentTxJson;
+  }
 
-    //   return response.result.hash;
-    // } catch (e) {
-    //   throw new Error(`Payment failed: ${e}`);
-    // }
+  async payMintFee(signedPaymentTx: string) {
+    this.connect();
+
+    try {
+      const response = await this.client.submitAndWait(signedPaymentTx);
+      if (response.result.TxnSignature) {
+        const memos = response.result.Memos;
+        if (memos && memos.length > 0) {
+          return {
+            paymentSignature: response.result.TxnSignature,
+            tokenId: memos[0].Memo.MemoData,
+          };
+        }
+      }
+    } catch (e) {
+      throw Error("failed to submit NFTokenMint tx");
+    } finally {
+      this.disconnect();
+    }
   }
 }

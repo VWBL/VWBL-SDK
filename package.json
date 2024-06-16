@@ -6,8 +6,14 @@
   "repository": "https://github.com/VWBL/VWBL-SDK.git",
   "license": "MIT",
   "workspaces": {
-    "packages": ["packages/*"],
-    "nohoist": ["**"]
+    "packages": [
+      "packages/evm",
+      "packages/xrpl",
+      "packages/core"
+    ],
+    "nohoist": [
+      "**"
+    ]
   },
   "scripts": {
     "lint-all": "yarn workspaces run lint",

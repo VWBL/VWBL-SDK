@@ -49,11 +49,8 @@ export type ViewerConstructorProps = {
 
 export type ViewerOption = ViewerConstructorProps;
 
-export type XRPLConstructorProps = {
-  vwblNetworkUrl: string;
+export type XRPLConstructorProps = BaseConstructorProps & {
   xrplChainId: number;
-  uploadContentType?: UploadContentType;
-  uploadMetadataType?: UploadMetadataType;
-  awsConfig?: AWSConfig;
-  ipfsNftStorageKey?: string;
 };
+
+export type VWBLXRPLOption = XRPLConstructorProps;
