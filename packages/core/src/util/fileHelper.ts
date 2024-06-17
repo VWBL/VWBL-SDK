@@ -59,7 +59,7 @@ export const toArrayBuffer = async (blob: Blob): Promise<ArrayBuffer> => {
           resolve(result);
         }
       };
-      reader.onerror = (error: any) => reject(error);
+      reader.onerror = (error: any) => reject(error); // eslint-disable-line @typescript-eslint/no-explicit-any
     });
   }
   return await blob.arrayBuffer();

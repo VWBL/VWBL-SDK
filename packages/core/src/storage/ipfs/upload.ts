@@ -18,10 +18,8 @@ const createHeaders = (ipfsConfig: IPFSConfig): { [key: string]: string } => {
   return headers;
 };
 
-const createHeadersOnNode = (ipfsConfig: IPFSConfig, formData: FormData): { [key: string]: any } => {
-  // eslint-disable-line
-  const headers: { [key: string]: any } = {
-    // eslint-disable-line
+const createHeadersOnNode = (ipfsConfig: IPFSConfig, formData: FormData): { [key: string]: any } => { // eslint-disable-line @typescript-eslint/no-explicit-any
+  const headers: { [key: string]: any } = { // eslint-disable-line @typescript-eslint/no-explicit-any
     pinata_api_key: ipfsConfig.apiKey,
     pinata_secret_api_key: ipfsConfig.apiSecret as string,
   };
@@ -31,20 +29,19 @@ const createHeadersOnNode = (ipfsConfig: IPFSConfig, formData: FormData): { [key
 
 type ConfigType = {
   headers: {
-    [key: string]: any; // eslint-disable-line
+    [key: string]: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   };
-  onUploadProgress: ((progressEvent: any) => void) | undefined; // eslint-disable-line
+  onUploadProgress: ((progressEvent: any) => void) | undefined; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
 const createConfig = (
-  headers: { [key: string]: any }, // eslint-disable-line
+  headers: { [key: string]: any }, // eslint-disable-line @typescript-eslint/no-explicit-any
   progressType: string
 ): ConfigType => {
   return {
     headers: headers,
     onUploadProgress: isRunningOnBrowser()
-      ? (progressEvent: any) => {
-          // eslint-disable-line
+      ? (progressEvent: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           console.log(`${progressType} Progress: ${progress}%`);
         }
@@ -56,8 +53,7 @@ const uploadFile = async (formData: FormData | globalThis.FormData, config: Conf
   try {
     const response = await axios.post(pinataEndpoint, formData, config);
     return `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
-  } catch (err: any) {
-    // eslint-disable-line
+  } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     throw new Error(`Pinata upload failed: ${err.message}`);
   }
 };
@@ -72,8 +68,7 @@ export const testPinataAuthentication = async (ipfsConfig: IPFSConfig): Promise<
   try {
     const response = await axios.get("https://api.pinata.cloud/data/testAuthentication", config);
     console.log("Pinata authentication succeeded:", response.data);
-  } catch (err: any) {
-    // eslint-disable-line
+  } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     console.error("Pinata authentication failed:", headers);
     throw new Error(`Pinata authentication failed: ${err.message}`);
   }
@@ -89,7 +84,7 @@ export const uploadEncryptedFileToIPFS = async (
   }
 
   let formData: FormData | globalThis.FormData;
-  let headers: { [key: string]: any }; // eslint-disable-line
+  let headers: { [key: string]: any }; // eslint-disable-line @typescript-eslint/no-explicit-any
   if (typeof encryptedContent === "string" || encryptedContent instanceof Uint8Array) {
     if (isRunningOnNode()) {
       formData = new FormData();
@@ -124,7 +119,7 @@ export const uploadThumbnailToIPFS = async (
   }
 
   const formData = new FormData();
-  let headers: { [key: string]: any }; // eslint-disable-line
+  let headers: { [key: string]: any }; // eslint-disable-line @typescript-eslint/no-explicit-any
   if (isRunningOnNode()) {
     if (typeof thumbnailImage === "string") {
       const stream = fs.createReadStream(thumbnailImage);
@@ -177,7 +172,7 @@ export const uploadMetadataToIPFS = async (
 
   const metadataJSON = JSON.stringify(metadata);
   const formData = new FormData();
-  let headers: { [key: string]: any }; // eslint-disable-line
+  let headers: { [key: string]: any }; // eslint-disable-line @typescript-eslint/no-explicit-any
   if (isRunningOnNode()) {
     formData.append("file", Buffer.from(metadataJSON), {
       filename: "metadata.json",

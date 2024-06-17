@@ -30,7 +30,7 @@ export class VWBLBase extends VWBLCore {
    */
   protected _sign = async (signer: Web3 | ethers.Signer, targetContract?: string) => {
     //TODO: signerがWeb3 instanceかどうかを判断するロジックを切り出さないといけない signer instanceof Web3では意図した通り動かなかったため
-    const castedSigner = signer as any;
+    const castedSigner = signer as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     // eslint-disable-next-line
     const chainId = castedSigner.hasOwnProperty("eth")
       ? await castedSigner.eth.getChainId()
@@ -48,7 +48,7 @@ export class VWBLBase extends VWBLCore {
 
   protected _getAddressBySigner = async (signer: Web3 | ethers.Signer): Promise<string> => {
     //TODO: signerがWeb3 instanceかどうかを判断するロジックを切り出さないといけない signer instanceof Web3では意図した通り動かなかったため
-    const castedSigner = signer as any;
+    const castedSigner = signer as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     // eslint-disable-next-line
     return castedSigner.hasOwnProperty("eth")
       ? (await castedSigner.eth.getAccounts())[0]
@@ -71,8 +71,8 @@ export class VWBLBase extends VWBLCore {
     chainId: number,
     key: string,
     address?: string,
-    hasNonce?: boolean,
-    autoMigration?: boolean
+    hasNonce?: boolean, // eslint-disable-line @typescript-eslint/no-unused-vars
+    autoMigration?: boolean // eslint-disable-line @typescript-eslint/no-unused-vars
   ): Promise<void> => {
     if (!this.signature) {
       throw "please sign first";

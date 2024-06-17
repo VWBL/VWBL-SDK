@@ -14,7 +14,7 @@ type TokenInfo = {
 
 export class VWBLViewer {
   public opts: ViewerOption;
-  private dataCollector: any;
+  private dataCollector: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   constructor(props: ViewerConstructorProps) {
     this.opts = props;

@@ -6,7 +6,7 @@ import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelpe
 import { GasSettings, GrantViewPermissionTxParam, MintForIPFSTxParam, MintTxParam } from "../../types";
 
 export class VWBLNFT {
-  private contract: any; // eslint-disable-line
+  private contract: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   protected web3: Web3;
 
   constructor(web3: Web3, address: string, isIpfs: boolean) {
