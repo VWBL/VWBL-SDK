@@ -32,12 +32,12 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
-        run: yarn install
+        run: npm install
 
       - name: Lint
-        run: yarn lint
+        run: npm run lint:all
 
       - name: Test
-        run: yarn test
+        run: npm run test:evm
         env:
           PROVIDER_URL: https://goerli.infura.io/v3/${{ secrets.INFURA_KEY }}
