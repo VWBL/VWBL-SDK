@@ -19,7 +19,7 @@
     "lint:all": "npm run lint -ws",
     "lint:core": "npm run lint -w vwbl-core",
     "lint:evm": "npm run lint -w vwbl-sdk",
-    "format:all": "npm run lint -ws",
+    "format:all": "npm run format -ws",
     "format:core": "npm run format -w vwbl-core",
     "format:evm": "npm run format -w vwbl-sdk",
     "test:evm": "npm run test -w vwbl-sdk"
