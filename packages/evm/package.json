@@ -1,6 +1,6 @@
 {
   "name": "vwbl-sdk",
-  "description": "VWBL SDK for TypeScript",
+  "description": "VWBL SDK for EVM Compatible Chain",
   "version": "0.1.19",
   "main": "dist/packages/evm/src/index.js",
   "types": "dist/packages/evm/src/index.d.ts",
