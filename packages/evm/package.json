@@ -26,6 +26,7 @@
     "mocha": "mocha-parallel-tests -r ts-node/register  --exit"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.23.3",
     "@truffle/hdwallet-provider": "^2.1.15",
     "@types/chai": "^4.3.0",
