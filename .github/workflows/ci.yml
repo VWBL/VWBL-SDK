@@ -27,17 +27,17 @@ jobs:
         id: cache_node_modules
         with:
           # check diff of package.json and yarn.lock
-          key: ${{ runner.os }}-build-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-build-node_modules-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/package.json') }}
           path: "**/node_modules"
 
       - name: Install dependencies
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
-        run: yarn install
+        run: npm install
 
       - name: Lint
-        run: yarn lint
+        run: npm run lint:all
 
       - name: Test
-        run: yarn test
+        run: yarn run test:evm
         env:
           PROVIDER_URL: https://goerli.infura.io/v3/${{ secrets.INFURA_KEY }}
