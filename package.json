@@ -2,7 +2,6 @@
   "name": "vwbl-sdk.js",
   "description": "VWBL SDK for TypeScript",
   "version": "1.0.0",
-  "private": "true",
   "repository": "https://github.com/VWBL/VWBL-SDK.git",
   "license": "MIT",
   "workspaces": {
