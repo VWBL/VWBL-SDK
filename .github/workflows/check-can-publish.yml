@@ -21,7 +21,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          cache: "yarn"
+          cache: "npm"
           node-version: ${{ env.node-version }}
           registry-url: "https://registry.npmjs.org"
           always-auth: true
@@ -30,4 +30,4 @@ jobs:
         uses: technote-space/package-version-check-action@v1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PACKAGE_MANAGER: yarn
+          PACKAGE_MANAGER: npm
