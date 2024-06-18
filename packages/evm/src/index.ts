@@ -1,3 +1,7 @@
 export * from "./vwbl";
 export * from "./util";
-export * from "vwbl-core";
+export * as core from "vwbl-core";
+
+export { ManageKeyType } from "vwbl-core";
+
+
