@@ -2,29 +2,12 @@ import axios from "axios";
 import { utils } from "ethers";
 import * as fs from "fs";
 
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
-import { uploadEncryptedFileToIPFS, uploadMetadataToIPFS, uploadThumbnailToIPFS } from "../../storage/ipfs";
 import {
-  createRandomKey,
-  decryptFile,
-  decryptStream,
-  decryptString,
-  encryptFile,
-  encryptStream,
-  encryptString,
-  getMimeType,
-  toBase64FromFile,
-} from "../../util";
-import { isRunningOnBrowser } from "../../util/envUtil";
-import { VWBLBase } from "../base";
-import { VWBLERC1155EthersContract } from "../blockchain";
-import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
-import {
+  ExtractMetadata, 
+  Metadata, 
+  PlainMetadata,
   EncryptLogic,
-  EthersConstructorProps,
   FileOrPath,
-  GasSettings,
-  MintTokenForIPFS,
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -35,6 +18,28 @@ import {
   UploadMetadataType,
   UploadThumbnail,
   UploadThumbnailToIPFS,
+  uploadEncryptedFile,
+  uploadEncryptedFileToIPFS,
+  uploadThumbnail,
+  uploadThumbnailToIPFS,
+  uploadMetadata,
+  uploadMetadataToIPFS,
+  createRandomKey,
+  decryptFile,
+  decryptStream,
+  decryptString,
+  encryptFile,
+  encryptStream,
+  encryptString,
+  getMimeType,
+  toBase64FromFile,
+  isRunningOnBrowser
+} from "vwbl-core";
+import { VWBLBase } from "../base";
+import { VWBLERC1155EthersContract } from "../blockchain";
+import {
+  GasSettings,
+  EthersConstructorProps,
   VWBLEthersOption,
 } from "../types";
 
@@ -365,83 +370,6 @@ export class VWBLERC1155Ethers extends VWBLBase {
 
   getOwner = async (tokenId: number) => {
     return await this.nft.getOwner(tokenId);
-  };
-
-  /**
-   * Uplod Metadata
-   *
-   * @remarks
-   * By default, metadata will be uploaded to Amazon S3.
-   * You need to pass `uploadMetadataCallBack` if you upload metadata to a storage other than Amazon S3.
-   *
-   * @param tokenId - The ID of NFT
-   * @param name - The NFT name
-   * @param description - The NFT description
-   * @param thumbnailImageUrl - The URL of the thumbnail image
-   * @param encryptedDataUrls - The URL of the encrypted file data
-   * @param mimeType - The mime type of encrypted file data
-   * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
-   * @param uploadMetadataCallBack - Optional: the function for uploading metadata
-   */
-  uploadMetadata = async (
-    tokenId: number,
-    name: string,
-    description: string,
-    thumbnailImageUrl: string,
-    encryptedDataUrls: string[],
-    mimeType: string,
-    encryptLogic: EncryptLogic,
-    uploadMetadataCallBack?: UploadMetadata
-  ): Promise<void> => {
-    const { uploadMetadataType, awsConfig } = this.opts;
-    const uploadMetadataFunction =
-      uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
-    if (!uploadMetadataFunction) {
-      throw new Error("please specify upload metadata type or give callback");
-    }
-    await uploadMetadataFunction(
-      tokenId,
-      name,
-      description,
-      thumbnailImageUrl,
-      encryptedDataUrls,
-      mimeType,
-      encryptLogic,
-      awsConfig
-    );
-  };
-
-  /**
-   * Uplod Metadata to IPFS
-   *
-   * @remarks
-   * Metadata will be uploaded to IPFS.
-   *
-   * @param tokenId - The ID of NFT
-   * @param name - The NFT name
-   * @param description - The NFT description
-   * @param thumbnailImageUrl - The URL of the thumbnail image
-   * @param encryptedDataUrls - The URL of the encrypted file data
-   * @param mimeType - The mime type of encrypted file data
-   * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
-   */
-  uploadMetadataToIPFS = async (
-    name: string,
-    description: string,
-    thumbnailImageUrl: string,
-    encryptedDataUrls: string[],
-    mimeType: string,
-    encryptLogic: EncryptLogic
-  ): Promise<string> => {
-    const metadataUrl = await uploadMetadataToIPFS(
-      name,
-      description,
-      thumbnailImageUrl,
-      encryptedDataUrls,
-      mimeType,
-      encryptLogic
-    );
-    return metadataUrl;
   };
 
   /**

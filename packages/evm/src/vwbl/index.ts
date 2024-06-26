@@ -5,7 +5,6 @@ export * from "./erc1155/VWBL";
 export * from "./erc1155/VWBLEthers";
 export * from "./erc6150/VWBL";
 export * from "./erc6150/VWBLMetaTx";
-export * from "./metadata";
 export * from "./types";
 export * from "./blockchain";
 export * from "./api";

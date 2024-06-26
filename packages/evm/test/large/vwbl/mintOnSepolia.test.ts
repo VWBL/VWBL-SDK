@@ -6,8 +6,13 @@ import {
   ManageKeyType,
   UploadContentType,
   UploadMetadataType,
+<<<<<<< HEAD
   VWBL
 } from "../../../src/vwbl";
+=======
+} from "vwbl-core";
+import { VWBL } from "../../../src/vwbl";
+>>>>>>> 32096d3351550abf7ef1da5d64ef5f552f61f06b
 import HDWalletProvider from "@truffle/hdwallet-provider";
 import * as FileAPI from "file-api";
 const File = FileAPI.File;

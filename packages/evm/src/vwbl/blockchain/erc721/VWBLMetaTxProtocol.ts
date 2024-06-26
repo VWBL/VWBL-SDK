@@ -280,7 +280,7 @@ export class VWBLNFTMetaTx {
 >>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
   protected async sendTransaction(
     request: TxParam,
-    sig: any,
+    sig: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     myAddress: string,
     domainSeparator: string | undefined,
     methodApiId: string,

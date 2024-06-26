@@ -19,7 +19,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          cache: "yarn"
+          cache: "npm"
           node-version: ${{ matrix.node-version }}
 
       - name: Cache node_modules
@@ -27,17 +27,27 @@ jobs:
         id: cache_node_modules
         with:
           # check diff of package.json and yarn.lock
-          key: ${{ runner.os }}-build-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-build-node_modules-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/package.json') }}
           path: "**/node_modules"
 
       - name: Install dependencies
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
-        run: yarn install
+        run: npm install
+
+      - name: Build
+        run: npm run build:all
 
       - name: Lint
+<<<<<<< HEAD
         run: yarn workspace evm lint # TODO: yarn workspaces run lintへ変更
 
       - name: Test
         run: yarn workspace evm test # TODO: yarn workspaces run testへ変更
+=======
+        run: npm run lint:all
+
+      - name: Test
+        run: npm run test:evm
+>>>>>>> 32096d3351550abf7ef1da5d64ef5f552f61f06b
         env:
           PROVIDER_URL: https://goerli.infura.io/v3/${{ secrets.INFURA_KEY }}

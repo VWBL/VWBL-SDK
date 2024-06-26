@@ -1,81 +1,36 @@
 {
-  "name": "vwbl-sdk",
+  "name": "vwbl-sdk.js",
   "description": "VWBL SDK for TypeScript",
-  "version": "0.1.19",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "files": [
-    "dist"
-  ],
+  "version": "1.0.0",
+  "repository": "https://github.com/VWBL/VWBL-SDK.git",
   "license": "MIT",
   "workspaces": {
     "packages": [
-      "packages/evm",
-      "packages/xrpl",
-      "packages/core"
+      "packages/*"
     ],
     "nohoist": [
       "**"
     ]
   },
   "scripts": {
-    "lint-all": "yarn workspaces run lint",
-    "lint:evm": "yarn workspace evm lint",
-    "test-all": "yarn workspaces run test",
-    "test:evm": "yarn workspace evm test"
+    "build:all": "nx run-many --target=build --all",
+    "build:core": "nx build vwbl-core",
+    "build:evm": "nx build vwbl-sdk",
+    "lint:all": "npm run lint -ws",
+    "lint:core": "npm run lint -w vwbl-core",
+    "lint:evm": "npm run lint -w vwbl-sdk",
+    "format:all": "npm run format -ws",
+    "format:core": "npm run format -w vwbl-core",
+    "format:evm": "npm run format -w vwbl-sdk",
+    "test:evm": "npm run test -w vwbl-sdk"
   },
   "devDependencies": {
-    "@babel/preset-typescript": "^7.23.3",
-    "@truffle/hdwallet-provider": "^2.1.15",
-    "@types/chai": "^4.3.0",
-    "@types/crypto-js": "^4.0.2",
-    "@types/ethereumjs-abi": "^0.6.5",
-    "@types/jest": "^29.5.12",
-    "@types/mime-types": "^2.1.4",
-    "@types/mocha": "^9.1.0",
-    "@types/sinon": "^17.0.3",
-    "@types/uuid": "^8.3.3",
-    "@typescript-eslint/eslint-plugin": "^5.13.0",
-    "@typescript-eslint/parser": "^5.13.0",
-    "chai": "^4.3.6",
-    "dotenv": "^16.0.3",
-    "eslint": "^8.10.0",
-    "eslint-config-prettier": "^8.4.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-simple-import-sort": "^7.0.0",
-    "prettier": "^2.5.1"
+    "@eslint/js": "^9.4.0",
+    "@types/eslint__js": "^8.42.3",
+    "eslint": "^8.57.0",
+    "nx": "19.3.0",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.13.0"
   },
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.338.0",
-    "@aws-sdk/credential-providers": "^3.338.0",
-    "@aws-sdk/lib-storage": "^3.338.0",
-    "axios": "^0.27.2",
-    "crypto": "^1.0.1",
-    "crypto-js": "^4.1.1",
-    "ethereumjs-abi": "^0.6.8",
-    "ethers": "5.7.2",
-    "fetch-blob": "^4.0.0",
-    "form-data": "^4.0.0",
-    "jimp": "^0.16.1",
-    "mime-types": "^2.1.35",
-    "uuid": "^8.3.2",
-    "web3": "^4.3.0"
-  },
-  "browser": {
-    "crypto": false,
-    "filereader": false,
-    "fs": false,
-    "os": false,
-    "path": false
-  },
-  "react-native": {
-    "fs": false,
-    "path": false,
-    "os": false,
-    "filereader": false,
-    "crypto": false
-  }
+  "nx": {}
 }

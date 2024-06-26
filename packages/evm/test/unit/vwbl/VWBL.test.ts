@@ -6,7 +6,9 @@ import { ethers } from "ethers";
 import {
   ManageKeyType,
   UploadContentType,
-  UploadMetadataType,
+  UploadMetadataType
+} from "vwbl-core";
+import {
   VWBL,
   VWBLApi,
   VWBLERC1155,

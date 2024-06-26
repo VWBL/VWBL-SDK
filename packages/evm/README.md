@@ -1,4 +1,4 @@
-# VWBL SDK
+# VWBL SDK for EVM Compatible Chain
 
 [![npm version](https://badge.fury.io/js/vwbl-sdk.svg)](https://badge.fury.io/js/vwbl-sdk) [![npm download](https://img.shields.io/npm/dt/vwbl-sdk.svg)](https://img.shields.io/npm/dt/vwbl-sdk.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -6,9 +6,20 @@
 
 https://docs.vwbl-protocol.org
 
-## install
+### install
 
+##### Using NPM
+`npm install vwbl-sdk`
+
+##### Using Yarn
 `yarn add vwbl-sdk`
+
+### Build
+
+`npm run build:evm`
+
+### Test
+`npm run test:evm`
 
 ## api document
 
@@ -61,8 +72,9 @@ IPFSConfig(*2)
 
 | name          | required | type                                | description                                               |
 | ------------- | -------- | ----------------------------------- | --------------------------------------------------------- |
-| apiKey        | true     | string                              | API key region                                                |
-| apiSecret      | false     | string                              | API Secret key  |
+| apiKey        | true     | string                              | API key                                                |
+| apiSecret      | false     | string                              | API secret key                  |
+|
 ### sign to server
 
 Signing is necessary before creating token or viewing contents.

@@ -1,12 +1,14 @@
 import { ethers } from "ethers";
 import { Web3 } from "web3";
 
-import { IPFSConfig } from "../../storage";
-import { AWSConfig } from "../../storage/aws/types";
+import {
+  IPFSConfig,
+  AWSConfig,
+  ManageKeyType,
+  UploadContentType,
+  UploadMetadataType
+} from "vwbl-core";
 import { BiconomyConfig } from "./BiconomyConfigType";
-import { ManageKeyType } from "./ManageKeyType";
-import { UploadContentType } from "./UploadContentType";
-import { UploadMetadataType } from "./UploadMetadataType";
 
 export type BaseConstructorProps = {
   contractAddress: string;

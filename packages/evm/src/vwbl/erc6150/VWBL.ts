@@ -1,6 +1,7 @@
 import { utils } from "ethers";
 import * as fs from "fs";
 
+<<<<<<< HEAD
 import { uploadEncryptedFileToIPFS, uploadMetadataToIPFS, uploadThumbnailToIPFS } from "../../storage";
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
 import { createRandomKey, encryptFile, encryptStream, encryptString, getMimeType, toBase64FromFile } from "../../util";
@@ -18,6 +19,11 @@ import {
   ManagedCreateTokenForIPFS,
   MintToken,
   MintTokenForIPFS,
+=======
+import {
+  EncryptLogic,
+  FileOrPath,
+>>>>>>> 32096d3351550abf7ef1da5d64ef5f552f61f06b
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -28,6 +34,34 @@ import {
   UploadMetadataType,
   UploadThumbnail,
   UploadThumbnailToIPFS,
+<<<<<<< HEAD
+=======
+  uploadEncryptedFile,
+  uploadEncryptedFileToIPFS,
+  uploadThumbnail,
+  uploadThumbnailToIPFS,
+  uploadMetadata,
+  uploadMetadataToIPFS,
+  createRandomKey,
+  encryptFile,
+  encryptStream,
+  encryptString,
+  getMimeType,
+  toBase64FromFile,
+  isRunningOnBrowser
+} from "vwbl-core";
+import { VWBLERC6150Ethers, VWBLERC6150Web3 } from "../blockchain/";
+import { VWBL } from "../erc721/VWBL";
+import {
+  ConstructorProps,
+  EthersConstructorProps,
+  GasSettings,
+  GrantViewPermission,
+  ManagedCreateToken,
+  ManagedCreateTokenForIPFS,
+  MintToken,
+  MintTokenForIPFS,
+>>>>>>> 32096d3351550abf7ef1da5d64ef5f552f61f06b
 } from "../types";
 
 export class VWBLERC6150 extends VWBL {
@@ -207,7 +241,13 @@ export class VWBLERC6150 extends VWBL {
     if (!this.signature) {
       throw "please sign first";
     }
+<<<<<<< HEAD
     const { ipfsConfig, vwblNetworkUrl } = this.opts;
+=======
+
+    const { ipfsConfig, vwblNetworkUrl } = this.opts;
+
+>>>>>>> 32096d3351550abf7ef1da5d64ef5f552f61f06b
     // 1. create key in frontend
     const key = createRandomKey();
     subscriber?.kickStep(StepStatus.CREATE_KEY);

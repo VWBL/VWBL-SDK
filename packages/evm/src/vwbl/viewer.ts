@@ -3,7 +3,7 @@ import axios from "axios";
 import { ethers } from "ethers";
 
 import vwblDataCollector from "../contract/VWBLDataCollector.json";
-import { ExtendedMetadeta, PlainMetadata } from "./metadata";
+import { ExtendedMetadeta, PlainMetadata } from "vwbl-core";
 import { ViewerConstructorProps, ViewerOption } from "./types";
 
 type TokenInfo = {
@@ -14,7 +14,7 @@ type TokenInfo = {
 
 export class VWBLViewer {
   public opts: ViewerOption;
-  private dataCollector: any;
+  private dataCollector: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   constructor(props: ViewerConstructorProps) {
     this.opts = props;
