@@ -1,5 +1,5 @@
 {
-  "name": "@vwbl-sdk/xrpl",
+  "name": "vwbl-sdk-xrpl",
   "description": "VWBL SDK for XRPL",
   "version": "1.0.0",
   "main": "index.js",
@@ -8,7 +8,7 @@
     "axios": "^1.6.8",
     "xrpl": "^3.0.0",
     "xumm-sdk": "^1.11.1",
-    "@vwbl-sdk/evm": "*"
+    "vwbl-core": "*"
   },
   "scripts": {
     "lint": "eslint './src/**/*.ts'"

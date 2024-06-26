@@ -1,20 +1,15 @@
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "@vwbl-sdk/evm/src/storage/aws";
 import {
+  uploadEncryptedFile,
+  uploadMetadata,
+  uploadThumbnail,
   createRandomKey,
-  decryptFile,
-  decryptStream,
-  decryptString,
   encryptFile,
   encryptStream,
   encryptString,
   getMimeType,
   toBase64FromFile,
-} from "@vwbl-sdk/evm/src/util";
-import {
   EncryptLogic,
   FileOrPath,
-  GasSettings,
-  ProgressSubscriber,
   UploadContentType,
   UploadEncryptedFile,
   UploadMetadata,
@@ -22,9 +17,9 @@ import {
   UploadThumbnail,
   VWBLXRPLOption,
   XRPLConstructorProps,
-} from "@vwbl-sdk/evm/src/vwbl/types";
+} from "vwbl-core";
 import * as fs from "fs";
-import { SubmittableTransaction, Wallet, xrpToDrops } from "xrpl";
+import { SubmittableTransaction } from "xrpl";
 
 import { XRPLApi } from "./api";
 import { VWBLXRPLProtocol } from "./blockchain/VWBLProtocol";
@@ -41,7 +36,12 @@ export class VWBLXRPL {
     this.nft = new VWBLXRPLProtocol(props.xrplChainId);
   }
 
-  generateMintTokenTx(walletAddress: string, transferRoyalty: number, isTransferable: boolean, isBurnable: boolean) {
+  generateMintTokenTx(
+    walletAddress: string,
+    transferRoyalty: number,
+    isTransferable: boolean,
+    isBurnable: boolean
+  ) {
     const TagId = 11451419;
 
     const mintTxJson: SubmittableTransaction = {
@@ -59,9 +59,15 @@ export class VWBLXRPL {
     return mintTxJson;
   }
 
-  mintAndGeneratePaymentTx = async (signedMintTx: string, walletAddress: string) => {
+  mintAndGeneratePaymentTx = async (
+    signedMintTx: string,
+    walletAddress: string
+  ) => {
     const tokenId = await this.nft.mint(signedMintTx);
-    const paymentTxJson = await this.nft.generatePaymentTx(tokenId, walletAddress);
+    const paymentTxJson = await this.nft.generatePaymentTx(
+      tokenId,
+      walletAddress
+    );
 
     return { tokenId, paymentTxJson };
   };
@@ -81,15 +87,20 @@ export class VWBLXRPL {
   ) => {
     const paymentSignature = await this.nft.payMintFee(signedPaymentTx);
 
-    const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
+    const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } =
+      this.opts;
     const key = createRandomKey();
 
     const plainFileArray = [plainFile].flat();
     const uuid = createRandomKey();
     const uploadEncryptedFunction =
-      uploadContentType === UploadContentType.S3 ? uploadEncryptedFile : uploadEncryptedFileCallback;
+      uploadContentType === UploadContentType.S3
+        ? uploadEncryptedFile
+        : uploadEncryptedFileCallback;
     const uploadThumbnailFunction =
-      uploadContentType === UploadContentType.S3 ? uploadThumbnail : uploadThumbnailCallback;
+      uploadContentType === UploadContentType.S3
+        ? uploadThumbnail
+        : uploadThumbnailCallback;
     if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
       throw new Error("please specify upload file type or give callback");
     }
@@ -98,22 +109,37 @@ export class VWBLXRPL {
     const isRunningOnBrowser = typeof window !== "undefined";
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
-        const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
+        const plainFileBlob =
+          file instanceof File
+            ? file
+            : new File([await fs.promises.readFile(file)], file);
         const filePath = file instanceof File ? file.name : file;
-        const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
+        const fileName: string =
+          file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
             ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : isRunningOnBrowser
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
-        return await uploadEncryptedFunction(fileName, encryptedContent, uuid, awsConfig);
+        return await uploadEncryptedFunction(
+          fileName,
+          encryptedContent,
+          uuid,
+          awsConfig
+        );
       })
     );
-    const thumbnailImageUrl = await uploadThumbnailFunction(thumbnailImage, uuid, awsConfig);
+    const thumbnailImageUrl = await uploadThumbnailFunction(
+      thumbnailImage,
+      uuid,
+      awsConfig
+    );
     // upload metadata
     const uploadMetadataFunction =
-      uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
+      uploadMetadataType === UploadMetadataType.S3
+        ? uploadMetadata
+        : uploadMetadataCallBack;
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback");
     }
