@@ -240,6 +240,7 @@ export class VWBLNFTMetaTx {
       batchNonce,
       data
     );
+<<<<<<< HEAD
 
     if (isWeb3Provider(this.walletProvider as IWeb3Provider)) {
       const domainSeparator = getDomainSeparator(this.forwarderAddress, chainId);
@@ -257,6 +258,26 @@ export class VWBLNFTMetaTx {
       return { txParam, sig, signatureType };
     }
   }
+=======
+
+    if (isWeb3Provider(this.walletProvider as IWeb3Provider)) {
+      const domainSeparator = getDomainSeparator(this.forwarderAddress, chainId);
+      const dataToSign = getDataToSignForEIP712(txParam, this.forwarderAddress, chainId);
+      const sig = await (this.walletProvider as ethers.providers.Web3Provider).send("eth_signTypedData_v3", [
+        myAddress,
+        dataToSign,
+      ]);
+      const signatureType = "EIP712_SIGN";
+      return { txParam, sig, domainSeparator, signatureType };
+    } else {
+      const hashToSign = getDataToSignForPersonalSign(txParam);
+      const sig = await (this.walletProvider as ethers.Wallet).signMessage(hashToSign);
+      const signatureType = "PERSONAL_SIGN";
+      return { txParam, sig, signatureType };
+    }
+  }
+
+>>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
   protected async sendTransaction(
     request: TxParam,
     sig: any,

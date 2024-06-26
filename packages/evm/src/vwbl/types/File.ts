@@ -23,9 +23,13 @@ type UploadMetadata = (
   awsConfig?: AWSConfig
 ) => Promise<void>;
 
+<<<<<<< HEAD
 // type UploadEncryptedFileToIPFS = (encryptedContent: string | ArrayBuffer, ipfsConfig?: IPFSConfig) => Promise<string>;
 type UploadEncryptedFileToIPFS = (
   // encryptedContent: string | Uint8Array | Buffer,
+=======
+type UploadEncryptedFileToIPFS = (
+>>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
   encryptedContent: string | Uint8Array | Stream.Readable,
   ipfsConfig?: IPFSConfig
 ) => Promise<string>;
@@ -44,8 +48,11 @@ type UploadMetadataToIPFS = (
 
 type FileOrPath = File | string;
 
+<<<<<<< HEAD
 type Base64DataUrl = `data:${string};base64,${string}`;
 
+=======
+>>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
 export {
   UploadMetadata,
   UploadEncryptedFile,
@@ -54,5 +61,8 @@ export {
   UploadMetadataToIPFS,
   UploadEncryptedFileToIPFS,
   UploadThumbnailToIPFS,
+<<<<<<< HEAD
   Base64DataUrl,
+=======
+>>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
 };

@@ -61,9 +61,8 @@ IPFSConfig(*2)
 
 | name          | required | type                                | description                                               |
 | ------------- | -------- | ----------------------------------- | --------------------------------------------------------- |
-| apiKey        | true     | string                              | API key                                                |
-| apiSecret      | false     | string                              | API secret key                  |
-|
+| apiKey        | true     | string                              | API key region                                                |
+| apiSecret      | false     | string                              | API Secret key  |
 ### sign to server
 
 Signing is necessary before creating token or viewing contents.

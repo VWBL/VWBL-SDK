@@ -234,7 +234,10 @@ export class VWBLMetaTx extends VWBLBase {
       throw "please sign first";
     }
     const { ipfsConfig, vwblNetworkUrl } = this.opts;
+<<<<<<< HEAD
 
+=======
+>>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
     // 1. create key in frontend
     const key = createRandomKey();
     subscriber?.kickStep(StepStatus.CREATE_KEY);

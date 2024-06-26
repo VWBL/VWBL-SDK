@@ -49,9 +49,12 @@ export type ViewerConstructorProps = {
 };
 
 export type ViewerOption = ViewerConstructorProps;
+<<<<<<< HEAD
 
 export type XRPLConstructorProps = BaseConstructorProps & {
   xrplChainId: number;
 };
 
 export type VWBLXRPLOption = XRPLConstructorProps;
+=======
+>>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c

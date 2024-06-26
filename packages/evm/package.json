@@ -1,7 +1,7 @@
 {
   "name": "@vwbl-sdk/evm",
   "description": "VWBL SDK for EVM",
-  "version": "0.1.16",
+  "version": "0.1.18",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "engines": {
@@ -28,9 +28,10 @@
   "devDependencies": {
     "@babel/preset-env": "^7.24.5",
     "@babel/preset-typescript": "^7.23.3",
-    "@truffle/hdwallet-provider": "^2.1.11",
+    "@truffle/hdwallet-provider": "^2.1.15",
     "@types/chai": "^4.3.0",
     "@types/crypto-js": "^4.0.2",
+    "@types/ethereumjs-abi": "^0.6.5",
     "@types/jest": "^29.5.12",
     "@types/mime-types": "^2.1.4",
     "@types/mocha": "^9.1.0",
@@ -62,13 +63,13 @@
     "axios": "^0.27.2",
     "crypto": "^1.0.1",
     "crypto-js": "^4.1.1",
+    "ethereumjs-abi": "^0.6.8",
     "ethers": "5.7.2",
     "fetch-blob": "^4.0.0",
     "file-api": "^0.10.4",
     "form-data": "^4.0.0",
     "jimp": "^0.16.1",
     "mime-types": "^2.1.35",
-    "nft.storage": "^7.0.0",
     "typescript": "^5.3.3",
     "uuid": "^8.3.2",
     "web3": "^4.3.0"
@@ -85,7 +86,6 @@
     "path": false,
     "os": false,
     "filereader": false,
-    "crypto": false,
-    "nft.storage": false
+    "crypto": false
   }
 }
