@@ -1,10 +1,7 @@
 node_modules
-.idea
-dist
-.env
-.DS_Store
 
-# yarn
-.yarn/*
-!.yarn/releases
-!.yarn/plugins
+.nx/installation
+.nx/cache
+.nx/workspace-data
+
+.DS_Store
