@@ -250,7 +250,8 @@ export class VWBL extends VWBLBase {
     if (!this.signature) {
       throw "please sign first";
     }
-    const { vwblNetworkUrl } = this.opts;
+
+    const { ipfsConfig, vwblNetworkUrl } = this.opts;
     // 1. create key in frontend
     const key = createRandomKey();
     subscriber?.kickStep(StepStatus.CREATE_KEY);
@@ -267,15 +268,19 @@ export class VWBL extends VWBLBase {
       plainFileArray.map(async (file) => {
         const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
         const filePath = file instanceof File ? file.name : file;
-        const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
+
         const encryptedContent =
           encryptLogic === "base64"
-            ? encryptString(await toBase64FromBlob(plainFileBlob), key)
-            : await encryptFile(plainFileBlob, key);
-        return await this.uploadToIpfs?.uploadEncryptedFile(encryptedContent);
+            ? encryptString(await toBase64FromFile(plainFileBlob), key)
+            : isRunningOnBrowser()
+            ? await encryptFile(plainFileBlob, key)
+            : encryptStream(fs.createReadStream(filePath), key);
+
+        return await uploadEncryptedFileCallback(encryptedContent, ipfsConfig);
       })
     );
-    const thumbnailImageUrl = await this.uploadToIpfs?.uploadThumbnail(thumbnailImage);
+
+    const thumbnailImageUrl = await uploadThumbnailCallback(thumbnailImage, ipfsConfig);
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
 
     // 4. upload metadata

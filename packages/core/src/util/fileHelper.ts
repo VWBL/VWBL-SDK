@@ -1,17 +1,10 @@
 import mime from "mime-types";
 import path from "path";
 
-<<<<<<< HEAD
 import { Base64DataUrl, FileOrPath } from "../vwbl";
 import { isRunningOnBrowser } from "./envUtil";
 
 export const toBase64FromFile = async (file: File): Promise<Base64DataUrl> => {
-=======
-import { FileOrPath } from "../vwbl";
-import { isRunningOnBrowser } from "./envUtil";
-
-export const toBase64FromFile = async (file: File): Promise<string> => {
->>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
   if (isRunningOnBrowser()) {
     return new Promise((resolve, reject) => {
       const reader = new window.FileReader();
@@ -42,14 +35,6 @@ export const toBase64FromFile = async (file: File): Promise<string> => {
       }
     });
   }
-<<<<<<< HEAD
-=======
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  const base64 = buffer.toString("base64");
-  const mimetype = getMimeType(file);
-  return `data:${mimetype};base64,${base64}`;
->>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
 };
 
 export const getMimeType = (file: FileOrPath): string => {

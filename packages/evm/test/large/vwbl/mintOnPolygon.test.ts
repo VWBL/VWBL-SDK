@@ -82,8 +82,7 @@ describe("VWBL with web3.js", () => {
       undefined,
       undefined,
       testSubscriber,
-      {maxPriorityFeePerGas: maxPriorityFee_wei,
-        maxFeePerGas: maxFee_wei}
+      { maxPriorityFeePerGas: maxPriorityFee_wei, maxFeePerGas: maxFee_wei }
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
@@ -160,8 +159,7 @@ describe("VWBL with ethers.js", () => {
       undefined,
       undefined,
       testSubscriber,
-      {maxPriorityFeePerGas: maxPriorityFee_wei,
-        maxFeePerGas: maxFee_wei}
+      { maxPriorityFeePerGas: maxPriorityFee_wei, maxFeePerGas: maxFee_wei }
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("number");

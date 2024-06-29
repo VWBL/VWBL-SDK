@@ -26,7 +26,7 @@ jobs:
         uses: actions/cache@v2
         id: cache_node_modules
         with:
-          # check diff of package.json and yarn.lock
+          # check diff of package.json and package-lock.json
           key: ${{ runner.os }}-build-node_modules-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/package.json') }}
           path: "**/node_modules"
 

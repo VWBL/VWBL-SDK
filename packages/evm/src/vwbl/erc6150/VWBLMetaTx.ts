@@ -1,27 +1,9 @@
 import { ethers, utils } from "ethers";
 import * as fs from "fs";
 
-<<<<<<< HEAD
-import { uploadEncryptedFileToIPFS, uploadMetadataToIPFS, uploadThumbnailToIPFS } from "../../storage";
-import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
-import { createRandomKey, encryptFile, encryptStream, encryptString, getMimeType, toBase64FromFile } from "../../util";
-import { isRunningOnBrowser } from "../../util/envUtil";
-import { VWBLERC6150MetaTxEthers } from "../blockchain";
-import { VWBLMetaTx } from "../erc721/VWBLMetaTx";
 import {
   EncryptLogic,
   FileOrPath,
-  GrantViewPermissionMetaTx,
-  ManagedCreateTokenForIPFSMetaTx,
-  ManagedCreateTokenMetatx,
-  MetaTxConstructorProps,
-  MintTokenForIPFSMetaTx,
-  MintTokenMetaTx,
-=======
-import {
-  EncryptLogic,
-  FileOrPath,
->>>>>>> 32096d3351550abf7ef1da5d64ef5f552f61f06b
   ProgressSubscriber,
   StepStatus,
   UploadContentType,
@@ -32,8 +14,6 @@ import {
   UploadMetadataType,
   UploadThumbnail,
   UploadThumbnailToIPFS,
-<<<<<<< HEAD
-=======
   uploadEncryptedFile,
   uploadEncryptedFileToIPFS,
   uploadThumbnail,
@@ -57,7 +37,6 @@ import {
   MetaTxConstructorProps,
   MintTokenForIPFSMetaTx,
   MintTokenMetaTx,
->>>>>>> 32096d3351550abf7ef1da5d64ef5f552f61f06b
 } from "../types";
 
 export class VWBLERC6150MetaTx extends VWBLMetaTx {
@@ -233,10 +212,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
       throw "please sign first";
     }
     const { ipfsConfig, vwblNetworkUrl } = this.opts;
-<<<<<<< HEAD
-=======
 
->>>>>>> 32096d3351550abf7ef1da5d64ef5f552f61f06b
     // 1. create key in frontend
     const key = createRandomKey();
     subscriber?.kickStep(StepStatus.CREATE_KEY);

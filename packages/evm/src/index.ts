@@ -1,8 +1,5 @@
 export * from "./vwbl";
 export * from "./util";
-<<<<<<< HEAD
-export * from "./storage";
-=======
 
 export { 
   AWSConfig,
@@ -27,4 +24,3 @@ export {
   UploadMetadataType
 } from "vwbl-core";
 export * as core from "vwbl-core";
->>>>>>> 32096d3351550abf7ef1da5d64ef5f552f61f06b

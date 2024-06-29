@@ -5,13 +5,14 @@ export class VWBLApi {
   constructor(endpointUrl: string) {
     this.instance = axios.create({ baseURL: endpointUrl });
   }
-
   async setKey(
     documentId: string,
     chainId: number,
     key: string,
     signature: string,
     address?: string,
+    hasNonce?: boolean,
+    autoMigration?: boolean
   ) {
     await this.instance.post("/keys", {
       document_id: documentId,
@@ -19,29 +20,20 @@ export class VWBLApi {
       key,
       signature,
       address,
+      has_nonce: hasNonce,
+      auto_migration: autoMigration,
     });
   }
 
-  async getKey(
-    documentId: string,
-    chainId: number,
-    signature: string,
-    address?: string
-  ): Promise<string> {
+  async getKey(documentId: string, chainId: number, signature: string, address?: string): Promise<string> {
     const response = await this.instance.get(
       `/keys/${documentId}/${chainId}?signature=${signature}&address=${address}`
     );
     return response.data.documentKey.key;
   }
 
-  async getSignMessage(
-    contractAddress: string,
-    chainId: number,
-    address?: string
-  ): Promise<string> {
-    const response = await this.instance.get(
-      `/signature/${contractAddress}/${chainId}?address=${address}`
-    );
+  async getSignMessage(contractAddress: string, chainId: number, address?: string): Promise<string> {
+    const response = await this.instance.get(`/signature/${contractAddress}/${chainId}?address=${address}`);
     return response.data.signMessage;
   }
 }

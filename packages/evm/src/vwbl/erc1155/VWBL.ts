@@ -158,10 +158,7 @@ export class VWBLERC1155 extends VWBLBase {
 
     // 4. upload data
     console.log("upload data");
-<<<<<<< HEAD
 
-=======
->>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
         const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
@@ -229,11 +226,7 @@ export class VWBLERC1155 extends VWBLBase {
    * @param thumbnailImage - The NFT image
    * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
-<<<<<<< HEAD
    *  @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
-=======
-   * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
->>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
    * @param subscriber - Optional: the subscriber for seeing progress
@@ -342,11 +335,7 @@ export class VWBLERC1155 extends VWBLBase {
   };
 
   /**
-<<<<<<< HEAD
    * Mint new ERC1155 NFT
-=======
-   * Mint new ERC115 NFT
->>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
    *
    * @param amount - The amount of erc1155 tokens to be minted
    * @param metadataUrl metadata url
@@ -363,18 +352,7 @@ export class VWBLERC1155 extends VWBLBase {
   ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
-<<<<<<< HEAD
     return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, amount, feeNumerator, documentId, gasSettings);
-=======
-    return await this.nft.mintTokenForIPFS(
-      metadataUrl,
-      vwblNetworkUrl,
-      amount,
-      feeNumerator,
-      documentId,
-      gasSettings,
-    );
->>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
   };
 
   /**
@@ -555,10 +533,7 @@ export class VWBLERC1155 extends VWBLBase {
         : await this._getAddressBySigner(this.opts.ethersSigner);
     const decryptKey = await this.api.getKey(documentId, chainId, this.signature, signerAddress);
     const encryptedDataUrls = metadata.encrypted_data;
-<<<<<<< HEAD
 
-=======
->>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
     const encryptLogic = metadata.encrypt_logic ?? "base64";
     const ownDataArray = await Promise.all(
       encryptedDataUrls.map(async (encryptedDataUrl) => {

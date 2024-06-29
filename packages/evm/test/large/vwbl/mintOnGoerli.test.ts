@@ -20,21 +20,9 @@ const networkUrl = "https://dev.vwbl.network/";
 // preparation for web3.js
 const hdWalletProvider = new HDWalletProvider({
   privateKeys: [process.env.PRIVATE_KEY as string],
-<<<<<<< HEAD
-<<<<<<< HEAD:packages/evm/test/large/vwbl/mintOnGoerli.test.ts
-  providerOrUrl: providerUrl,
-});
-const web3 = new Web3(hdWalletProvider);
-=======
   providerOrUrl: providerUrl
 })
 const web3 = new Web3(hdWalletProvider as any);
->>>>>>> 1becdef891c09b02dad3dbfac2937fdafadb3e4c:test/large/vwbl/mintOnGoerli.test.ts
-=======
-  providerOrUrl: providerUrl
-})
-const web3 = new Web3(hdWalletProvider as any);
->>>>>>> cf8303f71eb8fbf3a2e16d6fe1f6cbf2834de59c
 // preparation for ethers.js
 const privateKey = process.env.PRIVATE_KEY as string;
 const ethProvider = new ethers.providers.JsonRpcProvider(providerUrl);
@@ -83,8 +71,7 @@ describe("VWBL with web3.js", () => {
       undefined,
       undefined,
       testSubscriber,
-      {maxPriorityFeePerGas: maxPriorityFee_wei,
-        maxFeePerGas: maxFee_wei}
+      { maxPriorityFeePerGas: maxPriorityFee_wei, maxFeePerGas: maxFee_wei }
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
@@ -114,7 +101,7 @@ describe("VWBL with web3.js", () => {
       undefined,
       undefined,
       testSubscriber,
-      {gasPrice}
+      { gasPrice }
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("string"); //WARNING:The return value type for 'tokenId' is a string.
@@ -186,8 +173,7 @@ describe("VWBL with ethers.js", () => {
       undefined,
       undefined,
       testSubscriber,
-      {maxPriorityFeePerGas: maxPriorityFee_wei,
-        maxFeePerGas: maxFee_wei}
+      { maxPriorityFeePerGas: maxPriorityFee_wei, maxFeePerGas: maxFee_wei }
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("number");
@@ -217,7 +203,7 @@ describe("VWBL with ethers.js", () => {
       undefined,
       undefined,
       testSubscriber,
-      {gasPrice}
+      { gasPrice }
     );
     console.log(tokenId, typeof tokenId);
     expect(typeof tokenId).equal("number");

@@ -1,10 +1,4 @@
 node_modules
 .idea
 dist
-.env
 .DS_Store
-
-# yarn
-.yarn/*
-!.yarn/releases
-!.yarn/plugins

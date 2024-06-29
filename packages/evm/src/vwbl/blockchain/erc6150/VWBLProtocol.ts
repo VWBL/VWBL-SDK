@@ -7,11 +7,7 @@ import { GasSettings, GrantViewPermissionTxParam, MintForIPFSTxParam, MintTxPara
 import { VWBLNFT } from "../erc721/VWBLProtocol";
 
 export class VWBLERC6150Web3 extends VWBLNFT {
-<<<<<<< HEAD
-  private erc6150Contract: any; // eslint-disable-line
-=======
   private erc6150Contract: any; // eslint-disable-line @typescript-eslint/no-explicit-any
->>>>>>> 32096d3351550abf7ef1da5d64ef5f552f61f06b
 
   constructor(web3: Web3, address: string, isIpfs: boolean) {
     super(web3, address, isIpfs);

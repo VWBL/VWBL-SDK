@@ -6,7 +6,7 @@ import {
   AWSConfig,
   ManageKeyType,
   UploadContentType,
-  UploadMetadataType,
+  UploadMetadataType
 } from "vwbl-core";
 import { BiconomyConfig } from "./BiconomyConfigType";
 
@@ -37,10 +37,7 @@ export type EthersConstructorProps = BaseConstructorProps & {
 export type VWBLEthersOption = EthersConstructorProps;
 
 export type MetaTxConstructorProps = BaseConstructorProps & {
-  bcProvider:
-    | ethers.providers.ExternalProvider
-    | ethers.providers.JsonRpcFetchFunc
-    | ethers.Wallet;
+  bcProvider: ethers.providers.ExternalProvider | ethers.providers.JsonRpcFetchFunc | ethers.Wallet;
   biconomyConfig: BiconomyConfig;
   manageKeyType?: ManageKeyType;
   dataCollectorAddress?: string;
@@ -49,7 +46,7 @@ export type MetaTxConstructorProps = BaseConstructorProps & {
 export type VWBLMetaTxOption = MetaTxConstructorProps;
 
 export type ViewerConstructorProps = {
-  provider: Web3 | ethers.provider.BaseProvider | ethers.Wallet;
+  provider: Web3 | ethers.providers.BaseProvider | ethers.Wallet;
   dataCollectorAddress: string;
 };
 
