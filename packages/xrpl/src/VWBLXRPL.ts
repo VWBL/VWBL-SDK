@@ -72,23 +72,36 @@ export class VWBLXRPL {
     return { tokenId, paymentTxJson };
   };
 
-  payAndManagedCreateToken = async (
+  payMintFee = async (walletAddress: string, signedPaymentTx: string) => {
+    const response = await this.nft.payMintFee(signedPaymentTx);
+    if (!response) {
+      throw new Error("failed payment tx");
+    }
+    const paymentTxHash = response.paymentTxHash;
+    const tokenId = response.tokenId;
+    // generate empty tx object
+    const emptyTxObject = this.nft.generateEmptyTx(walletAddress);
+
+    return { paymentTxHash, tokenId, emptyTxObject };
+  };
+
+  createManagedToken = async (
     tokenId: string,
-    signedPaymentTx: string,
+    xrplChainId: number,
+    signedEmptyTx: string,
+    signedPaymentTxHash: string,
+    signerPublicKey: string,
     name: string,
     description: string,
     plainFile: FileOrPath | FileOrPath[],
     thumbnailImage: FileOrPath,
-    feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata
   ) => {
-    const paymentSignature = await this.nft.payMintFee(signedPaymentTx);
-
-    const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } =
-      this.opts;
+    // verify tx signature
+    const { uploadContentType, uploadMetadataType, awsConfig } = this.opts;
     const key = createRandomKey();
 
     const plainFileArray = [plainFile].flat();
@@ -143,7 +156,6 @@ export class VWBLXRPL {
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback");
     }
-
     await uploadMetadataFunction(
       tokenId,
       name,
@@ -154,6 +166,16 @@ export class VWBLXRPL {
       encryptLogic,
       awsConfig
     );
-    // generate empty tx object
+    // set key
+    await this.api.setKey(
+      tokenId,
+      xrplChainId,
+      key,
+      signedEmptyTx,
+      signedPaymentTxHash,
+      signerPublicKey
+    );
+
+    return tokenId;
   };
 }

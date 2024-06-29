@@ -11,24 +11,31 @@ export class XRPLApi {
     documentId: string,
     xrplChainId: number,
     key: string,
-    signatureTxBlob: string,
-    pubKey: string,
+    signature: string,
+    paymentTxHash: string,
+    publicKey: string,
     address?: string
   ) {
-    await this.instance.post("xrpl-keys", {
+    await this.instance.post("/keys", {
       document_id: documentId,
       xrpl_chain_id: xrplChainId,
       key,
-      signature_tx_blob: signatureTxBlob,
-      pub_key: pubKey,
+      signature_tx_blob: signature,
+      payment_tx_hash: paymentTxHash,
+      pub_key: publicKey,
       address,
     });
   }
   // TODO
   async getKey(documentId: string, address?: string) {}
 
-  async getXrplSignMessage(xrplChainId: number, address: string): Promise<SubmittableTransaction> {
-    const response = await this.instance.get(`/xrpl-signature/${xrplChainId}?address=${address}`);
+  async getXrplSignMessage(
+    xrplChainId: number,
+    address: string
+  ): Promise<SubmittableTransaction> {
+    const response = await this.instance.get(
+      `/xrpl-signature/${xrplChainId}?address=${address}`
+    );
 
     return response.data.signTx;
   }

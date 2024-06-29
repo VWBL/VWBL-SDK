@@ -1,6 +1,5 @@
 import { Client, SubmittableTransaction, xrpToDrops } from "xrpl";
 import { NFTokenMintMetadata } from "xrpl/dist/npm/models/transactions/NFTokenMint";
-import { PaymentMetadata } from "xrpl/dist/npm/models/transactions/payment";
 
 export class VWBLXRPLProtocol {
   private client: Client;
@@ -95,11 +94,11 @@ export class VWBLXRPLProtocol {
 
     try {
       const response = await this.client.submitAndWait(signedPaymentTx);
-      if (response.result.TxnSignature) {
+      if (response.result.hash) {
         const memos = response.result.Memos;
-        if (memos && memos.length > 0) {
+        if (memos && memos[0].Memo.MemoData) {
           return {
-            paymentSignature: response.result.TxnSignature,
+            paymentTxHash: response.result.hash,
             tokenId: memos[0].Memo.MemoData,
           };
         }
@@ -109,5 +108,14 @@ export class VWBLXRPLProtocol {
     } finally {
       this.disconnect();
     }
+  }
+
+  async generateEmptyTx(senderAddress: string) {
+    const emptyTxJson: SubmittableTransaction = {
+      TransactionType: "AccountSet",
+      Account: senderAddress,
+    };
+
+    return emptyTxJson;
   }
 }
