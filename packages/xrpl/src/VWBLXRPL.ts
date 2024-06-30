@@ -33,7 +33,7 @@ export class VWBLXRPL {
     this.opts = props;
 
     this.api = new XRPLApi(this.opts.vwblNetworkUrl);
-    this.nft = new VWBLXRPLProtocol(props.xrplChainId);
+    this.nft = new VWBLXRPLProtocol(this.opts.xrplChainId);
   }
 
   generateMintTokenTx(
