@@ -1,0 +1,25 @@
+{
+  "name": "vwbl-sdk-xrpl",
+  "description": "VWBL SDK for XRPL",
+  "version": "0.0.1",
+  "main": "dist/packages/xrpl/src/index.js",
+  "types": "dist/packages/xrpl/src/index.d.ts",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "xrpl": "^3.0.0",
+    "xumm-sdk": "^1.11.1",
+    "vwbl-core": "*"
+  },
+  "scripts": {
+    "build": "tsc",
+    "format": "eslint --fix --quiet './src/**/*.ts'",
+    "lint": "eslint './src/**/*.ts'"
+  }
+}
