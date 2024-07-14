@@ -1,6 +1,8 @@
 import { Client, SubmittableTransaction, xrpToDrops } from "xrpl";
 import { NFTokenMintMetadata } from "xrpl/dist/npm/models/transactions/NFTokenMint";
 
+const MESSAGE = "Hello VWBL";
+
 export class VWBLXRPLProtocol {
   private client: Client;
 
@@ -114,6 +116,13 @@ export class VWBLXRPLProtocol {
     const emptyTxJson: SubmittableTransaction = {
       TransactionType: "AccountSet",
       Account: senderAddress,
+      Memos: [
+        {
+          Memo: {
+            MemoData: MESSAGE,
+          },
+        },
+      ],
     };
 
     return emptyTxJson;
