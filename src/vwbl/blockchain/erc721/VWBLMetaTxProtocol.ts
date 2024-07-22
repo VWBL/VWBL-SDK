@@ -244,7 +244,7 @@ export class VWBLNFTMetaTx {
     if (isWeb3Provider(this.walletProvider as IWeb3Provider)) {
       const domainSeparator = getDomainSeparator(this.forwarderAddress, chainId);
       const dataToSign = getDataToSignForEIP712(txParam, this.forwarderAddress, chainId);
-      const sig = await (this.walletProvider as ethers.providers.Web3Provider).send("eth_signTypedData_v3", [
+      const sig = await (this.walletProvider as ethers.providers.Web3Provider).send("eth_signTypedData_v4", [
         myAddress,
         dataToSign,
       ]);
