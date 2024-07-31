@@ -10,13 +10,13 @@ export class VWBLXRPLProtocol {
     let publicServerUrl: string;
     switch (xrplChainId) {
       case 0:
-        publicServerUrl = process.env.XRPL_MAINNET_PROVIDER_URL || "";
+        publicServerUrl = "wss://s2.ripple.com";
         break;
       case 1:
-        publicServerUrl = process.env.XRPL_TESTNET_PROVIDER_URL || "";
+        publicServerUrl = "wss://s.altnet.rippletest.net:51233";
         break;
       case 2:
-        publicServerUrl = process.env.XRPL_DEVNET_PROVIDER_URL || "";
+        publicServerUrl = "wss://s.devnet.rippletest.net:51233";
         break;
       default:
         throw new Error("Invalid xrplChainId");

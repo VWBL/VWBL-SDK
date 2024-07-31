@@ -6,7 +6,7 @@ import {
 } from "vwbl-core";
 
 export type XrplConstructorProps = {
-  xprlChainId: number;
+  xrplChainId: number;
   vwblNetworkUrl: string;
   uploadContentType?: UploadContentType;
   uploadMetadataType?: UploadMetadataType;
