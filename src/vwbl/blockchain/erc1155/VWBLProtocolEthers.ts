@@ -6,16 +6,12 @@ import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelpe
 import { GasSettings } from "../../types";
 
 export class VWBLERC1155EthersContract {
-  private ethersProvider: ethers.providers.BaseProvider;
+  private ethersProvider: ethers.Provider;
+  // private ethersProvider: ethers.providers.BaseProvider;
   private ethersSigner: ethers.Signer;
   private contract: ethers.Contract;
 
-  constructor(
-    address: string,
-    isIpfs: boolean,
-    ethersProvider: ethers.providers.BaseProvider,
-    ethersSigner: ethers.Signer
-  ) {
+  constructor(address: string, isIpfs: boolean, ethersProvider: ethers.BaseProvider, ethersSigner: ethers.Signer) {
     this.ethersProvider = ethersProvider;
     this.ethersSigner = ethersSigner;
     this.contract = isIpfs
@@ -293,14 +289,17 @@ const range = (length: number) => {
 };
 
 const parseToTokenId = (receipt: ethers.providers.TransactionReceipt): number => {
-  const eventInterface = new ethers.utils.Interface([
+  const eventInterface = new ethers.Interface([
     "event erc1155DataRegistered(address contractAddress, uint256 tokenId)",
   ]);
   let tokenId = 0;
   receipt.logs.forEach((log) => {
     // check whether topic is erc1155DataRegistered(address contractAddress, uint256 tokenId)
     if (log.topics[0] === "0xf30a336bd6229f1e88c41eeaad2c5fa73b69e4ec90773a67af474031d64fe32f") {
-      const description = eventInterface.parseLog({ topics: log.topics, data: log.data });
+      const description = eventInterface.parseLog({
+        topics: log.topics,
+        data: log.data,
+      });
       tokenId = description.args[1].toNumber();
     }
   });
@@ -308,14 +307,17 @@ const parseToTokenId = (receipt: ethers.providers.TransactionReceipt): number =>
 };
 
 const parseToTokenIds = (receipt: ethers.providers.TransactionReceipt): number[] => {
-  const eventInterface = new ethers.utils.Interface([
+  const eventInterface = new ethers.Interface([
     "event erc1155DataRegistered(address contractAddress, uint256 tokenId)",
   ]);
   const tokenIds: number[] = [];
   receipt.logs.forEach((log) => {
     // check whether topic is erc1155DataRegistered(address contractAddress, uint256 tokenId)
     if (log.topics[0] === "0xf30a336bd6229f1e88c41eeaad2c5fa73b69e4ec90773a67af474031d64fe32f") {
-      const description = eventInterface.parseLog({ topics: log.topics, data: log.data });
+      const description = eventInterface.parseLog({
+        topics: log.topics,
+        data: log.data,
+      });
       tokenIds.push(description.args[1].toNumber());
     }
   });

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { utils } from "ethers";
+import { hexlify, randomBytes } from "ethers";
 import * as fs from "fs";
 
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
@@ -16,6 +16,7 @@ import {
   toBase64FromFile,
 } from "../../util";
 import { isRunningOnBrowser } from "../../util/envUtil";
+import { getChainId } from "../../util/getChainIdHelper";
 import { VWBLBase } from "../base";
 import { VWBLNFTEthers } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
@@ -105,7 +106,7 @@ export class VWBLEthers extends VWBLBase {
     }
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const tokenId = await this.nft.mintToken({
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
@@ -171,7 +172,7 @@ export class VWBLEthers extends VWBLBase {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.opts.ethersSigner.getChainId();
+    const chainId = await getChainId(this.opts.ethersSigner);
     await this.api.setKey(
       documentId,
       chainId,
@@ -263,7 +264,7 @@ export class VWBLEthers extends VWBLBase {
     );
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
     // 5. mint token
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const tokenId = await this.nft.mintTokenForIPFS({
       metadataUrl: metadataUrl,
       decryptUrl: vwblNetworkUrl,
@@ -274,7 +275,8 @@ export class VWBLEthers extends VWBLBase {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.opts.ethersSigner.getChainId();
+    const chainId = await getChainId(this.opts.ethersSigner);
+    // const chainId = await this.opts.ethersSigner.getChainId();
     await this.api.setKey(
       documentId,
       chainId,
@@ -298,7 +300,7 @@ export class VWBLEthers extends VWBLBase {
    */
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await this.opts.ethersSigner.getChainId();
+    const chainId = await getChainId(this.opts.ethersSigner);
     return await this._setKey(
       documentId,
       chainId,
@@ -317,7 +319,7 @@ export class VWBLEthers extends VWBLBase {
    */
   mintToken = async (feeNumerator: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     return await this.nft.mintToken({
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
@@ -334,7 +336,7 @@ export class VWBLEthers extends VWBLBase {
    */
   mintTokenForIPFS = async (metadataUrl: string, feeNumerator: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     return await this.nft.mintTokenForIPFS({
       metadataUrl: metadataUrl,
       decryptUrl: vwblNetworkUrl,
@@ -591,7 +593,7 @@ export class VWBLEthers extends VWBLBase {
       return undefined;
     }
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await this.opts.ethersSigner.getChainId();
+    const chainId = await getChainId(this.opts.ethersSigner);
     const decryptKey = await this.api.getKey(
       documentId,
       chainId,

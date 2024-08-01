@@ -1,10 +1,11 @@
-import { utils } from "ethers";
+import { hexlify, randomBytes } from "ethers";
 import * as fs from "fs";
 
 import { uploadEncryptedFileToIPFS, uploadMetadataToIPFS, uploadThumbnailToIPFS } from "../../storage";
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
 import { createRandomKey, encryptFile, encryptStream, encryptString, getMimeType, toBase64FromFile } from "../../util";
 import { isRunningOnBrowser } from "../../util/envUtil";
+import { getChainId } from "../../util/getChainIdHelper";
 import { VWBLERC6150Ethers, VWBLERC6150Web3 } from "../blockchain/";
 import { VWBL } from "../erc721/VWBL";
 import {
@@ -87,7 +88,7 @@ export class VWBLERC6150 extends VWBL {
     }
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
     const tokenId = await this.erc6150.mintToken({
       decryptUrl: vwblNetworkUrl,
@@ -157,7 +158,7 @@ export class VWBLERC6150 extends VWBL {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId =
-      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await this.opts.ethersSigner.getChainId();
+      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await getChainId(this.opts.ethersSigner);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
@@ -252,7 +253,7 @@ export class VWBLERC6150 extends VWBL {
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
     // 5. mint token
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
     const tokenId = await this.erc6150.mintTokenForIPFS({
       metadataUrl: metadataUrl,
@@ -267,7 +268,7 @@ export class VWBLERC6150 extends VWBL {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId =
-      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await this.opts.ethersSigner.getChainId();
+      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await getChainId(this.opts.ethersSigner);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
@@ -293,7 +294,7 @@ export class VWBLERC6150 extends VWBL {
     parentId?: number
   ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
     return await this.erc6150.mintToken({
       decryptUrl: vwblNetworkUrl,
@@ -321,7 +322,7 @@ export class VWBLERC6150 extends VWBL {
     parentId?: number
   ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
     return await this.erc6150.mintTokenForIPFS({
       metadataUrl,
