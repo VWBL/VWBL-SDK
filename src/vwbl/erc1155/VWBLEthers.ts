@@ -153,6 +153,10 @@ export class VWBLERC1155Ethers extends VWBLBase {
       throw new Error("please specify upload metadata type or give callback");
     }
     const mimeType = getMimeType(plainFileArray[0]);
+
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
     await uploadMetadataFunction(
       tokenId,
       name,
@@ -290,7 +294,14 @@ export class VWBLERC1155Ethers extends VWBLBase {
   mintToken = async (amount: number, feeNumerator: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = hexlify(randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId);
+
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId);
+
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
+
+    return tokenId;
   };
 
   /**
@@ -311,7 +322,28 @@ export class VWBLERC1155Ethers extends VWBLBase {
   ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = hexlify(randomBytes(32));
-    return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, amount, feeNumerator, documentId, gasSettings);
+   const tokenId = await this.nft.mintTokenForIPFS(
+     metadataUrl,
+     vwblNetworkUrl,
+     amount,
+     feeNumerator,
+     documentId,
+     gasSettings
+   );
+
+   if (tokenId === undefined) {
+     throw new Error("Minting token failed: tokenId is undefined");
+   } else if (Array.isArray(tokenId)) {
+     if (tokenId.length === 1 && typeof tokenId[0] === "number") {
+       return tokenId[0];
+     } else {
+       throw new Error("Minting token failed: tokenId array is invalid");
+     }
+   } else if (typeof tokenId === "number") {
+     return tokenId;
+   } else {
+     throw new Error("Minting token failed: unexpected tokenId type");
+   }
   };
 
   /**

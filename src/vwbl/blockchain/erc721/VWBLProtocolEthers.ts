@@ -6,16 +6,11 @@ import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelpe
 import { GasSettings, GrantViewPermissionTxParam, MintForIPFSTxParam, MintTxParam } from "../../types";
 
 export class VWBLNFTEthers {
-  protected ethersProvider: ethers.providers.BaseProvider;
+  protected ethersProvider: ethers.Provider;
   private ethersSigner: ethers.Signer;
   private contract: ethers.Contract;
 
-  constructor(
-    address: string,
-    isIpfs: boolean,
-    ethersProvider: ethers.providers.BaseProvider,
-    ethersSigner: ethers.Signer
-  ) {
+  constructor(address: string, isIpfs: boolean, ethersProvider: ethers.Provider, ethersSigner: ethers.Signer) {
     this.ethersProvider = ethersProvider;
     this.ethersSigner = ethersSigner;
     this.contract = isIpfs
@@ -47,7 +42,12 @@ export class VWBLNFTEthers {
     const tx = await this.contract.mint(mintParam.decryptUrl, mintParam.feeNumerator, mintParam.documentId, txSettings);
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
-    const tokenId = parseToTokenId(receipt);
+    let tokenId;
+    if (receipt) {
+      tokenId = parseToTokenId(receipt);
+    } else {
+      console.error("Receipt is null");
+    }
     return tokenId;
   }
 
@@ -81,39 +81,44 @@ export class VWBLNFTEthers {
     );
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
-    const tokenId = parseToTokenId(receipt);
+    let tokenId;
+    if (receipt) {
+      tokenId = parseToTokenId(receipt);
+    } else {
+      console.error("Receipt is null");
+    }
     return tokenId;
   }
 
   async getOwnTokenIds() {
     const myAddress = await this.ethersSigner.getAddress();
-    const balance = await this.contract.callStatic.balanceOf(myAddress);
+    const balance = await this.contract.balanceOf(myAddress);
     return await Promise.all(
       range(Number.parseInt(balance)).map(async (i) => {
-        const ownTokenId = await this.contract.callStatic.tokenOfOwnerByIndex(myAddress, i);
+        const ownTokenId = await this.contract.tokenOfOwnerByIndex(myAddress, i);
         return Number.parseInt(ownTokenId);
       })
     );
   }
 
   async getTokenByMinter(address: string) {
-    return await this.contract.callStatic.getTokenByMinter(address);
+    return await this.contract.getTokenByMinter.staticCall(address);
   }
 
   async getMetadataUrl(tokenId: number) {
-    return await this.contract.callStatic.tokenURI(tokenId);
+    return await this.contract.tokenURI.staticCall(tokenId);
   }
 
   async getOwner(tokenId: number) {
-    return await this.contract.callStatic.ownerOf(tokenId);
+    return await this.contract.ownerOf.staticCall(tokenId);
   }
 
   async getMinter(tokenId: number) {
-    return await this.contract.callStatic.getMinter(tokenId);
+    return await this.contract.getMinter.staticCall(tokenId);
   }
 
   async checkViewPermission(tokenId: number, user: string) {
-    return await this.contract.callStatic.checkViewPermission(tokenId, user);
+    return await this.contract.checkViewPermission.staticCall(tokenId, user);
   }
 
   async isOwnerOf(tokenId: number) {
@@ -134,11 +139,11 @@ export class VWBLNFTEthers {
   }
 
   async getFee() {
-    return await this.contract.callStatic.getFee();
+    return await this.contract.getFee.staticCall();
   }
 
   async getTokenInfo(tokenId: number) {
-    return await this.contract.callStatic.tokenIdToTokenInfo(tokenId);
+    return await this.contract.tokenIdToTokenInfo.staticCall(tokenId);
   }
 
   async approve(operator: string, tokenId: number, gasSettings?: GasSettings): Promise<void> {
@@ -160,7 +165,7 @@ export class VWBLNFTEthers {
   }
 
   async getApproved(tokenId: number): Promise<string> {
-    return await this.contract.callStatic.getApproved(tokenId);
+    return await this.contract.getApproved.staticCall(tokenId);
   }
 
   async setApprovalForAll(operator: string, gasSettings?: GasSettings): Promise<void> {
@@ -182,7 +187,7 @@ export class VWBLNFTEthers {
   }
 
   async isApprovedForAll(owner: string, operator: string): Promise<boolean> {
-    return await this.contract.callStatic.isApprovedForAll(owner, operator);
+    return await this.contract.isApprovedForAll.staticCall(owner, operator);
   }
 
   async safeTransfer(to: string, tokenId: number, gasSettings?: GasSettings): Promise<void> {
@@ -248,16 +253,17 @@ const range = (length: number) => {
   return Array.from(Array(length).keys());
 };
 
-export const parseToTokenId = (receipt: ethers.providers.TransactionReceipt): number => {
-  const eventInterface = new ethers.utils.Interface([
-    "event nftDataRegistered(address contractAddress, uint256 tokenId)",
-  ]);
+export const parseToTokenId = (receipt: ethers.TransactionReceipt): number => {
+  const eventInterface = new ethers.Interface(["event nftDataRegistered(address contractAddress, uint256 tokenId)"]);
   let tokenId = 0;
   receipt.logs.forEach((log) => {
     // check whether topic is nftDataRegistered(address contractAddress, uint256 tokenId)
     if (log.topics[0] === "0x957e0e652e4d598197f2c5b25940237e404f3899238efb6f64df2377e9aaf36c") {
-      const description = eventInterface.parseLog({ topics: log.topics, data: log.data });
-      tokenId = description.args[1].toNumber();
+      const description = eventInterface.parseLog({
+        topics: log.topics,
+        data: log.data,
+      });
+      tokenId = description?.args[1].toNumber();
     }
   });
   return tokenId;

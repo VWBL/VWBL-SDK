@@ -124,14 +124,20 @@ export class VWBLERC1155 extends VWBLBase {
     uploadMetadataCallBack?: UploadMetadata,
     subscriber?: ProgressSubscriber,
     gasSettings?: GasSettings
-  ) => {
+  ): Promise<number> => {
     if (!this.signature) {
       throw "please sign first";
     }
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
+
     // 1. mint token
     const documentId = hexlify(randomBytes(32));
     const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId, gasSettings);
+
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
+
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -179,6 +185,7 @@ export class VWBLERC1155 extends VWBLBase {
       throw new Error("please specify upload metadata type or give callback");
     }
     const mimeType = getMimeType(plainFileArray[0]);
+
     await uploadMetadataFunction(
       tokenId,
       name,
@@ -326,7 +333,13 @@ export class VWBLERC1155 extends VWBLBase {
   mintToken = async (amount: number, feeNumerator: number, gasSettings?: GasSettings): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = hexlify(randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId, gasSettings);
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId, gasSettings);
+
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
+
+    return tokenId;
   };
 
   /**
@@ -347,7 +360,30 @@ export class VWBLERC1155 extends VWBLBase {
   ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = hexlify(randomBytes(32));
-    return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, amount, feeNumerator, documentId, gasSettings);
+    if (documentId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
+
+    const tokenId = await this.nft.mintTokenForIPFS(
+      metadataUrl,
+      vwblNetworkUrl,
+      amount,
+      feeNumerator,
+      documentId,
+      gasSettings
+    );
+
+    if (typeof tokenId === "number") {
+      return tokenId;
+    } else if (Array.isArray(tokenId)) {
+      if (tokenId.length === 1 && typeof tokenId[0] === "number") {
+        return tokenId[0];
+      } else {
+        throw new Error("Minting token failed: tokenId array is invalid");
+      }
+    } else {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
   };
 
   /**

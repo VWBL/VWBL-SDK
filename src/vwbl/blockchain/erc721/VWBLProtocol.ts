@@ -108,23 +108,23 @@ export class VWBLNFT {
   }
 
   async getTokenByMinter(address: string) {
-    return await this.contract.methods.getTokenByMinter(address).call();
+    return await this.contract.getTokenByMinter(address);
   }
 
   async getMetadataUrl(tokenId: number) {
-    return await this.contract.methods.tokenURI(tokenId).call();
+    return await this.contract.tokenURI(tokenId);
   }
 
   async getOwner(tokenId: number) {
-    return await this.contract.methods.ownerOf(tokenId).call();
+    return await this.contract.ownerOf(tokenId);
   }
 
   async getMinter(tokenId: number) {
-    return await this.contract.methods.getMinter(tokenId).call();
+    return await this.contract.getMinter(tokenId);
   }
 
   async checkViewPermission(tokenId: number, user: string) {
-    return await this.contract.methods.checkViewPermission(tokenId, user).call();
+    return await this.contract.checkViewPermission(tokenId, user);
   }
 
   async isOwnerOf(tokenId: number) {
