@@ -1,5 +1,5 @@
 import axios from "axios";
-import { utils } from "ethers";
+import { hexlify, randomBytes } from "ethers";
 import * as fs from "fs";
 
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
@@ -16,6 +16,7 @@ import {
   toBase64FromFile,
 } from "../../util";
 import { isRunningOnBrowser } from "../../util/envUtil";
+import { getChainId } from "../../util/getChainIdHelper";
 import { VWBLBase } from "../base";
 import { VWBLNFT, VWBLNFTEthers } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
@@ -128,7 +129,7 @@ export class VWBL extends VWBLBase {
     }
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const tokenId = await this.nft.mintToken({
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
@@ -181,6 +182,9 @@ export class VWBL extends VWBLBase {
       throw new Error("please specify upload metadata type or give callback");
     }
     const mimeType = getMimeType(plainFileArray[0]) || "";
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
     await uploadMetadataFunction(
       tokenId,
       name,
@@ -196,7 +200,7 @@ export class VWBL extends VWBLBase {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId =
-      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await this.opts.ethersSigner.getChainId();
+      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await getChainId(this.opts.ethersSigner);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
@@ -294,7 +298,7 @@ export class VWBL extends VWBLBase {
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
     // 5. mint token
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const tokenId = await this.nft.mintTokenForIPFS({
       metadataUrl: metadataUrl,
       decryptUrl: vwblNetworkUrl,
@@ -303,11 +307,13 @@ export class VWBL extends VWBLBase {
       gasSettings,
     });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
-
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId =
-      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await this.opts.ethersSigner.getChainId();
+      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await getChainId(this.opts.ethersSigner);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
@@ -330,7 +336,7 @@ export class VWBL extends VWBLBase {
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
     const chainId =
-      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await this.opts.ethersSigner.getChainId();
+      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await getChainId(this.opts.ethersSigner);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
@@ -341,7 +347,7 @@ export class VWBL extends VWBLBase {
   getKey = async (tokenId: number): Promise<string> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
     const chainId =
-      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await this.opts.ethersSigner.getChainId();
+      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await getChainId(this.opts.ethersSigner);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
@@ -359,13 +365,20 @@ export class VWBL extends VWBLBase {
    */
   mintToken: MintToken = async (feeNumerator: number, gasSettings?: GasSettings): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken({
+    const documentId = hexlify(randomBytes(32));
+
+    const tokenId = await this.nft.mintToken({
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
       gasSettings,
     });
+
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
+
+    return tokenId;
   };
 
   /**
@@ -383,14 +396,21 @@ export class VWBL extends VWBLBase {
     gasSettings?: GasSettings
   ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintTokenForIPFS({
+    const documentId = hexlify(randomBytes(32));
+
+    const tokenId = await this.nft.mintTokenForIPFS({
       metadataUrl,
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
       gasSettings,
     });
+
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
+
+    return tokenId;
   };
 
   /**
@@ -668,7 +688,7 @@ export class VWBL extends VWBLBase {
         ? await this.viewer.getDocumentId(contractAddress, tokenId)
         : (await this.nft.getTokenInfo(tokenId)).documentId;
     const chainId =
-      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await this.opts.ethersSigner.getChainId();
+      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await getChainId(this.opts.ethersSigner);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)

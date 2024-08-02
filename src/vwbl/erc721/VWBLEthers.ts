@@ -112,6 +112,9 @@ export class VWBLEthers extends VWBLBase {
       feeNumerator,
       documentId,
     });
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 2. create key in frontend
@@ -314,19 +317,25 @@ export class VWBLEthers extends VWBLBase {
   /**
    * Mint new NFT
    *
-   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
+   * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feeNumerator = 3.5*10^2, royalty is 3.5%
    * @returns The ID of minted NFT
    */
   mintToken = async (feeNumerator: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = hexlify(randomBytes(32));
-    return await this.nft.mintToken({
+
+    const tokenId = await this.nft.mintToken({
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
     });
-  };
 
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
+
+    return tokenId;
+  };
   /**
    * Mint new NFT
    *
@@ -337,12 +346,19 @@ export class VWBLEthers extends VWBLBase {
   mintTokenForIPFS = async (metadataUrl: string, feeNumerator: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = hexlify(randomBytes(32));
-    return await this.nft.mintTokenForIPFS({
+
+    const tokenId = await this.nft.mintTokenForIPFS({
       metadataUrl: metadataUrl,
       decryptUrl: vwblNetworkUrl,
-      feeNumerator,
+      feeNumerator: feeNumerator,
       documentId,
     });
+
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
+
+    return tokenId;
   };
 
   /**

@@ -1,4 +1,4 @@
-import { ethers, hexlify, randomBytes } from "ethers";
+import { Eip1193Provider, ethers, hexlify, randomBytes } from "ethers";
 import * as fs from "fs";
 
 import { uploadEncryptedFileToIPFS, uploadMetadataToIPFS, uploadThumbnailToIPFS } from "../../storage";
@@ -35,8 +35,8 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
   constructor(props: MetaTxConstructorProps) {
     super(props);
     const { bcProvider, contractAddress, biconomyConfig } = props;
-
-    const walletProvider = "address" in bcProvider ? bcProvider : new ethers.BrowserProvider(bcProvider);
+    const walletProvider =
+      "address" in bcProvider ? bcProvider : new ethers.BrowserProvider(bcProvider as unknown as Eip1193Provider);
     this.erc6150 = new VWBLERC6150MetaTxEthers(
       biconomyConfig.apiKey,
       walletProvider,

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ethers, hexlify, randomBytes } from "ethers";
+import { Eip1193Provider, ethers, hexlify, randomBytes } from "ethers";
 import * as fs from "fs";
 
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
@@ -56,8 +56,12 @@ export class VWBLMetaTx extends VWBLBase {
     this.opts = props;
     const { bcProvider, contractAddress, biconomyConfig, dataCollectorAddress } = props;
 
-    const walletProvider = "address" in bcProvider ? bcProvider : new ethers.BrowserProvider(bcProvider);
-    this.signer = "address" in bcProvider ? bcProvider : (walletProvider as ethers.BrowserProvider).getSigner();
+    const walletProvider =
+      "address" in bcProvider ? bcProvider : new ethers.BrowserProvider(bcProvider as unknown as Eip1193Provider);
+
+    this.signer = (
+      "address" in bcProvider ? bcProvider : (walletProvider as ethers.BrowserProvider).getSigner()
+    ) as ethers.Signer;
     this.nft = new VWBLNFTMetaTx(
       biconomyConfig.apiKey,
       walletProvider,

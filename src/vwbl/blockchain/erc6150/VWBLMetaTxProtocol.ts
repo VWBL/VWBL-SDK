@@ -76,12 +76,11 @@ export class VWBLERC6150MetaTxEthers extends VWBLNFTMetaTx {
   override async grantViewPermission(grantParam: GrantViewPermissionMetaTxParam): Promise<void> {
     const myAddress = await this.ethersSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.erc6150Address, vwblERC6150Ipfs.abi, this.ethersSigner);
-    const { data } =
-      await vwblMetaTxContract.grantViewPermission.populateTransaction(
-        grantParam.tokenId,
-        grantParam.grantee,
-        grantParam.toDir
-      );
+    const { data } = await vwblMetaTxContract.grantViewPermission.populateTransaction(
+      grantParam.tokenId,
+      grantParam.grantee,
+      grantParam.toDir
+    );
     const chainId = await getChainId(this.ethersSigner);
 
     const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data, chainId);
@@ -100,11 +99,7 @@ export class VWBLERC6150MetaTxEthers extends VWBLNFTMetaTx {
   async revokeDirPermission(tokenId: number, revoker: string, revokeViewPermisionApiId: string): Promise<void> {
     const myAddress = await this.ethersSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.erc6150Address, vwblERC6150Ipfs.abi, this.ethersSigner);
-    const { data } =
-      await vwblMetaTxContract.revokeDirPermission.populateTransaction(
-        tokenId,
-        revoker
-      );
+    const { data } = await vwblMetaTxContract.revokeDirPermission.populateTransaction(tokenId, revoker);
     const chainId = await getChainId(this.ethersSigner);
 
     const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data, chainId);
