@@ -25,16 +25,8 @@ export class VWBLXRPLProtocol {
     this.client = client;
   }
 
-  async connect() {
-    await this.client.connect();
-  }
-
-  async disconnect() {
-    await this.client.disconnect();
-  }
-
   async mint(signedMintTx: string) {
-    this.connect();
+    await this.client.connect();
 
     let tokenId: string;
     try {
@@ -47,16 +39,16 @@ export class VWBLXRPLProtocol {
         throw Error("nftoken_id is empty");
       }
     } catch (e) {
-      throw Error("failed to submit NFTokenMint tx");
+      throw Error(`failed to submit NFTokenMint tx: ${e}`);
     } finally {
-      this.disconnect();
+      await this.client.disconnect();
     }
 
     return tokenId;
   }
 
   async generatePaymentTx(tokenId: string, senderAddress: string) {
-    this.connect();
+    await this.client.connect();
 
     const accountInfo = await this.client.request({
       command: "account_info",
@@ -69,14 +61,14 @@ export class VWBLXRPLProtocol {
       ledger_index: "validated",
     });
     const currentLedgerIndex = ledger.result.ledger_index;
-    this.disconnect();
+    await this.client.disconnect();
 
     const paymentTxJson: SubmittableTransaction = {
       TransactionType: "Payment",
       Account: senderAddress,
-      Destination: "", // TODO
+      Destination: "rrXi6ndeXdmMc1jAETBSLrfgyWReXxwv1", // TODO
       Amount: xrpToDrops("0.16"),
-      Fee: xrpToDrops("0.0000000001"),
+      Fee: xrpToDrops("0.00001"),
       LastLedgerSequence: currentLedgerIndex + 4,
       Sequence: sequence,
       Memos: [
@@ -92,7 +84,7 @@ export class VWBLXRPLProtocol {
   }
 
   async payMintFee(signedPaymentTx: string) {
-    this.connect();
+    await this.client.connect();
 
     try {
       const response = await this.client.submitAndWait(signedPaymentTx);
@@ -108,7 +100,7 @@ export class VWBLXRPLProtocol {
     } catch (e) {
       throw Error("failed to submit NFTokenMint tx");
     } finally {
-      this.disconnect();
+      await this.client.disconnect();
     }
   }
 

@@ -24,7 +24,7 @@ import {
   isRunningOnBrowser,
 } from "vwbl-core";
 import * as fs from "fs";
-import { SubmittableTransaction } from "xrpl";
+import { SubmittableTransaction, convertStringToHex } from "xrpl";
 
 import { XRPLApi } from "../api";
 import { VWBLXRPLProtocol } from "../blockchain/VWBLProtocol";
@@ -129,7 +129,7 @@ export class VWBLXRPL {
       SourceTag: TagId,
       TransferFee: transferRoyalty,
       Flags: flags,
-      URI: metadataUrl,
+      URI: convertStringToHex(metadataUrl),
     };
 
     return { mintTxJson, metadataUrl };
