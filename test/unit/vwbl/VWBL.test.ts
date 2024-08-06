@@ -15,6 +15,7 @@ import {
   VWBLNFT,
   VWBLNFTEthers,
 } from "../../../src/vwbl";
+import { JsonRpcProvider } from "ethers";
 dotenv.config();
 
 const vwblApiStub = {
@@ -30,7 +31,7 @@ sinon.stub(web3.eth.personal, "sign").returns(Promise.resolve("test sign"));
 
 // preparation for ethers.js
 const privateKey = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'; //Hardhat Network Account(https://hardhat.org/hardhat-network/docs/overview). No problem to disclose.
-const ethProvider = new ethers.providers.JsonRpcProvider(providerUrl);
+const ethProvider = new JsonRpcProvider(providerUrl);
 const ethSigner = new ethers.Wallet(privateKey, ethProvider);
 sinon.stub(ethSigner, "signMessage").returns(Promise.resolve("test sign"));
 

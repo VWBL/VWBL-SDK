@@ -10,6 +10,7 @@ import {
 } from "../../../src/vwbl";
 import HDWalletProvider from "@truffle/hdwallet-provider";
 import * as FileAPI from "file-api";
+import { JsonRpcProvider } from "ethers";
 const File = FileAPI.File;
 dotenv.config();
 
@@ -33,7 +34,7 @@ const hdWalletProvider = new HDWalletProvider({
 const web3 = new Web3(hdWalletProvider as any);
 // preparation for ethers.js
 const privateKey = process.env.PRIVATE_KEY as string;
-const ethProvider = new ethers.providers.JsonRpcProvider(providerUrl);
+const ethProvider = new JsonRpcProvider(providerUrl);
 const ethSigner = new ethers.Wallet(privateKey, ethProvider);
 
 describe("VWBL with web3.js", () => {

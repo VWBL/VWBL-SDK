@@ -9,12 +9,7 @@ import { parseToTokenId, VWBLNFTEthers } from "../erc721/VWBLProtocolEthers";
 export class VWBLERC6150Ethers extends VWBLNFTEthers {
   private erc6150Contract: ethers.Contract;
 
-  constructor(
-    address: string,
-    isIpfs: boolean,
-    ethersProvider: ethers.providers.BaseProvider,
-    ethersSigner: ethers.Signer
-  ) {
+  constructor(address: string, isIpfs: boolean, ethersProvider: ethers.Provider, ethersSigner: ethers.Signer) {
     super(address, isIpfs, ethersProvider, ethersSigner);
     this.erc6150Contract = isIpfs
       ? new ethers.Contract(address, vwblERC6150IPFS.abi, ethersSigner)
@@ -51,8 +46,18 @@ export class VWBLERC6150Ethers extends VWBLNFTEthers {
     );
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
-    const tokenId = parseToTokenId(receipt);
-    return tokenId;
+
+    let tokenId;
+    if (receipt) {
+      tokenId = parseToTokenId(receipt);
+    } else {
+      console.error("Receipt is null");
+    }
+    if (tokenId) {
+      return tokenId;
+    } else {
+      throw new Error("Failed to mint token");
+    }
   }
 
   override async mintTokenForIPFS(mintForIPFSParam: MintForIPFSTxParam): Promise<number> {
@@ -86,8 +91,18 @@ export class VWBLERC6150Ethers extends VWBLNFTEthers {
     );
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
-    const tokenId = parseToTokenId(receipt);
-    return tokenId;
+
+    let tokenId;
+    if (receipt) {
+      tokenId = parseToTokenId(receipt);
+    } else {
+      console.error("Receipt is null");
+    }
+    if (tokenId) {
+      return tokenId;
+    } else {
+      throw new Error("Failed to mint token for IPFS");
+    }
   }
 
   override async grantViewPermission(grantParam: GrantViewPermissionTxParam): Promise<void> {

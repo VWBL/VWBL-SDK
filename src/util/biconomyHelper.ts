@@ -1,6 +1,5 @@
 import * as abi from "ethereumjs-abi";
-import { ethers } from "ethers";
-
+import { AbiCoder, ethers, id, keccak256, zeroPadValue } from "ethers";
 const biconomyForwarderDomainData = {
   name: "Biconomy Forwarder",
   version: "1",
@@ -62,7 +61,9 @@ export const buildForwardTxRequest = (
 export const getDataToSignForEIP712 = (request: TxParam, forwarderAddress: string, chainId: number) => {
   const domainData = biconomyForwarderDomainData;
   domainData.verifyingContract = forwarderAddress;
-  domainData.salt = ethers.utils.hexZeroPad(ethers.BigNumber.from(chainId).toHexString(), 32);
+
+  domainData.salt = zeroPadValue(BigInt(chainId).toString(16), 32);
+
   const dataToSign = JSON.stringify({
     types: {
       EIP712Domain: domainType,
@@ -76,15 +77,32 @@ export const getDataToSignForEIP712 = (request: TxParam, forwarderAddress: strin
 };
 
 export const getDomainSeparator = (forwarderAddress: string, chainId: number) => {
-  const domainSeparator = ethers.utils.keccak256(
-    ethers.utils.defaultAbiCoder.encode(
+  // const domainSeparator = keccak256(
+  //   defaultAbiCoder.encode(
+  //     ["bytes32", "bytes32", "bytes32", "address", "bytes32"],
+  //     [
+  //       id(
+  //         "EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"
+  //       ),
+  //       id(biconomyForwarderDomainData.name),
+  //       id(biconomyForwarderDomainData.version),
+  //       forwarderAddress,
+  //       hexZeroPad(BigNumber.from(chainId).toHexString(), 32),
+  //     ]
+  //   )
+  // );
+
+  const coder = AbiCoder.defaultAbiCoder();
+
+  const domainSeparator = keccak256(
+    coder.encode(
       ["bytes32", "bytes32", "bytes32", "address", "bytes32"],
       [
-        ethers.utils.id("EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"),
-        ethers.utils.id(biconomyForwarderDomainData.name),
-        ethers.utils.id(biconomyForwarderDomainData.version),
+        id("EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"),
+        id(biconomyForwarderDomainData.name),
+        id(biconomyForwarderDomainData.version),
         forwarderAddress,
-        ethers.utils.hexZeroPad(ethers.BigNumber.from(chainId).toHexString(), 32),
+        hexZeroPad(BigInt(chainId).toString(16), 32),
       ]
     )
   );
@@ -103,9 +121,12 @@ export const getDataToSignForPersonalSign = (request: TxParam) => {
       request.batchId,
       request.batchNonce,
       request.deadline,
-      ethers.utils.keccak256(request.data),
+      ethers.keccak256(request.data),
     ]
   );
 
   return hashToSign;
 };
+function hexZeroPad(arg0: string, arg1: number): any {
+  throw new Error("Function not implemented.");
+}

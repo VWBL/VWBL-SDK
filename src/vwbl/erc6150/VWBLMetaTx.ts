@@ -1,10 +1,11 @@
-import { ethers, utils } from "ethers";
+import { Eip1193Provider, ethers, hexlify, randomBytes } from "ethers";
 import * as fs from "fs";
 
 import { uploadEncryptedFileToIPFS, uploadMetadataToIPFS, uploadThumbnailToIPFS } from "../../storage";
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
 import { createRandomKey, encryptFile, encryptStream, encryptString, getMimeType, toBase64FromFile } from "../../util";
 import { isRunningOnBrowser } from "../../util/envUtil";
+import { getChainId } from "../../util/getChainIdHelper";
 import { VWBLERC6150MetaTxEthers } from "../blockchain";
 import { VWBLMetaTx } from "../erc721/VWBLMetaTx";
 import {
@@ -34,8 +35,8 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
   constructor(props: MetaTxConstructorProps) {
     super(props);
     const { bcProvider, contractAddress, biconomyConfig } = props;
-
-    const walletProvider = "address" in bcProvider ? bcProvider : new ethers.providers.Web3Provider(bcProvider);
+    const walletProvider =
+      "address" in bcProvider ? bcProvider : new ethers.BrowserProvider(bcProvider as unknown as Eip1193Provider);
     this.erc6150 = new VWBLERC6150MetaTxEthers(
       biconomyConfig.apiKey,
       walletProvider,
@@ -85,7 +86,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     }
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
     const tokenId = await this.erc6150.mintToken({
       decryptUrl: vwblNetworkUrl,
@@ -154,7 +155,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.signer.getChainId();
+    const chainId = await getChainId(this.provider!);
     await this.api.setKey(documentId, chainId, key, this.signature, await this._getAddressBySigner(this.signer));
     subscriber?.kickStep(StepStatus.SET_KEY);
 
@@ -244,7 +245,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
 
     // 5. mint token
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
     const tokenId = await this.erc6150.mintTokenForIPFS({
       metadataUrl: metadataUrl,
@@ -258,7 +259,8 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.signer.getChainId();
+
+    const chainId = await getChainId(this.provider!);
     await this.api.setKey(documentId, chainId, key, this.signature, await this._getAddressBySigner(this.signer));
     subscriber?.kickStep(StepStatus.SET_KEY);
 
@@ -275,7 +277,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
    */
   mintToken: MintTokenMetaTx = async (feeNumerator: number, mintApiId: string, parentId?: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
     return await this.erc6150.mintToken({
       decryptUrl: vwblNetworkUrl,
@@ -302,7 +304,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     parentId?: number
   ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
     return await this.erc6150.mintTokenForIPFS({
       metadataUrl,

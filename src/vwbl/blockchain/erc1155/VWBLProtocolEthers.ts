@@ -6,16 +6,11 @@ import { getFeeSettingsBasedOnEnvironment } from "../../../util/transactionHelpe
 import { GasSettings } from "../../types";
 
 export class VWBLERC1155EthersContract {
-  private ethersProvider: ethers.providers.BaseProvider;
+  private ethersProvider: ethers.Provider;
   private ethersSigner: ethers.Signer;
   private contract: ethers.Contract;
 
-  constructor(
-    address: string,
-    isIpfs: boolean,
-    ethersProvider: ethers.providers.BaseProvider,
-    ethersSigner: ethers.Signer
-  ) {
+  constructor(address: string, isIpfs: boolean, ethersProvider: ethers.Provider, ethersSigner: ethers.Signer) {
     this.ethersProvider = ethersProvider;
     this.ethersSigner = ethersSigner;
     this.contract = isIpfs
@@ -50,7 +45,13 @@ export class VWBLERC1155EthersContract {
     const tx = await this.contract.mint(decryptUrl, amount, feeNumerator, documentId, txSettings);
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
-    const tokenId = parseToTokenId(receipt);
+
+    let tokenId;
+    if (receipt) {
+      tokenId = parseToTokenId(receipt);
+    } else {
+      console.error("Receipt is null");
+    }
     return tokenId;
   }
 
@@ -81,7 +82,12 @@ export class VWBLERC1155EthersContract {
     const tx = await this.contract.mintBatch(decryptUrl, amount, feeNumerator, documentId, txSettings);
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
-    const tokenIds = parseToTokenIds(receipt);
+    let tokenIds;
+    if (receipt) {
+      tokenIds = parseToTokenIds(receipt);
+    } else {
+      console.error("Receipt is null");
+    }
     return tokenIds;
   }
 
@@ -113,8 +119,13 @@ export class VWBLERC1155EthersContract {
     const tx = await this.contract.mint(metadataUrl, decryptUrl, amount, feeNumerator, documentId, txSettings);
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
-    const tokenId = parseToTokenId(receipt);
-    return tokenId;
+    let tokenIds;
+    if (receipt) {
+      tokenIds = parseToTokenIds(receipt);
+    } else {
+      console.error("Receipt is null");
+    }
+    return tokenIds;
   }
 
   async batchMintTokenForIPFS(
@@ -145,35 +156,40 @@ export class VWBLERC1155EthersContract {
     const tx = await this.contract.mintBatch(metadataUrl, decryptUrl, amount, feeNumerator, documentId, txSettings);
     const receipt = await this.ethersProvider.waitForTransaction(tx.hash);
     console.log("transaction end");
-    const tokenIds = parseToTokenIds(receipt);
+    let tokenIds;
+    if (receipt) {
+      tokenIds = parseToTokenIds(receipt);
+    } else {
+      console.error("Receipt is null");
+    }
     return tokenIds;
   }
 
   async getOwnTokenIds() {
     const myAddress = await this.ethersSigner.getAddress();
-    const balance = await this.contract.callStatic.tokenCountOfOwner(myAddress);
+    const balance = await this.contract.tokenCountOfOwner(myAddress);
     return await Promise.all(
       range(Number.parseInt(balance)).map(async (i) => {
-        const ownTokenId = await this.contract.callStatic.tokenOfOwnerByIndex(myAddress, i);
+        const ownTokenId = await this.contract.tokenOfOwnerByIndex(myAddress, i);
         return Number.parseInt(ownTokenId);
       })
     );
   }
 
   async getTokenByMinter(address: string) {
-    return await this.contract.callStatic.getTokenByMinter(address);
+    return await this.contract.getTokenByMinter.staticCall(address);
   }
 
   async getMetadataUrl(tokenId: number) {
-    return await this.contract.callStatic.uri(tokenId);
+    return await this.contract.uri.staticCall(tokenId);
   }
 
   async getOwner(tokenId: number) {
-    return await this.contract.callStatic.ownerOf(tokenId);
+    return await this.contract.ownerOf.staticCall(tokenId);
   }
 
   async getMinter(tokenId: number) {
-    return await this.contract.callStatic.getMinter(tokenId);
+    return await this.contract.getMinter.staticCall(tokenId);
   }
 
   async isOwnerOf(tokenId: number) {
@@ -189,13 +205,12 @@ export class VWBLERC1155EthersContract {
   }
 
   async getFee() {
-    return await this.contract.callStatic.getFee();
+    return await this.contract.getFee.staticCall();
   }
 
   async getTokenInfo(tokenId: number) {
-    return await this.contract.callStatic.tokenIdToTokenInfo(tokenId);
+    return await this.contract.tokenIdToTokenInfo.staticCall(tokenId);
   }
-
   async setApprovalForAll(operator: string, gasSettings?: GasSettings): Promise<void> {
     let txSettings: unknown;
     if (gasSettings?.gasPrice) {
@@ -215,7 +230,7 @@ export class VWBLERC1155EthersContract {
   }
 
   async isApprovedForAll(owner: string, operator: string): Promise<boolean> {
-    return await this.contract.callStatic.isApprovedForAll(owner, operator);
+    return await this.contract.isApprovedForAll.staticCall(owner, operator);
   }
 
   async safeTransfer(
@@ -244,11 +259,11 @@ export class VWBLERC1155EthersContract {
   }
 
   async balanceOf(owner: string, tokenId: number) {
-    return await this.contract.callStatic.balanceOf(owner, tokenId);
+    return await this.contract.balanceOf.staticCall(owner, tokenId);
   }
 
   async balanceOfBatch(owners: string[], tokenIds: number[]) {
-    return await this.contract.callStatic.balanceOfBatch(owners, tokenIds);
+    return await this.contract.balanceOfBatch(owners, tokenIds);
   }
 
   async burn(owner: string, tokenId: number, amount: number, gasSettings?: GasSettings) {
@@ -292,31 +307,37 @@ const range = (length: number) => {
   return Array.from(Array(length).keys());
 };
 
-const parseToTokenId = (receipt: ethers.providers.TransactionReceipt): number => {
-  const eventInterface = new ethers.utils.Interface([
+const parseToTokenId = (receipt: ethers.TransactionReceipt): number => {
+  const eventInterface = new ethers.Interface([
     "event erc1155DataRegistered(address contractAddress, uint256 tokenId)",
   ]);
   let tokenId = 0;
-  receipt.logs.forEach((log) => {
+  receipt.logs.forEach((log: any) => {
     // check whether topic is erc1155DataRegistered(address contractAddress, uint256 tokenId)
     if (log.topics[0] === "0xf30a336bd6229f1e88c41eeaad2c5fa73b69e4ec90773a67af474031d64fe32f") {
-      const description = eventInterface.parseLog({ topics: log.topics, data: log.data });
-      tokenId = description.args[1].toNumber();
+      const description = eventInterface.parseLog({
+        topics: log.topics,
+        data: log.data,
+      });
+      tokenId = description?.args[1].toNumber();
     }
   });
   return tokenId;
 };
 
-const parseToTokenIds = (receipt: ethers.providers.TransactionReceipt): number[] => {
-  const eventInterface = new ethers.utils.Interface([
+const parseToTokenIds = (receipt: ethers.TransactionReceipt): number[] => {
+  const eventInterface = new ethers.Interface([
     "event erc1155DataRegistered(address contractAddress, uint256 tokenId)",
   ]);
   const tokenIds: number[] = [];
-  receipt.logs.forEach((log) => {
+  receipt.logs.forEach((log: any) => {
     // check whether topic is erc1155DataRegistered(address contractAddress, uint256 tokenId)
     if (log.topics[0] === "0xf30a336bd6229f1e88c41eeaad2c5fa73b69e4ec90773a67af474031d64fe32f") {
-      const description = eventInterface.parseLog({ topics: log.topics, data: log.data });
-      tokenIds.push(description.args[1].toNumber());
+      const description = eventInterface.parseLog({
+        topics: log.topics,
+        data: log.data,
+      });
+      tokenIds.push(description?.args[1].toNumber());
     }
   });
   return tokenIds;

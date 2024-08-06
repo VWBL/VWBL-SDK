@@ -1,5 +1,5 @@
 import axios from "axios";
-import { utils } from "ethers";
+import { hexlify, randomBytes } from "ethers";
 import * as fs from "fs";
 
 import { uploadEncryptedFile, uploadMetadata, uploadThumbnail } from "../../storage/aws";
@@ -16,6 +16,7 @@ import {
   toBase64FromFile,
 } from "../../util";
 import { isRunningOnBrowser } from "../../util/envUtil";
+import { getChainId } from "../../util/getChainIdHelper";
 import { VWBLBase } from "../base";
 import { VWBLERC1155EthersContract } from "../blockchain";
 import { ExtractMetadata, Metadata, PlainMetadata } from "../metadata";
@@ -103,7 +104,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
     }
     const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
     // 1. mint token
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
@@ -152,6 +153,10 @@ export class VWBLERC1155Ethers extends VWBLBase {
       throw new Error("please specify upload metadata type or give callback");
     }
     const mimeType = getMimeType(plainFileArray[0]);
+
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
     await uploadMetadataFunction(
       tokenId,
       name,
@@ -166,7 +171,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.opts.ethersSigner.getChainId();
+    const chainId = await getChainId(this.opts.ethersSigner.provider!);
     await this.api.setKey(
       documentId,
       chainId,
@@ -260,13 +265,13 @@ export class VWBLERC1155Ethers extends VWBLBase {
     );
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
     // 5. mint token
-    const documentId = utils.hexlify(utils.randomBytes(32));
+    const documentId = hexlify(randomBytes(32));
     const tokenId = await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, amount, feeNumerator, documentId);
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await this.opts.ethersSigner.getChainId();
+    const chainId = await getChainId(this.opts.ethersSigner.provider!);
     await this.api.setKey(
       documentId,
       chainId,
@@ -288,8 +293,15 @@ export class VWBLERC1155Ethers extends VWBLBase {
    */
   mintToken = async (amount: number, feeNumerator: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId);
+    const documentId = hexlify(randomBytes(32));
+
+    const tokenId = await this.nft.mintToken(vwblNetworkUrl, amount, feeNumerator, documentId);
+
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    }
+
+    return tokenId;
   };
 
   /**
@@ -309,8 +321,29 @@ export class VWBLERC1155Ethers extends VWBLBase {
     gasSettings?: GasSettings
   ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
-    const documentId = utils.hexlify(utils.randomBytes(32));
-    return await this.nft.mintTokenForIPFS(metadataUrl, vwblNetworkUrl, amount, feeNumerator, documentId, gasSettings);
+    const documentId = hexlify(randomBytes(32));
+    const tokenId = await this.nft.mintTokenForIPFS(
+      metadataUrl,
+      vwblNetworkUrl,
+      amount,
+      feeNumerator,
+      documentId,
+      gasSettings
+    );
+
+    if (tokenId === undefined) {
+      throw new Error("Minting token failed: tokenId is undefined");
+    } else if (Array.isArray(tokenId)) {
+      if (tokenId.length === 1 && typeof tokenId[0] === "number") {
+        return tokenId[0];
+      } else {
+        throw new Error("Minting token failed: tokenId array is invalid");
+      }
+    } else if (typeof tokenId === "number") {
+      return tokenId;
+    } else {
+      throw new Error("Minting token failed: unexpected tokenId type");
+    }
   };
 
   /**
@@ -437,7 +470,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
    */
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await this.opts.ethersSigner.getChainId();
+    const chainId = await getChainId(this.opts.ethersSigner.provider!);
     return await this._setKey(
       documentId,
       chainId,
@@ -543,7 +576,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
       return undefined;
     }
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await this.opts.ethersSigner.getChainId();
+    const chainId = await getChainId(this.opts.ethersSigner.provider!);
     const decryptKey = await this.api.getKey(
       documentId,
       chainId,
