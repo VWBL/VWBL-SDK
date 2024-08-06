@@ -48,6 +48,7 @@ export class VWBLMetaTx extends VWBLBase {
   public opts: VWBLMetaTxOption;
   public nft: VWBLNFTMetaTx;
   public signer: ethers.Signer;
+  public provider: ethers.Provider | undefined;
   public viewer?: VWBLViewer;
 
   constructor(props: MetaTxConstructorProps) {
@@ -125,7 +126,8 @@ export class VWBLMetaTx extends VWBLBase {
     if (!this.signature) {
       throw "please sign first";
     }
-    const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } = this.opts;
+    const { uploadContentType, uploadMetadataType, awsConfig, vwblNetworkUrl } =
+      this.opts;
     // 1. mint token
     const documentId = hexlify(randomBytes(32));
     const tokenId = await this.nft.mintToken({
@@ -146,9 +148,13 @@ export class VWBLMetaTx extends VWBLBase {
     const plainFileArray = [plainFile].flat();
     const uuid = createRandomKey();
     const uploadEncryptedFunction =
-      uploadContentType === UploadContentType.S3 ? uploadEncryptedFile : uploadEncryptedFileCallback;
+      uploadContentType === UploadContentType.S3
+        ? uploadEncryptedFile
+        : uploadEncryptedFileCallback;
     const uploadThumbnailFunction =
-      uploadContentType === UploadContentType.S3 ? uploadThumbnail : uploadThumbnailCallback;
+      uploadContentType === UploadContentType.S3
+        ? uploadThumbnail
+        : uploadThumbnailCallback;
     if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
       throw new Error("please specify upload file type or give callback");
     }
@@ -158,25 +164,40 @@ export class VWBLMetaTx extends VWBLBase {
     console.log("upload data");
     const encryptedDataUrls = await Promise.all(
       plainFileArray.map(async (file) => {
-        const plainFileBlob = file instanceof File ? file : new File([await fs.promises.readFile(file)], file);
+        const plainFileBlob =
+          file instanceof File
+            ? file
+            : new File([await fs.promises.readFile(file)], file);
         const filePath = file instanceof File ? file.name : file;
-        const fileName: string = file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
+        const fileName: string =
+          file instanceof File ? file.name : file.split("/").slice(-1)[0]; //ファイル名の取得だけのためにpathを使いたくなかった
         const encryptedContent =
           encryptLogic === "base64"
             ? encryptString(await toBase64FromFile(plainFileBlob), key)
             : isRunningOnBrowser()
             ? await encryptFile(plainFileBlob, key)
             : encryptStream(fs.createReadStream(filePath), key);
-        return await uploadEncryptedFunction(fileName, encryptedContent, uuid, awsConfig);
+        return await uploadEncryptedFunction(
+          fileName,
+          encryptedContent,
+          uuid,
+          awsConfig
+        );
       })
     );
-    const thumbnailImageUrl = await uploadThumbnailFunction(thumbnailImage, uuid, awsConfig);
+    const thumbnailImageUrl = await uploadThumbnailFunction(
+      thumbnailImage,
+      uuid,
+      awsConfig
+    );
     subscriber?.kickStep(StepStatus.UPLOAD_CONTENT);
 
     // 5. upload metadata
     console.log("upload meta data");
     const uploadMetadataFunction =
-      uploadMetadataType === UploadMetadataType.S3 ? uploadMetadata : uploadMetadataCallBack;
+      uploadMetadataType === UploadMetadataType.S3
+        ? uploadMetadata
+        : uploadMetadataCallBack;
     if (!uploadMetadataFunction) {
       throw new Error("please specify upload metadata type or give callback");
     }
@@ -194,10 +215,16 @@ export class VWBLMetaTx extends VWBLBase {
     subscriber?.kickStep(StepStatus.UPLOAD_METADATA);
     console.log("encryptedDataUrls", encryptedDataUrls);
 
-    // 6. set key to vwbl-network
+    // 6. set key to vwbl-network定
     console.log("set key", key);
-    const chainId = await getChainId(this.signer);
-    await this.api.setKey(documentId, chainId, key, this.signature, await this._getAddressBySigner(this.signer));
+    const chainId = await getChainId(this.provider!);
+    await this.api.setKey(
+      documentId,
+      chainId,
+      key,
+      this.signature,
+      await this._getAddressBySigner(this.signer)
+    );
     subscriber?.kickStep(StepStatus.SET_KEY);
 
     return tokenId;
@@ -303,7 +330,7 @@ export class VWBLMetaTx extends VWBLBase {
     console.log("set key");
     console.log("set metadataUrl", metadataUrl);
     console.log("set key", key);
-    const chainId = await getChainId(this.signer);
+    const chainId = await getChainId(this.provider!);
     await this.api.setKey(documentId, chainId, key, this.signature, await this._getAddressBySigner(this.signer));
     subscriber?.kickStep(StepStatus.SET_KEY);
 
@@ -321,7 +348,7 @@ export class VWBLMetaTx extends VWBLBase {
    */
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await getChainId(this.signer);
+    const chainId = await getChainId(this.provider!);
     return await this._setKey(
       documentId,
       chainId,
@@ -642,7 +669,8 @@ export class VWBLMetaTx extends VWBLBase {
       contractAddress && this.viewer
         ? await this.viewer.getDocumentId(contractAddress, tokenId)
         : (await this.nft.getTokenInfo(tokenId)).documentId;
-    const chainId = await getChainId(this.signer);
+    const chainId = await getChainId(this.provider!);
+
     const decryptKey = await this.api.getKey(
       documentId,
       chainId,

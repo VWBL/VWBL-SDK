@@ -11,6 +11,7 @@ import {
   encryptString,
   toBase64FromFile,
 } from "../util";
+import { getChainId } from "../util/getChainIdHelper";
 import { VWBLApi } from "./api";
 import { signToProtocol } from "./blockchain";
 import { BaseConstructorProps, UploadContentType, UploadMetadataType } from "./types";
@@ -48,10 +49,27 @@ export class VWBLBase {
   protected _sign = async (signer: Web3 | ethers.Signer, targetContract?: string) => {
     //TODO: signerがWeb3 instanceかどうかを判断するロジックを切り出さないといけない signer instanceof Web3では意図した通り動かなかったため
     const castedSigner = signer as any;
+
+    // const chainId = await getChainId(castedSigner);
+
+    let provider: ethers.Provider;
+    if (castedSigner.hasOwnProperty("eth")) {
+      // Web3 instance
+      provider = new ethers.BrowserProvider(castedSigner.currentProvider);
+    } else {
+      // ethers.Signer
+      provider = castedSigner.provider;
+    }
+
+    // Use the external getChainId function with the extracted provider
+    const chainId = await getChainId(provider);
     // eslint-disable-next-line
-    const chainId = castedSigner.hasOwnProperty("eth")
-      ? await castedSigner.eth.getChainId()
-      : await castedSigner.getChainId();
+    // const chainId = castedSigner.hasOwnProperty("eth")
+    //   ? await castedSigner.eth.getChainId()
+    //   : await castedSigner.getChainId();
+
+    // const chainId = await getChainId(provider);
+    console.log("chainId>>>", chainId);
     const address = await this._getAddressBySigner(signer);
     const contractAddress = targetContract || this.contractAddress;
     const signMessage = await this.api
@@ -94,7 +112,7 @@ export class VWBLBase {
    */
   protected _setKey = async (
     documentId: string,
-    chainId: number,
+    chainId: number | bigint,
     key: string,
     address?: string,
     hasNonce?: boolean,
@@ -114,7 +132,7 @@ export class VWBLBase {
    * @param address address
    *
    */
-  protected _getKey = async (documentId: string, chainId: number, address?: string): Promise<string> => {
+  protected _getKey = async (documentId: string, chainId: number | bigint, address?: string): Promise<string> => {
     if (!this.signature) {
       throw "please sign first";
     }

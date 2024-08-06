@@ -200,7 +200,9 @@ export class VWBL extends VWBLBase {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId =
-      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await getChainId(this.opts.ethersSigner);
+      "web3" in this.opts
+        ? Number(await this.opts.web3.eth.getChainId())
+        : await getChainId(this.opts.ethersSigner.provider!);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
@@ -313,7 +315,9 @@ export class VWBL extends VWBLBase {
     // 6. set key to vwbl-network
     console.log("set key");
     const chainId =
-      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await getChainId(this.opts.ethersSigner);
+      "web3" in this.opts
+        ? Number(await this.opts.web3.eth.getChainId())
+        : await getChainId(this.opts.ethersSigner.provider!);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
@@ -336,7 +340,9 @@ export class VWBL extends VWBLBase {
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
     const chainId =
-      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await getChainId(this.opts.ethersSigner);
+      "web3" in this.opts
+        ? Number(await this.opts.web3.eth.getChainId())
+        : await getChainId(this.opts.ethersSigner.provider!);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
@@ -347,7 +353,9 @@ export class VWBL extends VWBLBase {
   getKey = async (tokenId: number): Promise<string> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
     const chainId =
-      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await getChainId(this.opts.ethersSigner);
+      "web3" in this.opts
+        ? Number(await this.opts.web3.eth.getChainId())
+        : await getChainId(this.opts.ethersSigner.provider!);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)
@@ -688,7 +696,9 @@ export class VWBL extends VWBLBase {
         ? await this.viewer.getDocumentId(contractAddress, tokenId)
         : (await this.nft.getTokenInfo(tokenId)).documentId;
     const chainId =
-      "web3" in this.opts ? Number(await this.opts.web3.eth.getChainId()) : await getChainId(this.opts.ethersSigner);
+      "web3" in this.opts
+        ? Number(await this.opts.web3.eth.getChainId())
+        : await getChainId(this.opts.ethersSigner.provider!);
     const signerAddress =
       "web3" in this.opts
         ? await this._getAddressBySigner(this.opts.web3)

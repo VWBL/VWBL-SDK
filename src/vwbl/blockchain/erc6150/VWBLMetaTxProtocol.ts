@@ -29,8 +29,7 @@ export class VWBLERC6150MetaTxEthers extends VWBLNFTMetaTx {
       mintParam.feeNumerator,
       mintParam.documentId
     );
-
-    const chainId = await getChainId(this.ethersSigner);
+    const chainId = await getChainId(this.ethersSigner.provider!);
     const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data, chainId);
     console.log("transaction start");
     const receipt = await this.sendTransaction(
@@ -42,6 +41,7 @@ export class VWBLERC6150MetaTxEthers extends VWBLNFTMetaTx {
       signatureType
     );
     console.log("transaction end");
+
     const tokenId = parseToTokenId(receipt);
     return tokenId;
   }
@@ -56,7 +56,7 @@ export class VWBLERC6150MetaTxEthers extends VWBLNFTMetaTx {
       mintForIPFSParam.feeNumerator,
       mintForIPFSParam.documentId
     );
-    const chainId = await getChainId(this.ethersSigner);
+    const chainId = await getChainId(this.ethersSigner.provider!);
 
     const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data, chainId);
     console.log("transaction start");
@@ -81,7 +81,7 @@ export class VWBLERC6150MetaTxEthers extends VWBLNFTMetaTx {
       grantParam.grantee,
       grantParam.toDir
     );
-    const chainId = await getChainId(this.ethersSigner);
+    const chainId = await getChainId(this.ethersSigner.provider!);
 
     const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data, chainId);
     console.log("transaction start");
@@ -100,7 +100,7 @@ export class VWBLERC6150MetaTxEthers extends VWBLNFTMetaTx {
     const myAddress = await this.ethersSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.erc6150Address, vwblERC6150Ipfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.revokeDirPermission.populateTransaction(tokenId, revoker);
-    const chainId = await getChainId(this.ethersSigner);
+    const chainId = await getChainId(this.ethersSigner.provider!);
 
     const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data, chainId);
     console.log("transaction start");

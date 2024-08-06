@@ -155,7 +155,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await getChainId(this.signer);
+    const chainId = await getChainId(this.provider!);
     await this.api.setKey(documentId, chainId, key, this.signature, await this._getAddressBySigner(this.signer));
     subscriber?.kickStep(StepStatus.SET_KEY);
 
@@ -260,7 +260,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     // 6. set key to vwbl-network
     console.log("set key");
 
-    const chainId = await getChainId(this.signer);
+    const chainId = await getChainId(this.provider!);
     await this.api.setKey(documentId, chainId, key, this.signature, await this._getAddressBySigner(this.signer));
     subscriber?.kickStep(StepStatus.SET_KEY);
 

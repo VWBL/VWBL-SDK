@@ -26,7 +26,7 @@ export type ConstructorProps = BaseConstructorProps & {
 export type VWBLOption = ConstructorProps;
 
 export type EthersConstructorProps = BaseConstructorProps & {
-  ethersProvider: ethers.BrowserProvider;
+  ethersProvider: ethers.Provider;
   ethersSigner: ethers.Signer;
   manageKeyType?: ManageKeyType;
   dataCollectorAddress?: string;
@@ -44,7 +44,7 @@ export type MetaTxConstructorProps = BaseConstructorProps & {
 export type VWBLMetaTxOption = MetaTxConstructorProps;
 
 export type ViewerConstructorProps = {
-  provider: Web3 | ethers.BrowserProvider | ethers.Wallet;
+  provider: Web3 | ethers.Provider | ethers.Wallet;
   dataCollectorAddress: string;
 };
 

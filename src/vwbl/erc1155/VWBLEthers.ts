@@ -171,7 +171,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await getChainId(this.opts.ethersSigner);
+    const chainId = await getChainId(this.opts.ethersSigner.provider!);
     await this.api.setKey(
       documentId,
       chainId,
@@ -271,7 +271,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
 
     // 6. set key to vwbl-network
     console.log("set key");
-    const chainId = await getChainId(this.opts.ethersSigner);
+    const chainId = await getChainId(this.opts.ethersSigner.provider!);
     await this.api.setKey(
       documentId,
       chainId,
@@ -470,7 +470,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
    */
   setKey = async (tokenId: number, key: string, hasNonce?: boolean, autoMigration?: boolean): Promise<void> => {
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await getChainId(this.opts.ethersSigner);
+    const chainId = await getChainId(this.opts.ethersSigner.provider!);
     return await this._setKey(
       documentId,
       chainId,
@@ -576,7 +576,7 @@ export class VWBLERC1155Ethers extends VWBLBase {
       return undefined;
     }
     const { documentId } = await this.nft.getTokenInfo(tokenId);
-    const chainId = await getChainId(this.opts.ethersSigner);
+    const chainId = await getChainId(this.opts.ethersSigner.provider!);
     const decryptKey = await this.api.getKey(
       documentId,
       chainId,
