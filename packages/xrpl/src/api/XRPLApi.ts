@@ -14,16 +14,14 @@ export class XRPLApi {
     signature: string,
     paymentTxHash: string,
     publicKey: string,
-    address?: string
   ) {
-    await this.instance.post("/keys", {
+    await this.instance.post("/xrpl-keys", {
       document_id: documentId,
       xrpl_chain_id: xrplChainId,
       key,
       signature_tx_blob: signature,
       payment_tx_hash: paymentTxHash,
       pub_key: publicKey,
-      address,
     });
   }
   // TODO

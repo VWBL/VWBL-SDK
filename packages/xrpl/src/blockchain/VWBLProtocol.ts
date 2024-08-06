@@ -1,4 +1,4 @@
-import { Client, SubmittableTransaction, xrpToDrops } from "xrpl";
+import { Client, SubmittableTransaction, convertStringToHex, xrpToDrops } from "xrpl";
 import { NFTokenMintMetadata } from "xrpl/dist/npm/models/transactions/NFTokenMint";
 
 const MESSAGE = "Hello VWBL";
@@ -66,7 +66,7 @@ export class VWBLXRPLProtocol {
     const paymentTxJson: SubmittableTransaction = {
       TransactionType: "Payment",
       Account: senderAddress,
-      Destination: "rrXi6ndeXdmMc1jAETBSLrfgyWReXxwv1", // TODO
+      Destination: "rEoKiVWsy2RYsS6WbtR7RSf8XGgB2c572G", // TODO
       Amount: xrpToDrops("0.16"),
       Fee: xrpToDrops("0.00001"),
       LastLedgerSequence: currentLedgerIndex + 4,
@@ -98,7 +98,7 @@ export class VWBLXRPLProtocol {
         }
       }
     } catch (e) {
-      throw Error("failed to submit NFTokenMint tx");
+      throw Error(`failed to submit Payment tx ${e}`);
     } finally {
       await this.client.disconnect();
     }
@@ -111,7 +111,7 @@ export class VWBLXRPLProtocol {
       Memos: [
         {
           Memo: {
-            MemoData: MESSAGE,
+            MemoData: convertStringToHex(MESSAGE),
           },
         },
       ],

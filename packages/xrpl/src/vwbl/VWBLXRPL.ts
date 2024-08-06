@@ -196,7 +196,7 @@ export class VWBLXRPL {
     const paymentTxHash = response.paymentTxHash;
     const tokenId = response.tokenId;
     // generate empty tx object
-    const emptyTxObject = this.nft.generateEmptyTx(walletAddress);
+    const emptyTxObject = await this.nft.generateEmptyTx(walletAddress);
 
     return { paymentTxHash, tokenId, emptyTxObject };
   };
@@ -296,7 +296,7 @@ export class VWBLXRPL {
   createManagedTokenForIPFS = async (
     tokenId: string,
     signedEmptyTx: string,
-    signedPaymentTxHash: string,
+    paymentTxHash: string,
     signerPublicKey: string
   ) => {
     const key = this.keyMap.get(tokenId);
@@ -311,7 +311,7 @@ export class VWBLXRPL {
       this.opts.xrplChainId,
       key,
       signedEmptyTx,
-      signedPaymentTxHash,
+      paymentTxHash,
       signerPublicKey
     );
 
