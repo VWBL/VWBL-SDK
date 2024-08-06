@@ -54,7 +54,7 @@
     "@aws-sdk/client-s3": "^3.338.0",
     "@aws-sdk/credential-providers": "^3.338.0",
     "@aws-sdk/lib-storage": "^3.338.0",
-    "vwbl-core": "*",
+    "vwbl-core": "^0.1.0",
     "axios": "^0.27.2",
     "crypto": "^1.0.1",
     "crypto-js": "^4.1.1",

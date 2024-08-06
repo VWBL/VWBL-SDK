@@ -1,4 +1,9 @@
-import { Client, SubmittableTransaction, convertStringToHex, xrpToDrops } from "xrpl";
+import {
+  Client,
+  SubmittableTransaction,
+  convertStringToHex,
+  xrpToDrops,
+} from "xrpl";
 import { NFTokenMintMetadata } from "xrpl/dist/npm/models/transactions/NFTokenMint";
 
 const MESSAGE = "Hello VWBL";
@@ -50,6 +55,11 @@ export class VWBLXRPLProtocol {
   async generatePaymentTx(tokenId: string, senderAddress: string) {
     await this.client.connect();
 
+    const fee = await this.client.request({
+      command: "fee",
+    });
+    const drops = fee.result.drops;
+
     const accountInfo = await this.client.request({
       command: "account_info",
       account: senderAddress,
@@ -68,7 +78,7 @@ export class VWBLXRPLProtocol {
       Account: senderAddress,
       Destination: "rEoKiVWsy2RYsS6WbtR7RSf8XGgB2c572G", // TODO
       Amount: xrpToDrops("0.16"),
-      Fee: xrpToDrops("0.00001"),
+      Fee: drops.minimum_fee,
       LastLedgerSequence: currentLedgerIndex + 4,
       Sequence: sequence,
       Memos: [
