@@ -81,7 +81,7 @@ export const uploadThumbnail = async (
 };
 
 export const uploadMetadata = async (
-  tokenId: number,
+  tokenId: string | number,
   name: string,
   description: string,
   previewImageUrl: string,

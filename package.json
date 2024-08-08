@@ -16,6 +16,7 @@
     "build:all": "nx run-many --target=build --all",
     "build:core": "nx build vwbl-core",
     "build:evm": "nx build vwbl-sdk",
+    "build:xrpl": "nx build vwbl-sdk-xrpl",
     "lint:all": "npm run lint -ws",
     "lint:core": "npm run lint -w vwbl-core",
     "lint:evm": "npm run lint -w vwbl-sdk",
@@ -28,12 +29,17 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.4.0",
-    "@types/eslint__js": "^8.42.3",
     "@nx/js": "19.3.0",
+    "@types/eslint__js": "^8.42.3",
     "eslint": "^8.57.0",
     "nx": "19.3.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
     "typescript-eslint": "^7.13.0"
   },
-  "nx": {}
+  "nx": {},
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "xumm-sdk": "^1.11.1"
+  }
 }
