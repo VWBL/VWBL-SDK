@@ -13,7 +13,7 @@ export class XRPLApi {
     key: string,
     signature: string,
     paymentTxHash: string,
-    publicKey: string,
+    publicKey: string
   ) {
     await this.instance.post("/xrpl-keys", {
       document_id: documentId,
@@ -36,5 +36,20 @@ export class XRPLApi {
     );
 
     return response.data.signTx;
+  }
+
+  async getXrplPaymentInfo(
+    tokenId: string,
+    xrplChainId: number,
+    walletAddress: string
+  ) {
+    const response = await this.instance.get(
+      `/xrpl-payment/${tokenId}/${xrplChainId}?address=${walletAddress}`
+    );
+
+    return {
+      mintFee: response.data.mintFee,
+      destination: response.data.destination,
+    };
   }
 }

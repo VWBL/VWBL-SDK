@@ -52,7 +52,12 @@ export class VWBLXRPLProtocol {
     return tokenId;
   }
 
-  async generatePaymentTx(tokenId: string, senderAddress: string) {
+  async generatePaymentTx(
+    tokenId: string,
+    senderAddress: string,
+    mintFee: string,
+    destinationAddress: string
+  ) {
     await this.client.connect();
 
     const fee = await this.client.request({
@@ -76,8 +81,8 @@ export class VWBLXRPLProtocol {
     const paymentTxJson: SubmittableTransaction = {
       TransactionType: "Payment",
       Account: senderAddress,
-      Destination: "rEoKiVWsy2RYsS6WbtR7RSf8XGgB2c572G", // TODO
-      Amount: xrpToDrops("0.16"),
+      Destination: destinationAddress,
+      Amount: mintFee,
       Fee: drops.minimum_fee,
       LastLedgerSequence: currentLedgerIndex + 4,
       Sequence: sequence,

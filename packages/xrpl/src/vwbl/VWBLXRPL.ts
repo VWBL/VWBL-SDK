@@ -35,11 +35,13 @@ export class VWBLXRPL {
   public nft: VWBLXRPLProtocol;
   public opts: XrplConstructorProps;
   private keyMap = new Map<string, string>();
+  private xrplChainId: number;
 
   constructor(props: XrplConstructorProps) {
     this.api = new XRPLApi(props.vwblNetworkUrl);
     this.nft = new VWBLXRPLProtocol(props.xrplChainId);
     this.opts = props;
+    this.xrplChainId = props.xrplChainId;
   }
 
   generateMintTokenTx(
@@ -140,9 +142,16 @@ export class VWBLXRPL {
     walletAddress: string
   ) => {
     const tokenId = await this.nft.mint(signedMintTx);
+    const { mintFee, destination } = await this.api.getXrplPaymentInfo(
+      tokenId,
+      this.xrplChainId,
+      walletAddress
+    );
     const paymentTxJson = await this.nft.generatePaymentTx(
       tokenId,
-      walletAddress
+      walletAddress,
+      mintFee,
+      destination
     );
 
     return { tokenId, paymentTxJson };
@@ -164,9 +173,17 @@ export class VWBLXRPL {
     this.keyMap.delete(metadataUrl);
     this.keyMap.set(tokenId, key);
 
+    const { mintFee, destination } = await this.api.getXrplPaymentInfo(
+      tokenId,
+      this.xrplChainId,
+      walletAddress
+    );
+
     const paymentTxJson = await this.nft.generatePaymentTx(
       tokenId,
-      walletAddress
+      walletAddress,
+      mintFee,
+      destination
     );
 
     return { tokenId, paymentTxJson };
