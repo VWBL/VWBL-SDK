@@ -1,5 +1,7 @@
 import {
+  AccountNFToken,
   Client,
+  Request,
   SubmittableTransaction,
   convertStringToHex,
   xrpToDrops,
@@ -133,5 +135,26 @@ export class VWBLXRPLProtocol {
     };
 
     return emptyTxJson;
+  }
+
+  async fetchNFTInfo(
+    address: string,
+    nftokenId: string
+  ): Promise<AccountNFToken> {
+    const request: Request = {
+      command: "account_nfts",
+      account: address,
+    };
+
+    const accountNFTs = await this.client.request(request);
+    const nftInfo = accountNFTs.result.account_nfts.find(
+      (nft: AccountNFToken) => nft.NFTokenID === nftokenId
+    );
+
+    if (!nftInfo) {
+      throw new Error(`NFT of ID: ${nftokenId} not found`);
+    }
+
+    return nftInfo;
   }
 }
