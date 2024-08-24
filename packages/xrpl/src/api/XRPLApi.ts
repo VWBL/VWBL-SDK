@@ -32,7 +32,7 @@ export class XRPLApi {
     pubKey: string
   ) {
     const response = await this.instance.get(
-      `xrpl-keys/${documentId}/${xrplChainId}?signature=${signature}&pubKey=${pubKey}`
+      `xrpl-keys/${documentId}/${xrplChainId}?signature=${signature}&pub_key=${pubKey}`
     );
 
     return response.data.key;

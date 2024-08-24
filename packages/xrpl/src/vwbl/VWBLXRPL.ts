@@ -364,12 +364,13 @@ export class VWBLXRPL {
       return undefined;
     }
     // getKey
-    const decryptKey = await this.api.getKey(
+    const response = await this.api.getKey(
       signedEmptyTx,
       tokenId,
       this.xrplChainId,
       signerPublicKey
     );
+    const decryptKey = response.key;
     // decrypto filedata
     const encryptedDataUrls = metadata.encrypted_data;
     const encryptLogic = metadata.encrypt_logic ?? "base64";
@@ -416,7 +417,7 @@ export class VWBLXRPL {
     };
   };
 
-  generateTxForSigning = async (walletAddress: string) => {
+  generateTxForSigning = (walletAddress: string) => {
     const emptyTxObject = this.nft.generateEmptyTx(walletAddress);
 
     return emptyTxObject;
