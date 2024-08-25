@@ -22,13 +22,23 @@ import {
   uploadThumbnailToIPFS,
   uploadMetadataToIPFS,
   isRunningOnBrowser,
+  PlainMetadata,
+  decryptString,
+  decryptFile,
+  decryptStream,
 } from "vwbl-core";
 import * as fs from "fs";
-import { SubmittableTransaction, convertStringToHex } from "xrpl";
+import {
+  SubmittableTransaction,
+  convertHexToString,
+  convertStringToHex,
+  deriveAddress,
+} from "xrpl";
 
 import { XRPLApi } from "../api";
 import { VWBLXRPLProtocol } from "../blockchain/VWBLProtocol";
 import { XrplConstructorProps } from "../types";
+import axios from "axios";
 
 export class VWBLXRPL {
   protected api: XRPLApi;
@@ -213,7 +223,7 @@ export class VWBLXRPL {
     const paymentTxHash = response.paymentTxHash;
     const tokenId = response.tokenId;
     // generate empty tx object
-    const emptyTxObject = await this.nft.generateEmptyTx(walletAddress);
+    const emptyTxObject = this.generateTxForSigning(walletAddress);
 
     return { paymentTxHash, tokenId, emptyTxObject };
   };
@@ -333,5 +343,83 @@ export class VWBLXRPL {
     );
 
     return tokenId;
+  };
+
+  extractMetadata = async (
+    tokenId: string,
+    signedEmptyTx: string,
+    signerPublicKey: string
+  ) => {
+    const walletAddress = deriveAddress(signerPublicKey);
+    // fetch metadata
+    const accountNFT = await this.nft.fetchNFTInfo(walletAddress, tokenId);
+    if (!accountNFT.URI) {
+      throw new Error(`metadata URI is not defined on NFT: ${tokenId}`);
+    }
+    const metadataUrl = convertHexToString(accountNFT.URI);
+    const metadata: PlainMetadata = (
+      await axios.get(metadataUrl).catch(() => undefined)
+    )?.data;
+    if (!metadata) {
+      return undefined;
+    }
+    // getKey
+    const response = await this.api.getKey(
+      signedEmptyTx,
+      tokenId,
+      this.xrplChainId,
+      signerPublicKey
+    );
+    const decryptKey = response.key;
+    // decrypto filedata
+    const encryptedDataUrls = metadata.encrypted_data;
+    const encryptLogic = metadata.encrypt_logic ?? "base64";
+    const ownDataArray = await Promise.all(
+      encryptedDataUrls.map(async (encryptedDataUrl) => {
+        const encryptedData = (
+          await axios.get(encryptedDataUrl, {
+            responseType:
+              encryptLogic === "base64"
+                ? "text"
+                : isRunningOnBrowser()
+                ? "arraybuffer"
+                : "stream",
+          })
+        ).data;
+        return encryptLogic === "base64"
+          ? decryptString(encryptedData, decryptKey)
+          : isRunningOnBrowser()
+          ? await decryptFile(encryptedData, decryptKey)
+          : decryptStream(encryptedData, decryptKey);
+      })
+    );
+    const ownFiles = ownDataArray.filter(
+      (ownData): ownData is ArrayBuffer => typeof ownData !== "string"
+    );
+    const ownDataBase64 = ownDataArray.filter(
+      (ownData): ownData is string => typeof ownData === "string"
+    );
+    const fileName = encryptedDataUrls[0]
+      .split("/")
+      .slice(-1)[0]
+      .replace(/\.vwbl/, "");
+
+    return {
+      id: tokenId,
+      name: metadata.name,
+      description: metadata.description,
+      image: metadata.image,
+      mimeType: metadata.mime_type,
+      encryptLogic: metadata.encrypt_logic,
+      ownDataBase64,
+      ownFiles,
+      fileName,
+    };
+  };
+
+  generateTxForSigning = (walletAddress: string) => {
+    const emptyTxObject = this.nft.generateEmptyTx(walletAddress);
+
+    return emptyTxObject;
   };
 }

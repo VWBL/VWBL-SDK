@@ -24,8 +24,19 @@ export class XRPLApi {
       pub_key: publicKey,
     });
   }
-  // TODO
-  async getKey(documentId: string, address?: string) {}
+
+  async getKey(
+    signature: string,
+    documentId: string,
+    xrplChainId: number,
+    pubKey: string
+  ) {
+    const response = await this.instance.get(
+      `xrpl-keys/${documentId}/${xrplChainId}?signature=${signature}&pub_key=${pubKey}`
+    );
+
+    return response.data.key;
+  }
 
   async getXrplSignMessage(
     xrplChainId: number,
@@ -44,7 +55,7 @@ export class XRPLApi {
     walletAddress: string
   ) {
     const response = await this.instance.get(
-      `/xrpl-payment/${tokenId}/${xrplChainId}?address=${walletAddress}`
+      `/xrpl-payment-info/${tokenId}/${xrplChainId}?address=${walletAddress}`
     );
 
     return {

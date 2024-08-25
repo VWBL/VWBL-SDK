@@ -1,5 +1,7 @@
 import {
+  AccountNFToken,
   Client,
+  Request,
   SubmittableTransaction,
   convertStringToHex,
   xrpToDrops,
@@ -82,7 +84,7 @@ export class VWBLXRPLProtocol {
       TransactionType: "Payment",
       Account: senderAddress,
       Destination: destinationAddress,
-      Amount: mintFee,
+      Amount: xrpToDrops(mintFee),
       Fee: drops.minimum_fee,
       LastLedgerSequence: currentLedgerIndex + 4,
       Sequence: sequence,
@@ -119,7 +121,7 @@ export class VWBLXRPLProtocol {
     }
   }
 
-  async generateEmptyTx(senderAddress: string) {
+  generateEmptyTx(senderAddress: string) {
     const emptyTxJson: SubmittableTransaction = {
       TransactionType: "AccountSet",
       Account: senderAddress,
@@ -133,5 +135,28 @@ export class VWBLXRPLProtocol {
     };
 
     return emptyTxJson;
+  }
+
+  async fetchNFTInfo(
+    address: string,
+    nftokenId: string
+  ): Promise<AccountNFToken> {
+    await this.client.connect();
+    const request: Request = {
+      command: "account_nfts",
+      account: address,
+    };
+
+    const accountNFTs = await this.client.request(request);
+    const nftInfo = accountNFTs.result.account_nfts.find(
+      (nft: AccountNFToken) => nft.NFTokenID === nftokenId
+    );
+
+    if (!nftInfo) {
+      throw new Error(`NFT of ID: ${nftokenId} not found`);
+    }
+    await this.client.disconnect();
+
+    return nftInfo;
   }
 }
