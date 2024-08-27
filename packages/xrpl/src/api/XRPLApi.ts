@@ -12,8 +12,8 @@ export class XRPLApi {
     xrplChainId: number,
     key: string,
     signature: string,
-    paymentTxHash: string,
-    publicKey: string
+    publicKey: string,
+    paymentTxHash?: string
   ) {
     await this.instance.post("/xrpl-keys", {
       document_id: documentId,

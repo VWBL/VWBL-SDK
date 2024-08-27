@@ -188,6 +188,11 @@ export class VWBLXRPL {
       this.xrplChainId,
       walletAddress
     );
+    if (mintFee === "0") {
+      const emptyTxObject = this.nft.generateEmptyTx(walletAddress);
+
+      return { tokenId, emptyTxObject };
+    }
 
     const paymentTxJson = await this.nft.generatePaymentTx(
       tokenId,
@@ -231,13 +236,13 @@ export class VWBLXRPL {
   createManagedToken = async (
     tokenId: string,
     signedEmptyTx: string,
-    signedPaymentTxHash: string,
     signerPublicKey: string,
     name: string,
     description: string,
     plainFile: FileOrPath | FileOrPath[],
     thumbnailImage: FileOrPath,
     encryptLogic: EncryptLogic = "base64",
+    signedPaymentTxHash?: string,
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata
@@ -313,8 +318,8 @@ export class VWBLXRPL {
       this.opts.xrplChainId,
       key,
       signedEmptyTx,
-      signedPaymentTxHash,
-      signerPublicKey
+      signerPublicKey,
+      signedPaymentTxHash
     );
 
     return tokenId;
