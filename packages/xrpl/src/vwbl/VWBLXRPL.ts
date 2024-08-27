@@ -331,8 +331,8 @@ export class VWBLXRPL {
   createManagedTokenForIPFS = async (
     tokenId: string,
     signedEmptyTx: string,
-    paymentTxHash: string,
-    signerPublicKey: string
+    signerPublicKey: string,
+    paymentTxHash?: string
   ) => {
     const key = this.keyMap.get(tokenId);
     if (!key) {
@@ -346,8 +346,8 @@ export class VWBLXRPL {
       this.opts.xrplChainId,
       key,
       signedEmptyTx,
-      paymentTxHash,
-      signerPublicKey
+      signerPublicKey,
+      paymentTxHash
     );
 
     return tokenId;
