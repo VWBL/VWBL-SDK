@@ -4,7 +4,6 @@ import {
   Request,
   SubmittableTransaction,
   convertStringToHex,
-  xrpToDrops,
 } from "xrpl";
 import { NFTokenMintMetadata } from "xrpl/dist/npm/models/transactions/NFTokenMint";
 
@@ -84,7 +83,7 @@ export class VWBLXRPLProtocol {
       TransactionType: "Payment",
       Account: senderAddress,
       Destination: destinationAddress,
-      Amount: xrpToDrops(mintFee),
+      Amount: mintFee,
       Fee: drops.minimum_fee,
       LastLedgerSequence: currentLedgerIndex + 4,
       Sequence: sequence,
