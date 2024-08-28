@@ -157,7 +157,7 @@ export class VWBLXRPL {
     if (mintFee === "0") {
       const emptyTxObject = this.nft.generateEmptyTx(walletAddress);
 
-      return { tokenId, emptyTxObject };
+      return { tokenId, emptyTxObject, paymentTxJson: undefined };
     }
 
     const paymentTxJson = await this.nft.generatePaymentTx(
@@ -167,7 +167,7 @@ export class VWBLXRPL {
       destination
     );
 
-    return { tokenId, paymentTxJson };
+    return { tokenId, emptyTxObject: undefined, paymentTxJson };
   };
 
   mintAndGenerateTxForIPFS = async (
