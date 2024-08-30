@@ -34,7 +34,7 @@ jobs:
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
         run: npm install
 
-  publish-core&evm:
+  publish-core&evm&xrpl:
     if: contains(github.ref, 'tags/core')
     needs: setup
     runs-on: ubuntu-latest
@@ -64,12 +64,22 @@ jobs:
           PACKAGE_DIR: 'packages/evm/'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PACKAGE_MANAGER: npm
+      - name: Check if vwbl-sdk-xrpl package version can be published
+        uses: technote-space/package-version-check-action@v1
+        with:
+          PACKAGE_DIR: 'packages/xrpl/'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_MANAGER: npm
       - name: Publish vwbl-core package
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" > ~/.npmrc && npm run publish:core
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
       - name: Publish vwbl-sdk(evm chain) package
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" > ~/.npmrc && npm run publish:evm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+      - name: Publish vwbl-sdk-xrpl package
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" > ~/.npmrc && npm run publish:xrpl
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
 
@@ -101,3 +111,32 @@ jobs:
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" > ~/.npmrc && npm run publish:evm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+
+  publish-xrpl:
+    if: contains(github.ref, 'tags/xrpl')
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        id: setup-node
+        with:
+          node-version: ${{ env.node-version }}
+          cache: 'npm'
+      - name: node_modules cache
+        uses: actions/cache@v2
+        with:
+          key: ${{ runner.os }}-build-node_modules-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/package.json') }}
+          path: '**/node_modules'
+      - name: Build
+        run: npm run build:all
+      - name: Check if vwbl-sdk-xrpl package version can be published
+        uses: technote-space/package-version-check-action@v1
+        with:
+          PACKAGE_DIR: 'packages/xrpl/'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_MANAGER: npm
+      - name: Publish vwbl-sdk-xrpl package
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" > ~/.npmrc && npm run publish:xrpl
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}  
