@@ -18,7 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        id: setup-node
         with:
           node-version: ${{ env.node-version }}
           cache: 'npm'
@@ -41,7 +40,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        id: setup-node
         with:
           node-version: ${{ env.node-version }}
           cache: 'npm'
@@ -119,7 +117,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        id: setup-node
         with:
           node-version: ${{ env.node-version }}
           cache: 'npm'
