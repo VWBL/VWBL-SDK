@@ -25,7 +25,8 @@
     "format:evm": "npm run format -w vwbl-sdk",
     "test:evm": "npm run test -w vwbl-sdk",
     "publish:core": "nx release publish --projects vwbl-core",
-    "publish:evm": "nx release publish --projects vwbl-sdk"
+    "publish:evm": "nx release publish --projects vwbl-sdk",
+    "publish:xrpl": "nx release publish --projects vwbl-sdk-xrpl"
   },
   "devDependencies": {
     "@eslint/js": "^9.4.0",

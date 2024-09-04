@@ -39,3 +39,10 @@ jobs:
           PACKAGE_DIR: 'packages/evm/'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PACKAGE_MANAGER: npm
+      
+      - name: Check if vwbl-sdk-xrpl package version can be published
+        uses: technote-space/package-version-check-action@v1
+        with:
+          PACKAGE_DIR: 'packages/xrpl/'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_MANAGER: npm
