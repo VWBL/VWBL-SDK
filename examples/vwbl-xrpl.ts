@@ -4,7 +4,10 @@ import { Wallet } from "xrpl";
 import { VWBLXRPL } from "vwbl-sdk-xrpl";
 import { UploadContentType, UploadMetadataType } from "vwbl-core";
 import { XummSdk } from "xumm-sdk";
-import { XummJsonTransaction } from "xumm-sdk/dist/src/types";
+import {
+  XummJsonTransaction,
+  XummPostPayloadBodyJson,
+} from "xumm-sdk/dist/src/types";
 
 const USER_ADDRESS = "...";
 const wallet = Wallet.fromSecret("...");
@@ -86,10 +89,14 @@ async function main() {
     USER_ADDRESS
   );
 
-  const resp = await xumm.payload.create(
-    emptyTxObject as unknown as XummJsonTransaction,
-    true
-  );
+  const txObj: XummPostPayloadBodyJson = {
+    txjson: emptyTxObject as unknown as XummJsonTransaction,
+    options: {
+      submit: false,
+    },
+  };
+
+  const resp = await xumm.payload.create(txObj, true);
   let signedEmptyTxHex = "";
   if (resp) {
     console.log(resp.next.always);
