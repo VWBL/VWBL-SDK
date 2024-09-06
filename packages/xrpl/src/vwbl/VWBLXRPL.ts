@@ -155,7 +155,10 @@ export class VWBLXRPL {
       walletAddress
     );
     if (mintFee === "0") {
-      const emptyTxObject = this.nft.generateEmptyTx(walletAddress);
+      const emptyTxObject = await this.api.getXrplSignMessage(
+        this.xrplChainId,
+        walletAddress
+      );
 
       return { tokenId, emptyTxObject, paymentTxJson: undefined };
     }
@@ -192,7 +195,10 @@ export class VWBLXRPL {
       walletAddress
     );
     if (mintFee === "0") {
-      const emptyTxObject = this.nft.generateEmptyTx(walletAddress);
+      const emptyTxObject = await this.api.getXrplSignMessage(
+        this.xrplChainId,
+        walletAddress
+      );
 
       return { tokenId, emptyTxObject };
     }
@@ -215,7 +221,10 @@ export class VWBLXRPL {
     const paymentTxHash = response.paymentTxHash;
     const tokenId = response.tokenId;
     // generate empty tx object
-    const emptyTxObject = this.nft.generateEmptyTx(walletAddress);
+    const emptyTxObject = await this.api.getXrplSignMessage(
+      this.xrplChainId,
+      walletAddress
+    );
 
     return { paymentTxHash, tokenId, emptyTxObject };
   };
@@ -425,8 +434,11 @@ export class VWBLXRPL {
     };
   };
 
-  generateTxForSigning = (walletAddress: string) => {
-    const emptyTxObject = this.nft.generateEmptyTx(walletAddress);
+  generateTxForSigning = async (walletAddress: string) => {
+    const emptyTxObject = await this.api.getXrplSignMessage(
+      this.xrplChainId,
+      walletAddress
+    );
 
     return emptyTxObject;
   };

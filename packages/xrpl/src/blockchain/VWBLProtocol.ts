@@ -3,11 +3,8 @@ import {
   Client,
   Request,
   SubmittableTransaction,
-  convertStringToHex,
 } from "xrpl";
 import { NFTokenMintMetadata } from "xrpl/dist/npm/models/transactions/NFTokenMint";
-
-const MESSAGE = "Hello VWBL";
 
 export class VWBLXRPLProtocol {
   private client: Client;
@@ -118,22 +115,6 @@ export class VWBLXRPLProtocol {
     } finally {
       await this.client.disconnect();
     }
-  }
-
-  generateEmptyTx(senderAddress: string) {
-    const emptyTxJson: SubmittableTransaction = {
-      TransactionType: "AccountSet",
-      Account: senderAddress,
-      Memos: [
-        {
-          Memo: {
-            MemoData: convertStringToHex(MESSAGE),
-          },
-        },
-      ],
-    };
-
-    return emptyTxJson;
   }
 
   async fetchNFTInfo(
