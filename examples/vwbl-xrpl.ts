@@ -42,11 +42,17 @@ async function main() {
     file,
     "{FILE_PATH}"
   );
+  // *make sure you don't submit tx
+  const mintTxPayload: XummPostPayloadBodyJson = {
+    txjson: mintTxJson as unknown as XummJsonTransaction,
+    options: {
+      submit: false,
+    },
+  };
 
   let signedMintTxHex = "";
   try {
-    const json = mintTxJson as unknown as XummJsonTransaction;
-    const response = await xumm.payload.create(json, true);
+    const response = await xumm.payload.create(mintTxPayload, true);
 
     if (response) {
       console.log(response.next.always);
@@ -91,6 +97,7 @@ async function main() {
 
   const txObj: XummPostPayloadBodyJson = {
     txjson: emptyTxObject as unknown as XummJsonTransaction,
+    // * make sure you don't submit tx on client side
     options: {
       submit: false,
     },
@@ -142,11 +149,17 @@ async function main() {
  */
 
   const txForSigning = await vwblXrpl.generateTxForSigning(USER_ADDRESS);
+  // *make sure you don't submit tx
+  const signingTxPayload: XummPostPayloadBodyJson = {
+    txjson: txForSigning as unknown as XummJsonTransaction,
+    options: {
+      submit: false,
+    },
+  };
 
   let signedTx = "";
   try {
-    const json = txForSigning as unknown as XummJsonTransaction;
-    const response = await xumm.payload.create(json, true);
+    const response = await xumm.payload.create(signingTxPayload, true);
 
     if (response) {
       console.log(response.next.always);
