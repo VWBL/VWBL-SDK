@@ -21,13 +21,28 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          cache: "yarn"
+          cache: "npm"
           node-version: ${{ env.node-version }}
           registry-url: "https://registry.npmjs.org"
           always-auth: true
 
-      - name: Check if package version can be published
+      - name: Check if vwbl-core package version can be published
         uses: technote-space/package-version-check-action@v1
         with:
+          PACKAGE_DIR: 'packages/core/'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PACKAGE_MANAGER: yarn
+          PACKAGE_MANAGER: npm
+
+      - name: Check if vwbl-sdk(evm chain) package version can be published
+        uses: technote-space/package-version-check-action@v1
+        with:
+          PACKAGE_DIR: 'packages/evm/'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_MANAGER: npm
+      
+      - name: Check if vwbl-sdk-xrpl package version can be published
+        uses: technote-space/package-version-check-action@v1
+        with:
+          PACKAGE_DIR: 'packages/xrpl/'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_MANAGER: npm
