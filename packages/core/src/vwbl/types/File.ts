@@ -12,7 +12,7 @@ type UploadEncryptedFile = (
 type UploadThumbnail = (thumbnailImage: FileOrPath, uuid: string) => Promise<string>;
 
 type UploadMetadata = (
-  tokenId: number,
+  tokenId: string | number,
   name: string,
   description: string,
   previewImageUrl: string,
