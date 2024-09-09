@@ -1,5 +1,7 @@
 module.exports = {
-  preset: "ts-jest/presets/js-with-babel-esm",
+  transform: {
+    "^.+\\.ts?$": "ts-jest"
+  },
   testEnvironment: "node",
   testMatch: ['**/unit/**/*.test.ts'],
   transformIgnorePatterns: ['/node_modules']
