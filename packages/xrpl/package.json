@@ -15,7 +15,7 @@
     "axios": "^1.6.8",
     "xrpl": "^3.0.0",
     "xumm-sdk": "^1.11.1",
-    "vwbl-core": "*"
+    "vwbl-core": "0.1.0"
   },
   "scripts": {
     "build": "tsc",
