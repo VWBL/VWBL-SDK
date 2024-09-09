@@ -27,6 +27,6 @@ export type ExtractMetadata = Metadata & {
   ownFiles: ArrayBuffer[] | Stream[];
 };
 
-export type ExtendedMetadeta = Metadata & {
+export type ExtendedMetadata = Metadata & {
   address: string;
 };

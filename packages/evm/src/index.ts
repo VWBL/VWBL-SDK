@@ -7,7 +7,7 @@ export {
   PlainMetadata,
   Metadata,
   ExtractMetadata,
-  ExtendedMetadeta,
+  ExtendedMetadata,
   EncryptLogic,
   UploadEncryptedFile,
   UploadThumbnail,
