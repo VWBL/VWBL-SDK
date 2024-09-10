@@ -2,7 +2,7 @@ name: Lint & Test
 
 on:
   pull_request:
-    branches: "*"
+    branches: ["*"]
 
 jobs:
   ci:
@@ -19,25 +19,28 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          cache: "yarn"
+          cache: "npm"
           node-version: ${{ matrix.node-version }}
 
       - name: Cache node_modules
         uses: actions/cache@v2
         id: cache_node_modules
         with:
-          # check diff of package.json and yarn.lock
-          key: ${{ runner.os }}-build-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**/package.json') }}
+          # check diff of package.json and package-lock.json
+          key: ${{ runner.os }}-build-node_modules-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/package.json') }}
           path: "**/node_modules"
 
       - name: Install dependencies
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
-        run: yarn install
+        run: npm install
+
+      - name: Build
+        run: npm run build:all
 
       - name: Lint
-        run: yarn lint
+        run: npm run lint:all
 
       - name: Test
-        run: yarn test
+        run: npm run test:evm
         env:
           PROVIDER_URL: https://goerli.infura.io/v3/${{ secrets.INFURA_KEY }}
