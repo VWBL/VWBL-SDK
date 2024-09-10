@@ -33,7 +33,7 @@ jobs:
         if: steps.cache_node_modules.outputs.cache-hit != 'true'
         run: npm install
 
-  publish-core&evm&xrpl:
+  publish-core-evm-xrpl:
     if: contains(github.ref, 'tags/core')
     needs: setup
     runs-on: ubuntu-latest
