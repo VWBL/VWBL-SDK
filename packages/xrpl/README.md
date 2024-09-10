@@ -77,7 +77,7 @@ IPFSConfig(\*2)
 
 ![SDK Flow](src/public/sdk-flow.png)
 
-### get user's signature before minting VWBL NFT
+### Generate NFT mint tx object to get user's signature 
 
 ```typescript
 await vwblXrpl.generateMintTokenTx(
@@ -129,5 +129,22 @@ await vwbl.managedCreateToken(
 ### view contents ( get NFT metadata from given tokenId)
 
 ```typescript
-const token = await vwbl.getTokenById(tokenId);
+// generate tx object to get user's signature
+const emptyTxObject = await vwblXrpl.generateTxForSigning(walletAddress);
+
+// decrypt & fetch metadata
+const {
+  id,
+  name,
+  description,
+  mimeType,
+  encryptLogic,
+  ownDataBase64,
+  ownFiles,
+  fileName,
+} = extractMetadata(
+  tokenId,
+  signedEmptyTx,
+  signerPublicKey
+)
 ```
