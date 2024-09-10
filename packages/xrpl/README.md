@@ -137,6 +137,7 @@ const {
   id,
   name,
   description,
+  image,
   mimeType,
   encryptLogic,
   ownDataBase64,
