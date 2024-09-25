@@ -60,7 +60,7 @@ export class VWBLXRPL {
     isTransferable: boolean,
     isBurnable: boolean
   ) {
-    const TagId = 11451419;
+    const TagId = 88990334;
     let flags = 0;
     if (isTransferable) flags += 8;
     if (isBurnable) flags += 1;
@@ -129,7 +129,7 @@ export class VWBLXRPL {
     );
     this.keyMap.set(metadataUrl, key);
 
-    const TagId = 11451419;
+    const TagId = 88990334;
     let flags = 0;
     if (isTransferable) flags += 8;
     if (isBurnable) flags += 1;
