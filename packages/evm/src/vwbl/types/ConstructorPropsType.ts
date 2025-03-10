@@ -8,7 +8,7 @@ import {
   UploadContentType,
   UploadMetadataType
 } from "vwbl-core";
-import { BiconomyConfig } from "./BiconomyConfigType";
+import { MetaTxConfig } from "./MetaTxConfigType";
 
 export type BaseConstructorProps = {
   contractAddress: string;
@@ -38,7 +38,7 @@ export type VWBLEthersOption = EthersConstructorProps;
 
 export type MetaTxConstructorProps = BaseConstructorProps & {
   bcProvider: ethers.providers.ExternalProvider | ethers.providers.JsonRpcFetchFunc | ethers.Wallet;
-  biconomyConfig: BiconomyConfig;
+  metaTxConfig: MetaTxConfig;
   manageKeyType?: ManageKeyType;
   dataCollectorAddress?: string;
 };

@@ -1,2 +1,2 @@
-export * from "./biconomyHelper";
+export * from "./metaTxHelper";
 export * from "./transactionHelper";

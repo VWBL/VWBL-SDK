@@ -10,7 +10,7 @@ import {
   getDataToSignForPersonalSign,
   getDomainSeparator,
   TxParam,
-} from "../../../util/biconomyHelper";
+} from "../../../util/metaTxHelper";
 import { GrantViewPermissionMetaTxParam, MintForIPFSMetaTxParam, MintMetaTxParam } from "../../types";
 
 export class VWBLNFTMetaTx {
@@ -18,21 +18,21 @@ export class VWBLNFTMetaTx {
   protected ethersSigner: ethers.Signer;
   private nftAddress: string;
   private forwarderAddress: string;
-  private biconomyAPIKey: string;
+  private metaTxEndpoint: string;
 
   constructor(
-    biconomyAPIKey: string,
     walletProvider: ethers.providers.Web3Provider | ethers.Wallet,
     nftAddress: string,
-    forwarderAddress: string
+    forwarderAddress: string,
+    metaTxEndpoint: string
   ) {
-    this.biconomyAPIKey = biconomyAPIKey;
     this.walletProvider = walletProvider;
     this.ethersSigner = isWeb3Provider(walletProvider as IWeb3Provider)
       ? (walletProvider as IWeb3Provider).getSigner()
       : (walletProvider as ethers.Wallet);
     this.nftAddress = nftAddress;
     this.forwarderAddress = forwarderAddress;
+    this.metaTxEndpoint = metaTxEndpoint;
   }
 
   async mintToken(mintParam: MintMetaTxParam): Promise<number> {
@@ -266,20 +266,17 @@ export class VWBLNFTMetaTx {
     signatureType: string
   ): Promise<ethers.providers.TransactionReceipt> {
     try {
+      const chainId = await this.ethersSigner.getChainId();
+      const body = {
+        req: request,
+        domainSeparator: domainSeparator,
+        sig: sig,
+      };
+      const url = `${this.metaTxEndpoint}/${chainId}`;
       const headers = {
-        "x-api-key": this.biconomyAPIKey,
         "Content-Type": "application/json;charset=utf-8",
       };
-
-      const body = {
-        to: this.nftAddress,
-        apiId: methodApiId,
-        params: typeof domainSeparator === "undefined" ? [request, sig] : [request, domainSeparator, sig],
-        from: myAddress,
-        signatureType: signatureType,
-      };
-
-      const response = await axios.post(`https://api.biconomy.io/api/v2/meta-tx/native`, body, { headers: headers });
+      const response = await axios.post(url, body, { headers });
       if (response.data.error || response.status !== 200) {
         console.error("API Error:", response.data.message || "Unknown error");
         throw new Error(`post meta tx error: ${response.data.message || "Unknown error"}`);

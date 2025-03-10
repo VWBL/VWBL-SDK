@@ -44,14 +44,13 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
 
   constructor(props: MetaTxConstructorProps) {
     super(props);
-    const { bcProvider, contractAddress, biconomyConfig } = props;
-
+    const { bcProvider, contractAddress, metaTxConfig } = props;
     const walletProvider = "address" in bcProvider ? bcProvider : new ethers.providers.Web3Provider(bcProvider);
     this.erc6150 = new VWBLERC6150MetaTxEthers(
-      biconomyConfig.apiKey,
       walletProvider,
       contractAddress,
-      biconomyConfig.forwarderAddress
+      metaTxConfig.forwarderAddress,
+      metaTxConfig.metaTxEndpoint
     );
   }
 
@@ -120,7 +119,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     const uploadThumbnailFunction =
       uploadContentType === UploadContentType.S3 ? uploadThumbnail : uploadThumbnailCallback;
     if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
-      throw new Error("please specify upload file type or give callback");
+      throw new Error("please specify upload file type or provide callback");
     }
     subscriber?.kickStep(StepStatus.ENCRYPT_DATA);
 
@@ -258,7 +257,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     const documentId = utils.hexlify(utils.randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
     const tokenId = await this.erc6150.mintTokenForIPFS({
-      metadataUrl: metadataUrl,
+      metadataUrl,
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,

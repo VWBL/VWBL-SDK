@@ -10,12 +10,12 @@ export class VWBLERC6150MetaTxEthers extends VWBLNFTMetaTx {
   private erc6150Address: string;
 
   constructor(
-    biconomyAPIKey: string,
     walletProvider: ethers.providers.Web3Provider | ethers.Wallet,
     address: string,
-    forwarderAddress: string
+    forwarderAddress: string,
+    metaTxEndpoint: string
   ) {
-    super(biconomyAPIKey, walletProvider, address, forwarderAddress);
+    super(walletProvider, address, forwarderAddress, metaTxEndpoint);
     this.erc6150Address = address;
   }
 

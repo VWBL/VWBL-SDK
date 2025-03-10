@@ -1,8 +1,8 @@
 import * as abi from "ethereumjs-abi";
 import { ethers } from "ethers";
 
-const biconomyForwarderDomainData = {
-  name: "Biconomy Forwarder",
+const forwarderDomainData = {
+  name: "Forwarder",
   version: "1",
   verifyingContract: "",
   salt: "",
@@ -44,14 +44,14 @@ export const buildForwardTxRequest = (
   gasLimitNum: number,
   batchNonce: string,
   data: string
-) => {
+): TxParam => {
   const req: TxParam = {
     from: account,
     to: toAddress,
     token: "0x0000000000000000000000000000000000000000",
     txGas: gasLimitNum,
     tokenGasPrice: "0",
-    batchId: parseInt("0"),
+    batchId: 0,
     batchNonce: parseInt(batchNonce),
     deadline: Math.floor(Date.now() / 1000 + 3600),
     data,
@@ -60,7 +60,7 @@ export const buildForwardTxRequest = (
 };
 
 export const getDataToSignForEIP712 = (request: TxParam, forwarderAddress: string, chainId: number) => {
-  const domainData = biconomyForwarderDomainData;
+  const domainData = { ...forwarderDomainData };
   domainData.verifyingContract = forwarderAddress;
   domainData.salt = ethers.utils.hexZeroPad(ethers.BigNumber.from(chainId).toHexString(), 32);
   const dataToSign = JSON.stringify({
@@ -81,8 +81,8 @@ export const getDomainSeparator = (forwarderAddress: string, chainId: number) =>
       ["bytes32", "bytes32", "bytes32", "address", "bytes32"],
       [
         ethers.utils.id("EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"),
-        ethers.utils.id(biconomyForwarderDomainData.name),
-        ethers.utils.id(biconomyForwarderDomainData.version),
+        ethers.utils.id(forwarderDomainData.name),
+        ethers.utils.id(forwarderDomainData.version),
         forwarderAddress,
         ethers.utils.hexZeroPad(ethers.BigNumber.from(chainId).toHexString(), 32),
       ]
@@ -106,6 +106,5 @@ export const getDataToSignForPersonalSign = (request: TxParam) => {
       ethers.utils.keccak256(request.data),
     ]
   );
-
   return hashToSign;
 };
