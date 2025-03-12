@@ -116,7 +116,7 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     const uploadThumbnailFunction =
       uploadContentType === UploadContentType.S3 ? uploadThumbnail : uploadThumbnailCallback;
     if (!uploadEncryptedFunction || !uploadThumbnailFunction) {
-      throw new Error("please specify upload file type or provide callback");
+      throw new Error("please specify upload file type or give callback");
     }
     subscriber?.kickStep(StepStatus.ENCRYPT_DATA);
 
