@@ -10,7 +10,7 @@ import {
   getDataToSignForPersonalSign,
   getDomainSeparator,
   TxParam,
-} from "../../../util/metaTxHelper";
+} from "../../../util/biconomyHelper";
 import { GrantViewPermissionMetaTxParam, MintForIPFSMetaTxParam, MintMetaTxParam } from "../../types";
 
 export class VWBLNFTMetaTx {
