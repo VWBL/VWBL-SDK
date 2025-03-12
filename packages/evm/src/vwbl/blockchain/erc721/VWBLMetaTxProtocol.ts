@@ -11,7 +11,7 @@ import {
   getDomainSeparator,
   TxParam,
 } from "../../../util/biconomyHelper";
-import { GrantViewPermissionMetaTxParam, MintForIPFSMetaTxParam, MintMetaTxParam } from "../../types";
+import { GrantViewPermissionTxParam, MintForIPFSTxParam, MintTxParam } from "../../types";
 
 export class VWBLNFTMetaTx {
   private walletProvider: ethers.providers.Web3Provider | ethers.Wallet;
@@ -35,7 +35,7 @@ export class VWBLNFTMetaTx {
     this.metaTxEndpoint = metaTxEndpoint;
   }
 
-  async mintToken(mintParam: MintMetaTxParam): Promise<number> {
+  async mintToken(mintParam: MintTxParam): Promise<number> {
     const myAddress = await this.ethersSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTx.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.mint(
@@ -51,7 +51,6 @@ export class VWBLNFTMetaTx {
       sig,
       myAddress,
       domainSeparator,
-      mintParam.mintApiId,
       signatureType
     );
     console.log("transaction end");
@@ -59,7 +58,7 @@ export class VWBLNFTMetaTx {
     return tokenId;
   }
 
-  async mintTokenForIPFS(mintForIPFSParam: MintForIPFSMetaTxParam): Promise<number> {
+  async mintTokenForIPFS(mintForIPFSParam: MintForIPFSTxParam): Promise<number> {
     const myAddress = await this.ethersSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.mint(
@@ -76,7 +75,6 @@ export class VWBLNFTMetaTx {
       sig,
       myAddress,
       domainSeparator,
-      mintForIPFSParam.mintApiId,
       signatureType
     );
     console.log("transaction end");
@@ -148,14 +146,14 @@ export class VWBLNFTMetaTx {
     return await vwblMetaTxContract.callStatic.tokenIdToTokenInfo(tokenId);
   }
 
-  async approve(operator: string, tokenId: number, approveApiId: string): Promise<void> {
+  async approve(operator: string, tokenId: number): Promise<void> {
     const myAddress = await this.ethersSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.approve(operator, tokenId);
     const chainId = await this.ethersSigner.getChainId();
     const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
-    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, approveApiId, signatureType);
+    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, signatureType);
     console.log("transaction end");
   }
 
@@ -164,14 +162,14 @@ export class VWBLNFTMetaTx {
     return await vwblMetaTxContract.callStatic.getApproved(tokenId);
   }
 
-  async setApprovalForAll(operator: string, setApprovalForAllApiId: string): Promise<void> {
+  async setApprovalForAll(operator: string): Promise<void> {
     const myAddress = await this.ethersSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.setApprovalForAll(operator);
     const chainId = await this.ethersSigner.getChainId();
     const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
-    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, setApprovalForAllApiId, signatureType);
+    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, signatureType);
     console.log("transaction end");
   }
 
@@ -180,18 +178,18 @@ export class VWBLNFTMetaTx {
     return await vwblMetaTxContract.callStatic.isApprovedForAll(owner, operator);
   }
 
-  async safeTransfer(to: string, tokenId: number, safeTransferFromApiId: string): Promise<void> {
+  async safeTransfer(to: string, tokenId: number): Promise<void> {
     const myAddress = await this.ethersSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.safeTransferFrom(myAddress, to, tokenId);
     const chainId = await this.ethersSigner.getChainId();
     const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
-    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, safeTransferFromApiId, signatureType);
+    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, signatureType);
     console.log("transaction end");
   }
 
-  async grantViewPermission(grantParam: GrantViewPermissionMetaTxParam): Promise<void> {
+  async grantViewPermission(grantParam: GrantViewPermissionTxParam): Promise<void> {
     const myAddress = await this.ethersSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.grantViewPermission(
@@ -206,20 +204,19 @@ export class VWBLNFTMetaTx {
       sig,
       myAddress,
       domainSeparator,
-      grantParam.grantViewPermissionApiId,
       signatureType
     );
     console.log("transaction end");
   }
 
-  async revokeViewPermission(tokenId: number, revoker: string, revokeViewPermissionApiId: string): Promise<void> {
+  async revokeViewPermission(tokenId: number, revoker: string): Promise<void> {
     const myAddress = await this.ethersSigner.getAddress();
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.revokeViewPermission(tokenId, revoker);
     const chainId = await this.ethersSigner.getChainId();
     const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
-    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, revokeViewPermissionApiId, signatureType);
+    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, signatureType);
     console.log("transaction end");
   }
 
@@ -262,7 +259,6 @@ export class VWBLNFTMetaTx {
     sig: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     myAddress: string,
     domainSeparator: string | undefined,
-    methodApiId: string,
     signatureType: string
   ): Promise<ethers.providers.TransactionReceipt> {
     try {

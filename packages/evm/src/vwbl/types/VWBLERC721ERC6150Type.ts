@@ -110,7 +110,6 @@ export type ManagedCreateTokenMetatx = {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic,
-    mintApiId: string,
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata,
@@ -125,7 +124,6 @@ export type ManagedCreateTokenMetatx = {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic,
-    mintApiId: string,
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata,
@@ -143,7 +141,6 @@ export type ManagedCreateTokenForIPFSMetaTx = {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic,
-    mintApiId: string,
     uploadEncryptedFileCallback?: UploadEncryptedFileToIPFS,
     uploadThumbnailCallback?: UploadThumbnailToIPFS,
     uploadMetadataCallBack?: UploadMetadataToIPFS,
@@ -158,7 +155,6 @@ export type ManagedCreateTokenForIPFSMetaTx = {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic,
-    mintApiId: string,
     uploadEncryptedFileCallback?: UploadEncryptedFileToIPFS,
     uploadThumbnailCallback?: UploadThumbnailToIPFS,
     uploadMetadataCallBack?: UploadMetadataToIPFS,
@@ -169,24 +165,24 @@ export type ManagedCreateTokenForIPFSMetaTx = {
 
 export type MintTokenMetaTx = {
   // Interface for ERC721
-  (feeNumerator: number, mintApiId: string): Promise<number>;
+  (feeNumerator: number): Promise<number>;
 
   // Interface for ERC6150
-  (feeNumerator: number, mintApiId: string, parentId?: number): Promise<number>;
+  (feeNumerator: number, parentId?: number): Promise<number>;
 };
 
 export type MintTokenForIPFSMetaTx = {
   // Interface for ERC721
-  (metadataUrl: string, feeNumerator: number, mintApiId: string): Promise<number>;
+  (metadataUrl: string, feeNumerator: number): Promise<number>;
 
   // Interface for ERC6150
-  (metadataUrl: string, feeNumerator: number, mintApiId: string, parentId?: number): Promise<number>;
+  (metadataUrl: string, feeNumerator: number, parentId?: number): Promise<number>;
 };
 
 export type GrantViewPermissionMetaTx = {
   // Interface for ERC721
-  (tokenId: number, grantee: string, grantViewPermissionApiId: string): Promise<void>;
+  (tokenId: number, grantee: string): Promise<void>;
 
   // Interface for ERC6150
-  (tokenId: number, grantee: string, grantViewPermissionApiId: string, toDir?: boolean): Promise<void>;
+  (tokenId: number, grantee: string, toDir?: boolean): Promise<void>;
 };
