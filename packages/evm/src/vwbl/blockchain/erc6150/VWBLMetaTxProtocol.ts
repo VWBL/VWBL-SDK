@@ -29,14 +29,13 @@ export class VWBLERC6150MetaTxEthers extends VWBLNFTMetaTx {
       mintParam.documentId
     );
     const chainId = await this.ethersSigner.getChainId();
-    const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
+    const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
     const receipt = await this.sendTransaction(
       txParam,
       sig,
       myAddress,
-      domainSeparator,
-      signatureType
+      domainSeparator
     );
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);
@@ -54,14 +53,13 @@ export class VWBLERC6150MetaTxEthers extends VWBLNFTMetaTx {
       mintForIPFSParam.documentId
     );
     const chainId = await this.ethersSigner.getChainId();
-    const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
+    const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
     const receipt = await this.sendTransaction(
       txParam,
       sig,
       myAddress,
-      domainSeparator,
-      signatureType
+      domainSeparator
     );
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);
@@ -77,14 +75,13 @@ export class VWBLERC6150MetaTxEthers extends VWBLNFTMetaTx {
       grantParam.toDir
     );
     const chainId = await this.ethersSigner.getChainId();
-    const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
+    const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
     await this.sendTransaction(
       txParam,
       sig,
       myAddress,
-      domainSeparator,
-      signatureType
+      domainSeparator
     );
     console.log("transaction end");
   }
@@ -94,9 +91,9 @@ export class VWBLERC6150MetaTxEthers extends VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(this.erc6150Address, vwblERC6150Ipfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.revokeDirPermission(tokenId, revoker);
     const chainId = await this.ethersSigner.getChainId();
-    const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
+    const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
-    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, signatureType);
+    await this.sendTransaction(txParam, sig, myAddress, domainSeparator);
     console.log("transaction end");
   }
 }

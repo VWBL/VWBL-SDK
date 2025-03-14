@@ -44,14 +44,13 @@ export class VWBLNFTMetaTx {
       mintParam.documentId
     );
     const chainId = await this.ethersSigner.getChainId();
-    const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
+    const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
     const receipt = await this.sendTransaction(
       txParam,
       sig,
       myAddress,
-      domainSeparator,
-      signatureType
+      domainSeparator
     );
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);
@@ -68,14 +67,13 @@ export class VWBLNFTMetaTx {
       mintForIPFSParam.documentId
     );
     const chainId = await this.ethersSigner.getChainId();
-    const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
+    const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
     const receipt = await this.sendTransaction(
       txParam,
       sig,
       myAddress,
-      domainSeparator,
-      signatureType
+      domainSeparator
     );
     console.log("transaction end");
     const tokenId = parseToTokenId(receipt);
@@ -151,9 +149,9 @@ export class VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.approve(operator, tokenId);
     const chainId = await this.ethersSigner.getChainId();
-    const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
+    const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
-    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, signatureType);
+    await this.sendTransaction(txParam, sig, myAddress, domainSeparator);
     console.log("transaction end");
   }
 
@@ -167,9 +165,9 @@ export class VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.setApprovalForAll(operator);
     const chainId = await this.ethersSigner.getChainId();
-    const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
+    const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
-    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, signatureType);
+    await this.sendTransaction(txParam, sig, myAddress, domainSeparator);
     console.log("transaction end");
   }
 
@@ -183,9 +181,9 @@ export class VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.safeTransferFrom(myAddress, to, tokenId);
     const chainId = await this.ethersSigner.getChainId();
-    const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
+    const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
-    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, signatureType);
+    await this.sendTransaction(txParam, sig, myAddress, domainSeparator);
     console.log("transaction end");
   }
 
@@ -197,14 +195,13 @@ export class VWBLNFTMetaTx {
       grantParam.grantee
     );
     const chainId = await this.ethersSigner.getChainId();
-    const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
+    const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
     await this.sendTransaction(
       txParam,
       sig,
       myAddress,
-      domainSeparator,
-      signatureType
+      domainSeparator
     );
     console.log("transaction end");
   }
@@ -214,9 +211,9 @@ export class VWBLNFTMetaTx {
     const vwblMetaTxContract = new ethers.Contract(this.nftAddress, vwblMetaTxIpfs.abi, this.ethersSigner);
     const { data } = await vwblMetaTxContract.populateTransaction.revokeViewPermission(tokenId, revoker);
     const chainId = await this.ethersSigner.getChainId();
-    const { txParam, sig, domainSeparator, signatureType } = await this.constructMetaTx(myAddress, data!, chainId);
+    const { txParam, sig, domainSeparator } = await this.constructMetaTx(myAddress, data!, chainId);
     console.log("transaction start");
-    await this.sendTransaction(txParam, sig, myAddress, domainSeparator, signatureType);
+    await this.sendTransaction(txParam, sig, myAddress, domainSeparator);
     console.log("transaction end");
   }
 
@@ -245,13 +242,11 @@ export class VWBLNFTMetaTx {
         myAddress,
         dataToSign,
       ]);
-      const signatureType = "EIP712_SIGN";
-      return { txParam, sig, domainSeparator, signatureType };
+      return { txParam, sig, domainSeparator };
     } else {
       const hashToSign = getDataToSignForPersonalSign(txParam);
       const sig = await (this.walletProvider as ethers.Wallet).signMessage(hashToSign);
-      const signatureType = "PERSONAL_SIGN";
-      return { txParam, sig, signatureType };
+      return { txParam, sig };
     }
   }
   protected async sendTransaction(
@@ -259,7 +254,6 @@ export class VWBLNFTMetaTx {
     sig: any, // eslint-disable-line @typescript-eslint/no-explicit-any
     myAddress: string,
     domainSeparator: string | undefined,
-    signatureType: string
   ): Promise<ethers.providers.TransactionReceipt> {
     try {
       const chainId = await this.ethersSigner.getChainId();
