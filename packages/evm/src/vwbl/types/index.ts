@@ -1,4 +1,4 @@
-export * from "./BiconomyConfigType";
+export * from "./MetaTxConfigType";
 export * from "./ConstructorPropsType";
 export * from "./GasSettings";
 export * from "./TxParamType";

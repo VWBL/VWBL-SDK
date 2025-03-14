@@ -44,14 +44,13 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
 
   constructor(props: MetaTxConstructorProps) {
     super(props);
-    const { bcProvider, contractAddress, biconomyConfig } = props;
-
+    const { bcProvider, contractAddress, metaTxConfig } = props;
     const walletProvider = "address" in bcProvider ? bcProvider : new ethers.providers.Web3Provider(bcProvider);
     this.erc6150 = new VWBLERC6150MetaTxEthers(
-      biconomyConfig.apiKey,
       walletProvider,
       contractAddress,
-      biconomyConfig.forwarderAddress
+      metaTxConfig.forwarderAddress,
+      metaTxConfig.metaTxEndpoint
     );
   }
 
@@ -69,7 +68,6 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
    * @param thumbnailImage - The ERC6150 image
    * @param feeNumerator - This basis point of the sale price will be paid to the ERC6150 creator every time the ERC6150 is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
-   * @param mintApiId - The mint method api id of biconomy
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
@@ -84,7 +82,6 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
-    mintApiId: string,
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata,
@@ -102,7 +99,6 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
-      mintApiId,
       parentId: _parentId,
     });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
@@ -186,7 +182,6 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
    * @param thumbnailImage - The ERC6150 image
    * @param feeNumerator - This basis point of the sale price will be paid to the ERC6150 creator every time the ERC6150 is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
-   * @param mintApiId - The mint method api id of biconomy
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
@@ -201,7 +196,6 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
-    mintApiId: string,
     uploadEncryptedFileCallback: UploadEncryptedFileToIPFS = uploadEncryptedFileToIPFS,
     uploadThumbnailCallback: UploadThumbnailToIPFS = uploadThumbnailToIPFS,
     uploadMetadataCallBack: UploadMetadataToIPFS = uploadMetadataToIPFS,
@@ -258,11 +252,10 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
     const documentId = utils.hexlify(utils.randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
     const tokenId = await this.erc6150.mintTokenForIPFS({
-      metadataUrl: metadataUrl,
+      metadataUrl,
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
-      mintApiId,
       parentId: _parentId,
     });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
@@ -280,11 +273,10 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
    * Mint new ERC6150
    *
    * @param feeNumerator - This basis point of the sale price will be paid to the ERC6150 creator every time the ERC6150 is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
-   * @param mintApiId - The mint method api id of biconomy
    * @param parentId - Optional: The Id of parent token. If parentId param is undefined or 0, mint as root token(parentId=0)
    * @returns The ID of minted ERC6150
    */
-  mintToken: MintTokenMetaTx = async (feeNumerator: number, mintApiId: string, parentId?: number): Promise<number> => {
+  mintToken: MintTokenMetaTx = async (feeNumerator: number, parentId?: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
     const _parentId = typeof parentId !== "undefined" ? parentId : 0;
@@ -292,7 +284,6 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
-      mintApiId,
       parentId: _parentId,
     });
   };
@@ -302,14 +293,12 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
    *
    * @param metadataUrl metadata url
    * @param feeNumerator - This basis point of the sale price will be paid to the ERC6150 creator every time the ERC6150 is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
-   * @param mintApiId - The mint method api id of biconomy
    * @param parentId - Optional: The Id of parent token. If parentId param is undefined or 0, mint as root token(parentId=0)
    * @returns The ID of minted ERC6150
    */
   mintTokenForIPFS: MintTokenForIPFSMetaTx = async (
     metadataUrl: string,
     feeNumerator: number,
-    mintApiId: string,
     parentId?: number
   ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
@@ -320,7 +309,6 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
-      mintApiId,
       parentId: _parentId,
     });
   };
@@ -330,21 +318,18 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
    *
    * @param tokenId - The ID of ERC6150
    * @param grantee - The wallet address of a grantee
-   * @param grantViewPermissionApiId - The grantViewPermission api id of biconomy
    * @param toDir - Optional: A boolean indicating whether to grant view permission directly or single ERC6150 token.
    *                          If toDir param is undefined or false, grant view permission to single ERC6150 token.
    */
   grantViewPermission: GrantViewPermissionMetaTx = async (
     tokenId: number,
     grantee: string,
-    grantViewPermissionApiId: string,
     toDir?: boolean
   ): Promise<void> => {
     const _toDir = typeof toDir !== "undefined" ? toDir : false;
     await this.erc6150.grantViewPermission({
       tokenId,
       grantee,
-      grantViewPermissionApiId,
       toDir: _toDir,
     });
   };
@@ -354,9 +339,8 @@ export class VWBLERC6150MetaTx extends VWBLMetaTx {
    *
    * @param tokenId - The ID of ERC6150
    * @param revoker - The wallet address of a revoker
-   * @param revokeDirPermissionApiId - The revokeDirPermissionApiId api id of biconomy
    */
-  revokeDirPermission = async (tokenId: number, revoker: string, revokeDirPermissionApiId: string) => {
-    await this.erc6150.revokeDirPermission(tokenId, revoker, revokeDirPermissionApiId);
+  revokeDirPermission = async (tokenId: number, revoker: string) => {
+    await this.erc6150.revokeDirPermission(tokenId, revoker);
   };
 }

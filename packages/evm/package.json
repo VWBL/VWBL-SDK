@@ -1,7 +1,7 @@
 {
   "name": "vwbl-sdk",
   "description": "VWBL SDK for EVM Compatible Chain",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "main": "dist/packages/evm/src/index.js",
   "types": "dist/packages/evm/src/index.d.ts",
   "engines": {
