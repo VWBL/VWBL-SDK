@@ -9,16 +9,8 @@ export type MintTxParam = {
   parentId?: number;
 };
 
-export type MintMetaTxParam = MintTxParam & {
-  mintApiId: string;
-};
-
 export type MintForIPFSTxParam = MintTxParam & {
   metadataUrl: string;
-};
-
-export type MintForIPFSMetaTxParam = MintForIPFSTxParam & {
-  mintApiId: string;
 };
 
 export type GrantViewPermissionTxParam = {
@@ -27,8 +19,4 @@ export type GrantViewPermissionTxParam = {
   gasSettings?: GasSettings;
   // param of ERC6150
   toDir?: boolean;
-};
-
-export type GrantViewPermissionMetaTxParam = GrantViewPermissionTxParam & {
-  grantViewPermissionApiId: string;
 };

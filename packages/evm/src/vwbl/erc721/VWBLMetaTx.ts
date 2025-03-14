@@ -58,15 +58,15 @@ export class VWBLMetaTx extends VWBLBase {
     super(props);
 
     this.opts = props;
-    const { bcProvider, contractAddress, biconomyConfig, dataCollectorAddress } = props;
+    const { bcProvider, contractAddress, metaTxConfig, dataCollectorAddress } = props;
 
     const walletProvider = "address" in bcProvider ? bcProvider : new ethers.providers.Web3Provider(bcProvider);
     this.signer = "address" in bcProvider ? bcProvider : (walletProvider as ethers.providers.Web3Provider).getSigner();
     this.nft = new VWBLNFTMetaTx(
-      biconomyConfig.apiKey,
       walletProvider,
       contractAddress,
-      biconomyConfig.forwarderAddress
+      metaTxConfig.forwarderAddress,
+      metaTxConfig.metaTxEndpoint
     );
 
     if (dataCollectorAddress) {
@@ -102,7 +102,6 @@ export class VWBLMetaTx extends VWBLBase {
    * @param thumbnailImage - The NFT image
    * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
-   * @param mintApiId - The mint method api id of biconomy
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
@@ -116,7 +115,6 @@ export class VWBLMetaTx extends VWBLBase {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
-    mintApiId: string,
     uploadEncryptedFileCallback?: UploadEncryptedFile,
     uploadThumbnailCallback?: UploadThumbnail,
     uploadMetadataCallBack?: UploadMetadata,
@@ -132,7 +130,6 @@ export class VWBLMetaTx extends VWBLBase {
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
-      mintApiId,
     });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
@@ -215,7 +212,6 @@ export class VWBLMetaTx extends VWBLBase {
    * @param thumbnailImage - The NFT image
    * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
    * @param encryptLogic - Select ether "base64" or "binary". Selection criteria: "base64" -> sutable for small data. "binary" -> sutable for large data.
-   * @param mintApiId - The mint method api id of biconomy
    * @param uploadEncryptedFileCallback - Optional: the function for uploading encrypted data
    * @param uploadThumbnailCallback - Optional: the function for uploading thumbnail
    * @param uploadMetadataCallBack - Optional: the function for uploading metadata
@@ -229,7 +225,6 @@ export class VWBLMetaTx extends VWBLBase {
     thumbnailImage: FileOrPath,
     feeNumerator: number,
     encryptLogic: EncryptLogic = "base64",
-    mintApiId: string,
     uploadEncryptedFileCallback: UploadEncryptedFileToIPFS = uploadEncryptedFileToIPFS,
     uploadThumbnailCallback: UploadThumbnailToIPFS = uploadThumbnailToIPFS,
     uploadMetadataCallBack: UploadMetadataToIPFS = uploadMetadataToIPFS,
@@ -292,7 +287,6 @@ export class VWBLMetaTx extends VWBLBase {
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
-      mintApiId,
     });
     subscriber?.kickStep(StepStatus.MINT_TOKEN);
 
@@ -331,17 +325,15 @@ export class VWBLMetaTx extends VWBLBase {
    * Mint new NFT
    *
    * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
-   * @param mintApiId - The mint method api id of biconomy
    * @returns The ID of minted NFT
    */
-  mintToken: MintTokenMetaTx = async (feeNumerator: number, mintApiId: string): Promise<number> => {
+  mintToken: MintTokenMetaTx = async (feeNumerator: number): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
     return await this.nft.mintToken({
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
-      mintApiId,
     });
   };
 
@@ -350,13 +342,11 @@ export class VWBLMetaTx extends VWBLBase {
    *
    * @param metadataUrl metadata url
    * @param feeNumerator - This basis point of the sale price will be paid to the NFT creator every time the NFT is sold or re-sold. Ex. If feNumerator = 3.5*10^2, royalty is 3.5%
-   * @param mintApiId - The mint method api id of biconomy
    * @returns The ID of minted NFT
    */
   mintTokenForIPFS: MintTokenForIPFSMetaTx = async (
     metadataUrl: string,
     feeNumerator: number,
-    mintApiId: string
   ): Promise<number> => {
     const { vwblNetworkUrl } = this.opts;
     const documentId = utils.hexlify(utils.randomBytes(32));
@@ -365,7 +355,6 @@ export class VWBLMetaTx extends VWBLBase {
       decryptUrl: vwblNetworkUrl,
       feeNumerator,
       documentId,
-      mintApiId,
     });
   };
 
@@ -374,10 +363,9 @@ export class VWBLMetaTx extends VWBLBase {
    *
    * @param operator - The wallet address
    * @param tokenId - The ID of NFT
-   * @param approveApiId - The approve method api id of biconomy
    */
-  approve = async (operator: string, tokenId: number, approveApiId: string): Promise<void> => {
-    await this.nft.approve(operator, tokenId, approveApiId);
+  approve = async (operator: string, tokenId: number): Promise<void> => {
+    await this.nft.approve(operator, tokenId,);
   };
 
   /**
@@ -394,10 +382,9 @@ export class VWBLMetaTx extends VWBLBase {
    * Allows `operator` to transfer all tokens that a person who calls this function
    *
    * @param operator - The wallet address
-   * @param setApprovalForAllApiId - The setApprovalForAll method api id of biconomy
    */
-  setApprovalForAll = async (operator: string, setApprovalForAllApiId: string): Promise<void> => {
-    await this.nft.setApprovalForAll(operator, setApprovalForAllApiId);
+  setApprovalForAll = async (operator: string): Promise<void> => {
+    await this.nft.setApprovalForAll(operator);
   };
 
   /**
@@ -416,10 +403,9 @@ export class VWBLMetaTx extends VWBLBase {
    *
    * @param to - The address that NFT will be transfered
    * @param tokenId - The ID of NFT
-   * @param safeTransferFromApiId - The safeTransferFrom api id of biconomy
    */
-  safeTransfer = async (to: string, tokenId: number, safeTransferFromApiId: string): Promise<void> => {
-    await this.nft.safeTransfer(to, tokenId, safeTransferFromApiId);
+  safeTransfer = async (to: string, tokenId: number): Promise<void> => {
+    await this.nft.safeTransfer(to, tokenId);
   };
 
   /**
@@ -427,17 +413,14 @@ export class VWBLMetaTx extends VWBLBase {
    *
    * @param tokenId - The ID of NFT
    * @param grantee - The wallet address of a grantee
-   * @param grantViewPermissionApiId - The grantViewPermission api id of biconomy
    */
   grantViewPermission: GrantViewPermissionMetaTx = async (
     tokenId: number,
     grantee: string,
-    grantViewPermissionApiId: string
   ): Promise<void> => {
     await this.nft.grantViewPermission({
       tokenId,
       grantee,
-      grantViewPermissionApiId,
     });
   };
 
@@ -446,10 +429,9 @@ export class VWBLMetaTx extends VWBLBase {
    *
    * @param tokenId - The ID of NFT
    * @param revoker - The wallet address of revoker
-   * @param revokeViewPermisionApiId - The revokeViewPermission api id of biconomy
    */
-  revokeViewPermission = async (tokenId: number, revoker: string, revokeViewPermisionApiId: string): Promise<void> => {
-    await this.nft.revokeViewPermission(tokenId, revoker, revokeViewPermisionApiId);
+  revokeViewPermission = async (tokenId: number, revoker: string): Promise<void> => {
+    await this.nft.revokeViewPermission(tokenId, revoker);
   };
 
   /**
